@@ -8,7 +8,7 @@ class CoursePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height / 1.4;
 
     return Scaffold(
       backgroundColor: Color(0xFF006257),
@@ -19,7 +19,7 @@ class CoursePage extends StatelessWidget {
               child: Center(
                 child: Text(
                   'My Courses',
-                  style: TextStyle(fontSize: 25, color: Colors.white),
+                  style: TextStyle(fontSize: 28, color: Colors.white),
                 ),
               ),
               color: Color(0xFF006257),
@@ -27,7 +27,7 @@ class CoursePage extends StatelessWidget {
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 30, vertical: 40),
-            height: 680,
+            height: screenHeight,
             width: screenWidth,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(

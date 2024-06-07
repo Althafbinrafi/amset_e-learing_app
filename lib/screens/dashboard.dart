@@ -220,7 +220,7 @@ class DashboardPage extends StatelessWidget {
                   ],
                 ),
                 child: const Center(
-                  child: Text("Container Content"),
+                  child: Text("Special Events shows here"),
                 ),
               ),
               const SizedBox(
@@ -324,6 +324,92 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
+  void _showCourseDrawer(BuildContext context, String title, String lessons,
+      String duration, String price) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+            height: 600,
+            width: MediaQuery.of(context).size.width / 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Divider(
+                  color: const Color.fromARGB(255, 122, 121, 121),
+                  endIndent: 150,
+                  indent: 150,
+                  thickness: 4,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  title,
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Course Description:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  '''
+          Unlock the secrets to excelling in the mobile retail industry with our comprehensive course, "Mobile Retail Excellence." Designed for aspiring entrepreneurs, retail managers, and sales professionals, this course offers a deep dive into the strategies and skills necessary to thrive in the fast-paced world of mobile retail.
+          
+          Over the span of 8 engaging lessons, you will learn how to optimize your retail operations, enhance customer experiences, and boost sales. Each lesson is crafted to provide practical insights and actionable techniques, ensuring you can apply what you learn directly to your business. By the end of the course, you'll be equipped with the knowledge and confidence to achieve excellence in mobile retail.
+          
+         ''',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(
+                  '''
+          Course Details:
+          Duration: 4 hours
+          Fee: Rs. 799 /-
+          ''',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width / 1,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF006257),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Enroll',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ),
+                // const SizedBox(height: 10),
+                // Text(duration),
+                // const SizedBox(height: 10),
+                // Text(price,
+                //     style: const TextStyle(
+                //         color: Color(0xFF006257), fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildCourseCard(BuildContext context, String imagePath, String title,
       String lessons, String duration, String price, int index) {
     double screenheight = MediaQuery.of(context).size.width;
@@ -339,84 +425,87 @@ class DashboardPage extends StatelessWidget {
     // Get the background color based on the index
     Color backgroundColor = backgroundColors[index % backgroundColors.length];
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        boxShadow: [
-          const BoxShadow(
-            color: Colors.black12,
-            spreadRadius: 1,
-            blurRadius: 10,
-          ),
-        ],
-        color: const Color.fromARGB(255, 255, 255, 255),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: screenheight,
-            width: 130,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              color: backgroundColor, // Set the background color here
-              image: DecorationImage(
-                image: AssetImage(imagePath),
-                fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () => _showCourseDrawer(context, title, lessons, duration, price),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        margin: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          boxShadow: [
+            const BoxShadow(
+              color: Colors.black12,
+              spreadRadius: 1,
+              blurRadius: 10,
+            ),
+          ],
+          color: const Color.fromARGB(255, 255, 255, 255),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: screenheight,
+              width: 130,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                color: backgroundColor, // Set the background color here
+                image: DecorationImage(
+                  image: AssetImage(imagePath),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xff1d1b1e),
-                    letterSpacing: 0.3,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Text(
-                      lessons,
-                      style: const TextStyle(fontWeight: FontWeight.w300),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Text(
-                      duration,
-                      style: const TextStyle(fontWeight: FontWeight.w300),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  price,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF006257),
-                      fontWeight: FontWeight.bold),
-                )
-              ],
+            const SizedBox(
+              width: 20,
             ),
-          )
-        ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xff1d1b1e),
+                      letterSpacing: 0.3,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        lessons,
+                        style: const TextStyle(fontWeight: FontWeight.w300),
+                      ),
+                      const SizedBox(
+                        width: 20,
+                      ),
+                      Text(
+                        duration,
+                        style: const TextStyle(fontWeight: FontWeight.w300),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    price,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF006257),
+                        fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
