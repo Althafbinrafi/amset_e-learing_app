@@ -39,6 +39,8 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_native_splash: ^2.4.0
   percent_indicator: ^4.2.3
+  flick_video_player: ^0.8.0
+  # youtube_player_flutter: ^9.0.1
   # flutter_screenutil: ^5.9.1
 
 
