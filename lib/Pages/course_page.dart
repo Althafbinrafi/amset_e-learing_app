@@ -110,7 +110,7 @@ class CoursePage extends StatelessWidget {
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        height: 130,
+        height: 140,
         width: screenWidth,
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 255, 255, 255),

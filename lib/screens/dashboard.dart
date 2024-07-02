@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+  final String fullName;
+
+  const Dashboard({super.key, required this.fullName});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -16,7 +18,8 @@ class _DashboardState extends State<Dashboard> {
   int _currentIndex = 0; // Initial index for the bottom navigation bar
 
   final List<Widget> _pages = [
-    DashboardPage(),
+    DashboardPage(
+        fullName: ''), // Placeholder; the fullName will be passed dynamically
     const CoursePage(),
     const NotificationPage(),
     const ProfilePage(),
@@ -54,7 +57,14 @@ class _DashboardState extends State<Dashboard> {
         );
       },
       child: Scaffold(
-        body: _pages[_currentIndex],
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _pages
+              .map((page) => page is DashboardPage
+                  ? DashboardPage(fullName: widget.fullName)
+                  : page)
+              .toList(),
+        ),
         bottomNavigationBar: Container(
           margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
           decoration: const BoxDecoration(
@@ -128,6 +138,10 @@ class _DashboardState extends State<Dashboard> {
 }
 
 class DashboardPage extends StatelessWidget {
+  final String fullName;
+
+  const DashboardPage({super.key, required this.fullName});
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -150,7 +164,7 @@ class DashboardPage extends StatelessWidget {
           ),
           child: Column(
             children: [
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
@@ -164,7 +178,7 @@ class DashboardPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Althaf BinRafi',
+                        fullName,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 25,
@@ -333,7 +347,7 @@ class DashboardPage extends StatelessWidget {
         return SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            height: 600,
+            height: 742,
             width: MediaQuery.of(context).size.width / 1,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
