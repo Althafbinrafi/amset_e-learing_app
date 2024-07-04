@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:amset/screens/dashboard.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:developer'; // Import the developer package for logging
+import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -11,19 +15,75 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _fullnameController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
-  final _formKey = GlobalKey<FormState>(); // Add a GlobalKey for the Form
+  final _formKey = GlobalKey<FormState>();
+
+  Future<void> _login() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    try {
+      final response = await http.post(
+        Uri.parse('https://amset-server.vercel.app/api/user/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = json.decode(response.body);
+        log(response.body);
+        if (responseBody['success']) {
+          final String token = responseBody['token'];
+          final String fullName = _fullnameController.text;
+          final String userId = responseBody['user']['_id'];
+
+          // Store the token, full name, and user ID
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('auth_token', token);
+          await prefs.setString('full_name', fullName);
+          await prefs.setString('user_id', userId);
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Dashboard(fullName: fullName),
+            ),
+          );
+        } else {
+          _showError(responseBody['message']);
+          log('Login failed: ${responseBody['message']}');
+        }
+      } else {
+        _showError('Failed to login. Please try again.');
+        log('HTTP error: ${response.statusCode} - ${response.reasonPhrase}');
+        log('Response body: ${response.body}');
+      }
+    } catch (e) {
+      _showError('An error occurred. Please try again.');
+      log('Exception: $e');
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final heightFactor = size.height / 812; // Common height for scaling
-    final widthFactor = size.width / 375; // Common width for scaling
+    final heightFactor = size.height / 812;
+    final widthFactor = size.width / 375;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -35,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
               vertical: 20 * heightFactor,
             ),
             child: Form(
-              key: _formKey, // Assign the form key
+              key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -48,16 +108,14 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 50 * heightFactor),
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
+                    padding: EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
                     child: TextFormField(
                       controller: _fullnameController,
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Enter your Fullname';
                         }
-                       
-                        return null; 
+                        return null;
                       },
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
@@ -65,9 +123,9 @@ class _LoginPageState extends State<LoginPage> {
                           vertical: 20 * heightFactor,
                         ),
                         labelText: 'Full Name',
-                        labelStyle: TextStyle(color: Colors.grey),
+                        labelStyle: const TextStyle(color: Colors.grey),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                          borderSide: const BorderSide(color: Colors.grey, width: 2),
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
                         ),
@@ -75,34 +133,32 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
                           borderSide:
-                              BorderSide(color: Color(0xFF006257), width: 2),
+                              const BorderSide(color: Color(0xFF006257), width: 2),
                         ),
                       ),
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
                   SizedBox(height: 20 * heightFactor),
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
+                    padding: EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
                     child: TextFormField(
-                      controller: _usernameController,
+                      controller: _emailController,
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'Username cannot be empty';
+                          return 'Email cannot be empty';
                         }
-                        // You can add more validation logic here if needed
-                        return null; // Return null if the input is valid
+                        return null;
                       },
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 20 * widthFactor,
                           vertical: 20 * heightFactor,
                         ),
-                        labelText: 'Username',
-                        labelStyle: TextStyle(color: Colors.grey),
+                        labelText: 'Email',
+                        labelStyle: const TextStyle(color: Colors.grey),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                          borderSide: const BorderSide(color: Colors.grey, width: 2),
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
                         ),
@@ -110,24 +166,22 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
                           borderSide:
-                              BorderSide(color: Color(0xFF006257), width: 2),
+                              const BorderSide(color: Color(0xFF006257), width: 2),
                         ),
                       ),
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
                   SizedBox(height: 20 * heightFactor),
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
+                    padding: EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
                     child: TextFormField(
                       controller: _passwordController,
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Enter your Password';
                         }
-                        // You can add more validation logic here if needed
-                        return null; // Return null if the input is valid
+                        return null;
                       },
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
@@ -135,9 +189,9 @@ class _LoginPageState extends State<LoginPage> {
                           vertical: 20 * heightFactor,
                         ),
                         labelText: 'Password',
-                        labelStyle: TextStyle(color: Colors.grey),
+                        labelStyle: const TextStyle(color: Colors.grey),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey, width: 2),
+                          borderSide: const BorderSide(color: Colors.grey, width: 2),
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
                         ),
@@ -145,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
                           borderSide:
-                              BorderSide(color: Color(0xFF006257), width: 2),
+                              const BorderSide(color: Color(0xFF006257), width: 2),
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -161,7 +215,7 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
                       ),
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                       obscureText: !_isPasswordVisible,
                     ),
                   ),
@@ -169,32 +223,23 @@ class _LoginPageState extends State<LoginPage> {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20 * widthFactor),
-                      color: Color(0xFF006257),
+                      color: const Color(0xFF006257),
                     ),
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          // If all validators pass, proceed with login
                           setState(() {
                             _isLoading = true;
                           });
-
-                          // Simulate a login process
-                          Future.delayed(const Duration(seconds: 1), () {
+                          _login().then((_) {
                             setState(() {
                               _isLoading = false;
                             });
-
-                            Navigator.pushReplacement(context,
-                                MaterialPageRoute(builder: (context) {
-                              return Dashboard(
-                                  fullName: _fullnameController.text);
-                            }));
                           });
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF006257),
+                        backgroundColor: const Color(0xFF006257),
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(
                           horizontal: 80 * widthFactor,
@@ -205,7 +250,7 @@ class _LoginPageState extends State<LoginPage> {
                           ? SizedBox(
                               height: 20 * heightFactor,
                               width: 20 * widthFactor,
-                              child: CircularProgressIndicator(
+                              child: const CircularProgressIndicator(
                                 valueColor:
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
@@ -231,14 +276,12 @@ class _LoginPageState extends State<LoginPage> {
                           height: 30 * heightFactor,
                           width: 30 * heightFactor,
                         ),
-                        SizedBox(
-                          width: 5 * widthFactor,
-                        ),
+                        SizedBox(width: 5 * widthFactor),
                         Text(
                           'amset',
                           style: GoogleFonts.prozaLibre(
                             textStyle: TextStyle(
-                              color: Color.fromARGB(255, 0, 0, 0),
+                              color: const Color.fromARGB(255, 0, 0, 0),
                               fontSize: 18 * heightFactor,
                               fontWeight: FontWeight.w500,
                             ),

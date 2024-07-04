@@ -1,9 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
 import 'package:amset/Pages/course_page.dart';
 import 'package:amset/Pages/notification_page.dart';
 import 'package:amset/Pages/profile_page.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class Dashboard extends StatefulWidget {
   final String fullName;
@@ -24,6 +23,22 @@ class _DashboardState extends State<Dashboard> {
     const NotificationPage(),
     const ProfilePage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _getFullName();
+  }
+
+  Future<void> _getFullName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? fullName = prefs.getString('full_name');
+    if (fullName != null) {
+      setState(() {
+        _pages[0] = DashboardPage(fullName: fullName);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +164,7 @@ class DashboardPage extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: 290,
+          height: 230,
           padding: const EdgeInsets.only(top: 70, left: 50, right: 50),
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
@@ -170,7 +185,7 @@ class DashboardPage extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Hello',
                         style: TextStyle(
                           color: Colors.white70,
@@ -179,7 +194,7 @@ class DashboardPage extends StatelessWidget {
                       ),
                       Text(
                         fullName,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -187,7 +202,7 @@ class DashboardPage extends StatelessWidget {
                       )
                     ],
                   ),
-                  Icon(
+                  const Icon(
                     Icons.account_circle_sharp,
                     color: Colors.white,
                     size: 50,
@@ -197,20 +212,6 @@ class DashboardPage extends StatelessWidget {
               const SizedBox(
                 height: 30,
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: const TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search here',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(10),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -219,14 +220,14 @@ class DashboardPage extends StatelessWidget {
             children: [
               Container(
                 margin: const EdgeInsets.only(
-                    top: 220), // Adjust top margin as needed
+                    top: 150), // Adjust top margin as needed
                 height: 130,
                 width: MediaQuery.of(context).size.width - 70,
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 255, 255, 255),
                   borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    const BoxShadow(
+                  boxShadow: const [
+                    BoxShadow(
                       color: Colors.black12,
                       spreadRadius: 1,
                       blurRadius: 10,
@@ -270,13 +271,11 @@ class DashboardPage extends StatelessWidget {
             width: screenWidth,
             padding:
                 const EdgeInsets.only(left: 30, right: 30, bottom: 0, top: 20),
-            //color: Colors.amber,
-            height: 470,
+            height: 510,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  //  color: Colors.amber,
                   margin: const EdgeInsets.only(
                     left: 10,
                   ),
@@ -289,7 +288,7 @@ class DashboardPage extends StatelessWidget {
                 Expanded(
                   child: GridView.count(
                     crossAxisCount: 1,
-                    childAspectRatio: 1.8,
+                    childAspectRatio: 2,
                     children: [
                       _buildCourseCard(
                         context,
@@ -347,19 +346,19 @@ class DashboardPage extends StatelessWidget {
         return SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            height: 742,
+            height: 642,
             width: MediaQuery.of(context).size.width / 1,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Divider(
-                  color: const Color.fromARGB(255, 122, 121, 121),
+                const Divider(
+                  color: Color.fromARGB(255, 122, 121, 121),
                   endIndent: 150,
                   indent: 150,
                   thickness: 4,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Text(
@@ -368,7 +367,7 @@ class DashboardPage extends StatelessWidget {
                       fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                Text(
+                const Text(
                   'Course Description:',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
@@ -382,7 +381,7 @@ class DashboardPage extends StatelessWidget {
          ''',
                   style: TextStyle(fontSize: 16),
                 ),
-                Text(
+                const Text(
                   '''
           Course Details:
           Duration: 4 hours
@@ -390,7 +389,7 @@ class DashboardPage extends StatelessWidget {
           ''',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Container(
@@ -401,7 +400,7 @@ class DashboardPage extends StatelessWidget {
                   ),
                   child: TextButton(
                     onPressed: () {},
-                    child: Text(
+                    child: const Text(
                       'Enroll',
                       style: TextStyle(
                         color: Colors.white,
@@ -410,12 +409,6 @@ class DashboardPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                // const SizedBox(height: 10),
-                // Text(duration),
-                // const SizedBox(height: 10),
-                // Text(price,
-                //     style: const TextStyle(
-                //         color: Color(0xFF006257), fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -445,8 +438,8 @@ class DashboardPage extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         margin: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          boxShadow: [
-            const BoxShadow(
+          boxShadow: const [
+            BoxShadow(
               color: Colors.black12,
               spreadRadius: 1,
               blurRadius: 10,

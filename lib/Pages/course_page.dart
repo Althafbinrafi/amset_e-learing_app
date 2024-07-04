@@ -1,11 +1,62 @@
+import 'package:amset/Models/myCourseModel.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// Assuming these pages exist in your project
 import 'package:amset/Pages/lessons/CourseDetails.dart';
 import 'package:amset/Pages/lessons/all_lessons.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 
-class CoursePage extends StatelessWidget {
+class CoursePage extends StatefulWidget {
   const CoursePage({Key? key}) : super(key: key);
+
+  @override
+  _CoursePageState createState() => _CoursePageState();
+}
+
+class _CoursePageState extends State<CoursePage> {
+  late Future<MyCourseModel> futureCourseData;
+
+  @override
+  void initState() {
+    super.initState();
+    futureCourseData = fetchCourseData();
+  }
+
+  Future<MyCourseModel> fetchCourseData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+    String? userId = prefs.getString('user_id');
+
+    if (token == null || userId == null) {
+      throw Exception('Token or User ID not found');
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://amset-server.vercel.app/api/user/data/$userId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return MyCourseModel.fromJson(json.decode(response.body));
+      } else {
+        print(
+            'Failed to load course data. Status code: ${response.statusCode}');
+        throw Exception('Failed to load course data');
+      }
+    } catch (e) {
+      print('Error fetching course data: $e');
+      throw Exception('Error fetching course data');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,76 +64,71 @@ class CoursePage extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height / 1.4;
 
     return Scaffold(
-      backgroundColor: Color(0xFF006257),
+      backgroundColor: const Color(0xFF006257),
       body: Column(
         children: [
           Expanded(
             child: Container(
-              child: Center(
+              child: const Center(
                 child: Text(
                   'My Courses',
                   style: TextStyle(fontSize: 28, color: Colors.white),
                 ),
               ),
-              color: Color(0xFF006257),
+              color: const Color(0xFF006257),
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
             height: screenHeight,
             width: screenWidth,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30),
                 topRight: Radius.circular(30),
               ),
               color: Color.fromARGB(255, 255, 255, 255),
             ),
-            child: Column(
-              children: [
-                _buildCourseContainer(
-                  context,
-                  screenHeight,
-                  screenWidth,
-                  'assets/images/fasion.png',
-                  'Restaurant Operation and Management',
-                  '11 Lessons',
-                  '6 Hours',
-                  0.8,
-                  '80%',
-                  Colors.orange.shade100,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                _buildCourseContainer(
-                  context,
-                  screenHeight,
-                  screenWidth,
-                  'assets/images/mobile.png',
-                  'Mobile Retail Excellence',
-                  '8 Lessons',
-                  '4 Hours',
-                  0.6,
-                  '60%',
-                  Colors.blue.shade100,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                _buildCourseContainer(
-                  context,
-                  screenHeight,
-                  screenWidth,
-                  'assets/images/market.png',
-                  'Hypermarket Management Mastery',
-                  '23 Lessons',
-                  '12 Hours',
-                  1,
-                  '100%',
-                  Colors.green.shade100,
-                ),
-              ],
+            child: FutureBuilder<MyCourseModel>(
+              future: futureCourseData,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  print('Snapshot error: ${snapshot.error}');
+                  return const Center(child: Text('Error loading data'));
+                } else if (!snapshot.hasData) {
+                  return const Center(child: Text('No data available'));
+                }
+
+                final courseData = snapshot.data!.courseData;
+
+                return ListView.builder(
+                  itemCount: courseData.length,
+                  itemBuilder: (context, index) {
+                    final courseDatum = courseData[index];
+                    return Column(
+                      children: [
+                        _buildCourseContainer(
+                          context,
+                          screenHeight,
+                          screenWidth,
+                          courseDatum.course.imageUrl,
+                          courseDatum.course.title,
+                          'Lessons', // Replace with actual lessons data if available
+                          'Duration', // Replace with actual duration data if available
+                          double.parse(courseDatum.progressPercentage
+                                  .replaceAll('%', '')) /
+                              100,
+                          courseDatum.progressPercentage,
+                          Colors.orange.shade100,
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -105,17 +151,17 @@ class CoursePage extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return AllLessonsPage();
+          return const AllLessonsPage();
         }));
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         height: 140,
         width: screenWidth,
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(18),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               spreadRadius: 1,
@@ -126,20 +172,19 @@ class CoursePage extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               height: screenHeight,
               width: 120,
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(18),
                 image: DecorationImage(
-                  image: AssetImage(imagePath),
+                  fit: BoxFit.cover,
+                  image: NetworkImage(imagePath),
                 ),
               ),
             ),
-            SizedBox(
-              width: 15,
-            ),
+            const SizedBox(width: 15),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,29 +200,19 @@ class CoursePage extends StatelessWidget {
                       height: 1.4,
                     ),
                   ),
-                  SizedBox(
-                    height: 7,
-                  ),
+                  const SizedBox(height: 7),
                   Row(
                     children: [
-                      Icon(Icons.videocam),
-                      SizedBox(
-                        width: 5,
-                      ),
+                      const Icon(Icons.videocam),
+                      const SizedBox(width: 5),
                       Text(lessons),
-                      SizedBox(
-                        width: 15,
-                      ),
-                      Icon(Icons.access_time_filled_rounded),
-                      SizedBox(
-                        width: 5,
-                      ),
+                      const SizedBox(width: 15),
+                      const Icon(Icons.access_time_filled_rounded),
+                      const SizedBox(width: 5),
                       Text(duration),
                     ],
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -189,11 +224,11 @@ class CoursePage extends StatelessWidget {
                           lineHeight: 10,
                           percent: percent,
                           barRadius: const Radius.circular(16),
-                          progressColor: Color(0xFF006257),
-                          backgroundColor: Color.fromARGB(56, 0, 98, 86),
+                          progressColor: const Color(0xFF006257),
+                          backgroundColor: const Color.fromARGB(56, 0, 98, 86),
                         ),
                       ),
-                      Text(percentText)
+                      Text(percentText),
                     ],
                   ),
                 ],
