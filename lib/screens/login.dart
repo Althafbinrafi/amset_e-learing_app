@@ -45,17 +45,23 @@ class _LoginPageState extends State<LoginPage> {
           final String token = responseBody['token'];
           final String fullName = _fullnameController.text;
           final String userId = responseBody['user']['_id'];
+          final String avatarPath = responseBody['user']['avatarPath'] ??
+              'assets/images/man.png'; // Assuming avatarPath is returned from the API
+          final String email = responseBody['user']['email'];
 
-          // Store the token, full name, and user ID
+          // Store the token, full name, user ID, and email
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('auth_token', token);
           await prefs.setString('full_name', fullName);
           await prefs.setString('user_id', userId);
+          await prefs.setString('email', email);
+          await prefs.setString('avatar_path', avatarPath);
 
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => Dashboard(fullName: fullName),
+              builder: (context) =>
+                  Dashboard(fullName: fullName, avatarPath: avatarPath),
             ),
           );
         } else {
@@ -108,7 +114,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 50 * heightFactor),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
                     child: TextFormField(
                       controller: _fullnameController,
                       validator: (value) {
@@ -125,15 +132,16 @@ class _LoginPageState extends State<LoginPage> {
                         labelText: 'Full Name',
                         labelStyle: const TextStyle(color: Colors.grey),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.grey, width: 2),
+                          borderSide:
+                              const BorderSide(color: Colors.grey, width: 2),
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
-                          borderSide:
-                              const BorderSide(color: Color(0xFF006257), width: 2),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF006257), width: 2),
                         ),
                       ),
                       style: const TextStyle(color: Colors.black),
@@ -141,7 +149,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 20 * heightFactor),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
                     child: TextFormField(
                       controller: _emailController,
                       validator: (value) {
@@ -158,15 +167,16 @@ class _LoginPageState extends State<LoginPage> {
                         labelText: 'Email',
                         labelStyle: const TextStyle(color: Colors.grey),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.grey, width: 2),
+                          borderSide:
+                              const BorderSide(color: Colors.grey, width: 2),
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
-                          borderSide:
-                              const BorderSide(color: Color(0xFF006257), width: 2),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF006257), width: 2),
                         ),
                       ),
                       style: const TextStyle(color: Colors.black),
@@ -174,7 +184,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 20 * heightFactor),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
                     child: TextFormField(
                       controller: _passwordController,
                       validator: (value) {
@@ -185,21 +196,21 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20 * widthFactor,
-                          vertical: 20 * heightFactor,
-                        ),
+                            horizontal: 20 * widthFactor,
+                            vertical: 20 * heightFactor),
                         labelText: 'Password',
                         labelStyle: const TextStyle(color: Colors.grey),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.grey, width: 2),
+                          borderSide:
+                              const BorderSide(color: Colors.grey, width: 2),
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(
                               Radius.circular(18 * widthFactor)),
-                          borderSide:
-                              const BorderSide(color: Color(0xFF006257), width: 2),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF006257), width: 2),
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(

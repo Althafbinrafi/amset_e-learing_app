@@ -1,26 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:video_player/video_player.dart';
 
 class CoursePlayer extends StatefulWidget {
-  const CoursePlayer({Key? key}) : super(key: key);
+  final String videoUrl;
+
+  const CoursePlayer({Key? key, required this.videoUrl}) : super(key: key);
 
   @override
   _CoursePlayerState createState() => _CoursePlayerState();
 }
 
 class _CoursePlayerState extends State<CoursePlayer> {
-  late YoutubePlayerController _controller;
+  late VideoPlayerController _controller;
+  bool _isInitialized = false;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId("https://www.youtube.com/watch?v=BFU9eSKO_t4")!,
-      flags: YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-      ),
-    );
+    _controller = VideoPlayerController.network(widget.videoUrl)
+      ..initialize().then((_) {
+        setState(() {
+          _isInitialized = true;
+          _hasError = false;
+        });
+        _controller.play();
+      }).catchError((error) {
+        setState(() {
+          _isInitialized = false;
+          _hasError = true;
+        });
+        print('Error initializing video player: $error');
+      });
   }
 
   @override
@@ -31,13 +42,14 @@ class _CoursePlayerState extends State<CoursePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return YoutubePlayer(
-      controller: _controller,
-      showVideoProgressIndicator: true,
-      progressIndicatorColor: Colors.amber,
-      onReady: () {
-        _controller.addListener(() {});
-      },
-    );
+    if (_hasError) {
+      return Center(child: Text('Failed to load video'));
+    }
+    return _isInitialized
+        ? AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            child: VideoPlayer(_controller),
+          )
+        : Center(child: CircularProgressIndicator());
   }
 }

@@ -1,13 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
+import 'dart:io';
+
 import 'package:amset/Pages/course_page.dart';
 import 'package:amset/Pages/notification_page.dart';
 import 'package:amset/Pages/profile_page.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Dashboard extends StatefulWidget {
   final String fullName;
+  final String avatarPath;
 
-  const Dashboard({super.key, required this.fullName});
+  const Dashboard({Key? key, required this.fullName, required this.avatarPath})
+      : super(key: key);
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -18,7 +24,9 @@ class _DashboardState extends State<Dashboard> {
 
   final List<Widget> _pages = [
     DashboardPage(
-        fullName: ''), // Placeholder; the fullName will be passed dynamically
+        fullName: '',
+        avatarPath:
+            ''), // Placeholder; the fullName and avatarPath will be passed dynamically
     const CoursePage(),
     const NotificationPage(),
     const ProfilePage(),
@@ -32,12 +40,13 @@ class _DashboardState extends State<Dashboard> {
 
   Future<void> _getFullName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? fullName = prefs.getString('full_name');
-    if (fullName != null) {
-      setState(() {
-        _pages[0] = DashboardPage(fullName: fullName);
-      });
-    }
+    String? storedFullName = prefs.getString('full_name');
+    String? storedAvatarPath = prefs.getString('avatar_path');
+    setState(() {
+      _pages[0] = DashboardPage(
+          fullName: storedFullName ?? widget.fullName,
+          avatarPath: storedAvatarPath ?? widget.avatarPath);
+    });
   }
 
   @override
@@ -74,22 +83,13 @@ class _DashboardState extends State<Dashboard> {
       child: Scaffold(
         body: IndexedStack(
           index: _currentIndex,
-          children: _pages
-              .map((page) => page is DashboardPage
-                  ? DashboardPage(fullName: widget.fullName)
-                  : page)
-              .toList(),
+          children: _pages,
         ),
         bottomNavigationBar: Container(
           margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
           decoration: const BoxDecoration(
-            color: Color.fromARGB(
-                255, 167, 144, 144), // Background color of the container
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(25),
-                topRight: Radius.circular(25),
-                bottomLeft: Radius.circular(25),
-                bottomRight: Radius.circular(25)),
+            color: Color.fromARGB(255, 167, 144, 144),
+            borderRadius: BorderRadius.all(Radius.circular(25)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black12,
@@ -99,11 +99,7 @@ class _DashboardState extends State<Dashboard> {
             ],
           ),
           child: ClipRRect(
-            borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(25),
-                topRight: Radius.circular(25),
-                bottomLeft: Radius.circular(25),
-                bottomRight: Radius.circular(25)),
+            borderRadius: const BorderRadius.all(Radius.circular(25)),
             child: BottomNavigationBar(
               backgroundColor: const Color.fromARGB(0, 103, 82, 82),
               currentIndex: _currentIndex,
@@ -112,8 +108,8 @@ class _DashboardState extends State<Dashboard> {
                   _currentIndex = index;
                 });
               },
-              selectedItemColor: const Color(0xFF006257), // Selected item color
-              unselectedItemColor: Colors.grey, // Unselected item color
+              selectedItemColor: const Color(0xFF006257),
+              unselectedItemColor: Colors.grey,
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(
@@ -154,8 +150,10 @@ class _DashboardState extends State<Dashboard> {
 
 class DashboardPage extends StatelessWidget {
   final String fullName;
+  final String avatarPath;
 
-  const DashboardPage({super.key, required this.fullName});
+  const DashboardPage(
+      {super.key, required this.fullName, required this.avatarPath});
 
   @override
   Widget build(BuildContext context) {
@@ -202,16 +200,16 @@ class DashboardPage extends StatelessWidget {
                       )
                     ],
                   ),
-                  const Icon(
-                    Icons.account_circle_sharp,
-                    color: Colors.white,
-                    size: 50,
-                  )
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundImage: avatarPath.isNotEmpty
+                        ? FileImage(File(avatarPath))
+                        : const AssetImage('assets/images/man.png')
+                            as ImageProvider,
+                  ),
                 ],
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
             ],
           ),
         ),
@@ -219,8 +217,7 @@ class DashboardPage extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                margin: const EdgeInsets.only(
-                    top: 150), // Adjust top margin as needed
+                margin: const EdgeInsets.only(top: 150),
                 height: 130,
                 width: MediaQuery.of(context).size.width - 70,
                 decoration: BoxDecoration(
@@ -238,9 +235,7 @@ class DashboardPage extends StatelessWidget {
                   child: Text("Special Events shows here"),
                 ),
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -253,9 +248,7 @@ class DashboardPage extends StatelessWidget {
                     backgroundColor: Color(0xFFBDBDBD),
                     maxRadius: 5,
                   ),
-                  SizedBox(
-                    width: 4,
-                  ),
+                  SizedBox(width: 4),
                   CircleAvatar(
                     backgroundColor: Color(0xFFBDBDBD),
                     maxRadius: 5,
@@ -276,9 +269,7 @@ class DashboardPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  margin: const EdgeInsets.only(
-                    left: 10,
-                  ),
+                  margin: const EdgeInsets.only(left: 10),
                   child: const Text(
                     'Our Courses',
                     style: TextStyle(fontSize: 20),
@@ -297,7 +288,7 @@ class DashboardPage extends StatelessWidget {
                         '11 Lessons',
                         '6 Hours',
                         'Rs. 999 /-',
-                        0, // Index
+                        0,
                       ),
                       _buildCourseCard(
                         context,
@@ -306,7 +297,7 @@ class DashboardPage extends StatelessWidget {
                         '8 Lessons',
                         '4 Hours',
                         'Rs. 799 /-',
-                        1, // Index
+                        1,
                       ),
                       _buildCourseCard(
                         context,
@@ -315,7 +306,7 @@ class DashboardPage extends StatelessWidget {
                         '23 Lessons',
                         '12 Hours',
                         'Rs. 1299 /-',
-                        2, // Index
+                        2,
                       ),
                       _buildCourseCard(
                         context,
@@ -324,7 +315,7 @@ class DashboardPage extends StatelessWidget {
                         '10 Lessons',
                         '5 Hours',
                         'Rs. 899 /-',
-                        3, // Index
+                        3,
                       ),
                     ],
                   ),
@@ -347,7 +338,7 @@ class DashboardPage extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
             height: 642,
-            width: MediaQuery.of(context).size.width / 1,
+            width: MediaQuery.of(context).size.width,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -358,9 +349,7 @@ class DashboardPage extends StatelessWidget {
                   indent: 150,
                   thickness: 4,
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 Text(
                   title,
                   style: const TextStyle(
@@ -374,26 +363,23 @@ class DashboardPage extends StatelessWidget {
                 const SizedBox(height: 5),
                 const Text(
                   '''
-          Unlock the secrets to excelling in the mobile retail industry with our comprehensive course, "Mobile Retail Excellence." Designed for aspiring entrepreneurs, retail managers, and sales professionals, this course offers a deep dive into the strategies and skills necessary to thrive in the fast-paced world of mobile retail.
-          
-          Over the span of 8 engaging lessons, you will learn how to optimize your retail operations, enhance customer experiences, and boost sales. Each lesson is crafted to provide practical insights and actionable techniques, ensuring you can apply what you learn directly to your business. By the end of the course, you'll be equipped with the knowledge and confidence to achieve excellence in mobile retail.
-          
-         ''',
+                  Unlock the secrets to excelling in the mobile retail industry with our comprehensive course, "Mobile Retail Excellence." Designed for aspiring entrepreneurs, retail managers, and sales professionals, this course offers a deep dive into the strategies and skills necessary to thrive in the fast-paced world of mobile retail.
+
+                  Over the span of 8 engaging lessons, you will learn how to optimize your retail operations, enhance customer experiences, and boost sales. Each lesson is crafted to provide practical insights and actionable techniques, ensuring you can apply what you learn directly to your business. By the end of the course, you'll be equipped with the knowledge and confidence to achieve excellence in mobile retail.
+                  ''',
                   style: TextStyle(fontSize: 16),
                 ),
                 const Text(
                   '''
-          Course Details:
-          Duration: 4 hours
-          Fee: Rs. 799 /-
-          ''',
+                  Course Details:
+                  Duration: 4 hours
+                  Fee: Rs. 799 /-
+                  ''',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 Container(
-                  width: MediaQuery.of(context).size.width / 1,
+                  width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
                     color: Color(0xFF006257),
                     borderRadius: BorderRadius.circular(20),
@@ -462,9 +448,7 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(
-              width: 20,
-            ),
+            const SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,33 +464,28 @@ class DashboardPage extends StatelessWidget {
                       height: 1.4,
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       Text(
                         lessons,
                         style: const TextStyle(fontWeight: FontWeight.w300),
                       ),
-                      const SizedBox(
-                        width: 20,
-                      ),
+                      const SizedBox(width: 20),
                       Text(
                         duration,
                         style: const TextStyle(fontWeight: FontWeight.w300),
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   Text(
                     price,
                     style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF006257),
-                        fontWeight: FontWeight.bold),
+                      fontSize: 16,
+                      color: Color(0xFF006257),
+                      fontWeight: FontWeight.bold,
+                    ),
                   )
                 ],
               ),

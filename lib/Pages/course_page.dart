@@ -121,7 +121,7 @@ class _CoursePageState extends State<CoursePage> {
                                   .replaceAll('%', '')) /
                               100,
                           courseDatum.progressPercentage,
-                          Colors.orange.shade100,
+                          const Color.fromARGB(255, 255, 255, 255),
                         ),
                         const SizedBox(height: 20),
                       ],

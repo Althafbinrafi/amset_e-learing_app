@@ -2,7 +2,6 @@ import 'package:amset/screens/skip.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-//import 'edit_profile_page.dart'; // Import the edit profile page
 import 'dart:io'; // Import for File
 
 class ProfilePage extends StatefulWidget {
@@ -14,8 +13,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String _fullName = 'Your Name';
-  String _email = 'example@gmail.com';
-  String _phone = 'Add your phone number';
+  String _email = '';
+  String _phone = '';
   String _avatarPath = 'assets/images/man.png';
 
   @override
@@ -141,8 +140,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   maxRadius: 90,
                   backgroundColor: Colors.transparent,
                   child: SizedBox(
-                    height: 160,
-                    width: 160,
+                    height: 170,
+                    width: 170,
                     child: ClipOval(
                       child: _avatarPath.isNotEmpty &&
                               _avatarPath != 'assets/images/man.png'
@@ -154,7 +153,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 Text(
                   _fullName,
                   style: const TextStyle(fontSize: 22),
@@ -162,12 +161,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 20),
                 Text(
                   _email,
-                  style: const TextStyle(fontSize: 18, color: Colors.grey),
+                  style: const TextStyle(fontSize: 20, color: Colors.grey),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   _phone,
-                  style: const TextStyle(fontSize: 18, color: Colors.grey),
+                  style: const TextStyle(fontSize: 20, color: Colors.grey),
                 ),
                 const SizedBox(height: 50),
                 Container(
@@ -195,8 +194,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
-
-//edit profile page//
 
 class EditProfilePage extends StatefulWidget {
   final String currentName;
@@ -275,7 +272,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
                 height: 30,
@@ -292,7 +289,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              Text('Add Photo'),
+              const SizedBox(height: 30),
               TextField(
                 controller: _nameController,
                 decoration: const InputDecoration(

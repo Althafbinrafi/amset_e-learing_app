@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF006257)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF006257)),
         useMaterial3: true,
       ),
       home: const AuthCheckPage(),
@@ -54,13 +54,14 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
     String? token = prefs.getString('auth_token');
     String? fullName = prefs.getString('full_name');
     String? userId = prefs.getString('user_id');
+    String? avatarPath = prefs.getString('avatar_path');
 
-    if (token != null && fullName != null && userId != null) {
+    if (token != null && fullName != null && userId != null && avatarPath != null) {
       // Token exists, navigate to Dashboard
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => Dashboard(fullName: fullName),
+          builder: (context) => Dashboard(fullName: fullName, avatarPath: avatarPath),
         ),
       );
     } else {
