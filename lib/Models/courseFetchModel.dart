@@ -1,59 +1,59 @@
-// To parse this JSON data, do
-//
-//     final courseFetchModel = courseFetchModelFromJson(jsonString);
-
 import 'dart:convert';
 
-CourseFetchModel courseFetchModelFromJson(String str) => CourseFetchModel.fromJson(json.decode(str));
+CourseFetchModel courseFetchModelFromJson(String str) =>
+    CourseFetchModel.fromJson(json.decode(str));
 
-String courseFetchModelToJson(CourseFetchModel data) => json.encode(data.toJson());
+String courseFetchModelToJson(CourseFetchModel data) =>
+    json.encode(data.toJson());
 
 class CourseFetchModel {
-    Course course;
-    List<Chapter> chapters;
+  Course course;
+  List<Chapter> chapters;
 
-    CourseFetchModel({
-        required this.course,
-        required this.chapters,
-    });
+  CourseFetchModel({
+    required this.course,
+    required this.chapters,
+  });
 
-    factory CourseFetchModel.fromJson(Map<String, dynamic> json) => CourseFetchModel(
+  factory CourseFetchModel.fromJson(Map<String, dynamic> json) =>
+      CourseFetchModel(
         course: Course.fromJson(json["course"]),
-        chapters: List<Chapter>.from(json["chapters"].map((x) => Chapter.fromJson(x))),
-    );
+        chapters: List<Chapter>.from(
+            json["chapters"].map((x) => Chapter.fromJson(x))),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "course": course.toJson(),
         "chapters": List<dynamic>.from(chapters.map((x) => x.toJson())),
-    };
+      };
 }
 
 class Chapter {
-    String id;
-    String title;
-    bool isPublished;
-    String course;
-    int position;
-    DateTime createdAt;
-    DateTime updatedAt;
-    int v;
-    String description;
-    String videoUrl;
+  String id;
+  String title;
+  bool isPublished;
+  String course;
+  int position;
+  DateTime createdAt;
+  DateTime updatedAt;
+  int v;
+  String description;
+  String videoUrl;
 
-    Chapter({
-        required this.id,
-        required this.title,
-        required this.isPublished,
-        required this.course,
-        required this.position,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.v,
-        required this.description,
-        required this.videoUrl,
-    });
+  Chapter({
+    required this.id,
+    required this.title,
+    required this.isPublished,
+    required this.course,
+    required this.position,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.v,
+    required this.description,
+    required this.videoUrl,
+  });
 
-    factory Chapter.fromJson(Map<String, dynamic> json) => Chapter(
+  factory Chapter.fromJson(Map<String, dynamic> json) => Chapter(
         id: json["_id"],
         title: json["title"],
         isPublished: json["isPublished"],
@@ -62,11 +62,11 @@ class Chapter {
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
         v: json["__v"],
-        description: json["description"],
-        videoUrl: json["videoUrl"],
-    );
+        description: json["description"] ?? '', // Handle null value
+        videoUrl: json["videoUrl"] ?? '', // Handle null value
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "_id": id,
         "title": title,
         "isPublished": isPublished,
@@ -77,37 +77,37 @@ class Chapter {
         "__v": v,
         "description": description,
         "videoUrl": videoUrl,
-    };
+      };
 }
 
 class Course {
-    bool deleted;
-    String id;
-    String title;
-    bool isPublished;
-    List<String> chapters;
-    DateTime createdAt;
-    DateTime updatedAt;
-    int v;
-    String description;
-    String category;
-    String imageUrl;
+  bool deleted;
+  String id;
+  String title;
+  bool isPublished;
+  List<String> chapters;
+  DateTime createdAt;
+  DateTime updatedAt;
+  int v;
+  String description;
+  String category;
+  String imageUrl;
 
-    Course({
-        required this.deleted,
-        required this.id,
-        required this.title,
-        required this.isPublished,
-        required this.chapters,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.v,
-        required this.description,
-        required this.category,
-        required this.imageUrl,
-    });
+  Course({
+    required this.deleted,
+    required this.id,
+    required this.title,
+    required this.isPublished,
+    required this.chapters,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.v,
+    required this.description,
+    required this.category,
+    required this.imageUrl,
+  });
 
-    factory Course.fromJson(Map<String, dynamic> json) => Course(
+  factory Course.fromJson(Map<String, dynamic> json) => Course(
         deleted: json["deleted"],
         id: json["_id"],
         title: json["title"],
@@ -116,12 +116,12 @@ class Course {
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
         v: json["__v"],
-        description: json["description"],
-        category: json["category"],
-        imageUrl: json["imageUrl"],
-    );
+        description: json["description"] ?? '', // Handle null value
+        category: json["category"] ?? '', // Handle null value
+        imageUrl: json["imageUrl"] ?? '', // Handle null value
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "deleted": deleted,
         "_id": id,
         "title": title,
@@ -133,5 +133,5 @@ class Course {
         "description": description,
         "category": category,
         "imageUrl": imageUrl,
-    };
+      };
 }

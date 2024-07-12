@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:amset/Models/myCourseModel.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -95,7 +97,7 @@ class _CoursePageState extends State<CoursePage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  print('Snapshot error: ${snapshot.error}');
+                  log('Snapshot error: ${snapshot.error}');
                   return const Center(child: Text('Error loading data'));
                 } else if (!snapshot.hasData) {
                   return const Center(child: Text('No data available'));
@@ -122,6 +124,7 @@ class _CoursePageState extends State<CoursePage> {
                               100,
                           courseDatum.progressPercentage,
                           const Color.fromARGB(255, 255, 255, 255),
+                          courseDatum.course.id,
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -147,11 +150,18 @@ class _CoursePageState extends State<CoursePage> {
     double percent,
     String percentText,
     Color backgroundColor,
+    String courseId,
   ) {
+    // Convert the percentText to an integer
+    int percentValue = double.parse(percentText.replaceAll('%', '')).round();
+    String formattedPercentText = '$percentValue%';
+
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('selected_course_id', courseId);
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return const AllLessonsPage();
+          return AllLessonsPage(courseId: courseId);
         }));
       },
       child: Container(
@@ -202,16 +212,16 @@ class _CoursePageState extends State<CoursePage> {
                   ),
                   const SizedBox(height: 7),
                   Row(
-                    children: [
-                      const Icon(Icons.videocam),
-                      const SizedBox(width: 5),
-                      Text(lessons),
-                      const SizedBox(width: 15),
-                      const Icon(Icons.access_time_filled_rounded),
-                      const SizedBox(width: 5),
-                      Text(duration),
-                    ],
-                  ),
+                      // children: [
+                      //   const Icon(Icons.videocam),
+                      //   const SizedBox(width: 5),
+                      //   Text(lessons),
+                      //   const SizedBox(width: 15),
+                      //   const Icon(Icons.access_time_filled_rounded),
+                      //   const SizedBox(width: 5),
+                      //   Text(duration),
+                      // ],
+                      ),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -228,7 +238,8 @@ class _CoursePageState extends State<CoursePage> {
                           backgroundColor: const Color.fromARGB(56, 0, 98, 86),
                         ),
                       ),
-                      Text(percentText),
+                      const SizedBox(width: 5),
+                      Text(formattedPercentText),
                     ],
                   ),
                 ],

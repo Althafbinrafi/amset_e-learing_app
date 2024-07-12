@@ -1,12 +1,10 @@
 import 'dart:io';
-
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:amset/Pages/course_page.dart';
 import 'package:amset/Pages/notification_page.dart';
 import 'package:amset/Pages/profile_page.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:amset/Models/courseFetchModel.dart';
 
 class Dashboard extends StatefulWidget {
   final String fullName;
@@ -20,13 +18,10 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  int _currentIndex = 0; // Initial index for the bottom navigation bar
+  int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    DashboardPage(
-        fullName: '',
-        avatarPath:
-            ''), // Placeholder; the fullName and avatarPath will be passed dynamically
+    DashboardPage(fullName: '', avatarPath: ''),
     const CoursePage(),
     const NotificationPage(),
     const ProfilePage(),
@@ -206,6 +201,9 @@ class DashboardPage extends StatelessWidget {
                         ? FileImage(File(avatarPath))
                         : const AssetImage('assets/images/man.png')
                             as ImageProvider,
+                    onBackgroundImageError: (_, __) {
+                      // Provide a fallback for the image
+                    },
                   ),
                 ],
               ),
@@ -407,7 +405,6 @@ class DashboardPage extends StatelessWidget {
       String lessons, String duration, String price, int index) {
     double screenheight = MediaQuery.of(context).size.width;
 
-    // Define a list of background colors
     final List<Color> backgroundColors = [
       Colors.red.shade100,
       Colors.green.shade100,
@@ -415,7 +412,6 @@ class DashboardPage extends StatelessWidget {
       Colors.orange.shade100,
     ];
 
-    // Get the background color based on the index
     Color backgroundColor = backgroundColors[index % backgroundColors.length];
 
     return GestureDetector(
@@ -441,7 +437,7 @@ class DashboardPage extends StatelessWidget {
               width: 130,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(18),
-                color: backgroundColor, // Set the background color here
+                color: backgroundColor,
                 image: DecorationImage(
                   image: AssetImage(imagePath),
                   fit: BoxFit.cover,
