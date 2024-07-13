@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:amset/Models/myCourseModel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'dart:convert';
@@ -44,27 +46,23 @@ class _CoursePageState extends State<CoursePage> {
         },
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      log('Response status: ${response.statusCode}');
+      log('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         return MyCourseModel.fromJson(json.decode(response.body));
       } else {
-        print(
-            'Failed to load course data. Status code: ${response.statusCode}');
+        log('Failed to load course data. Status code: ${response.statusCode}');
         throw Exception('Failed to load course data');
       }
     } catch (e) {
-      print('Error fetching course data: $e');
+      log('Error fetching course data: $e');
       throw Exception('Error fetching course data');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height / 1.4;
-
     return Scaffold(
       backgroundColor: const Color(0xFF006257),
       body: Column(
@@ -81,9 +79,9 @@ class _CoursePageState extends State<CoursePage> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
-            height: screenHeight,
-            width: screenWidth,
+            padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 40.h),
+            height: 0.7.sh, // Using 70% of the screen height
+            width: 1.sw, // Using the full screen width
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30),
@@ -98,7 +96,21 @@ class _CoursePageState extends State<CoursePage> {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   log('Snapshot error: ${snapshot.error}');
-                  return const Center(child: Text('Error loading data'));
+                  return Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/No connection-bro.svg',
+                        height: 200.h,
+                        width: 200.w,
+                      ),
+                      SizedBox(
+                        height: 10.h,
+                      ),
+                      const Text('Check Your Connection !'),
+                    ],
+                  ));
                 } else if (!snapshot.hasData) {
                   return const Center(child: Text('No data available'));
                 }
@@ -113,8 +125,6 @@ class _CoursePageState extends State<CoursePage> {
                       children: [
                         _buildCourseContainer(
                           context,
-                          screenHeight,
-                          screenWidth,
                           courseDatum.course.imageUrl,
                           courseDatum.course.title,
                           'Lessons', // Replace with actual lessons data if available
@@ -126,7 +136,7 @@ class _CoursePageState extends State<CoursePage> {
                           const Color.fromARGB(255, 255, 255, 255),
                           courseDatum.course.id,
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 1.h),
                       ],
                     );
                   },
@@ -141,8 +151,6 @@ class _CoursePageState extends State<CoursePage> {
 
   Widget _buildCourseContainer(
     BuildContext context,
-    double screenHeight,
-    double screenWidth,
     String imagePath,
     String title,
     String lessons,
@@ -165,12 +173,9 @@ class _CoursePageState extends State<CoursePage> {
         }));
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        height: 140,
-        width: screenWidth,
+        padding: EdgeInsets.all(15.w),
+        margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: BorderRadius.circular(18),
           boxShadow: const [
             BoxShadow(
               color: Colors.black12,
@@ -178,23 +183,25 @@ class _CoursePageState extends State<CoursePage> {
               blurRadius: 10,
             ),
           ],
+          color: const Color.fromARGB(255, 255, 255, 255),
+          borderRadius: BorderRadius.circular(18.r),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
-              height: screenHeight,
-              width: 120,
+              padding: EdgeInsets.all(10.w),
+              height: 100.h,
+              width: 100.w,
               decoration: BoxDecoration(
                 color: backgroundColor,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(18.r),
                 image: DecorationImage(
                   fit: BoxFit.cover,
                   image: NetworkImage(imagePath),
                 ),
               ),
             ),
-            const SizedBox(width: 15),
+            SizedBox(width: 15.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,43 +209,34 @@ class _CoursePageState extends State<CoursePage> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 18.0,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w500,
                       color: Color(0xff1d1b1e),
                       letterSpacing: 0.3,
-                      height: 1.4,
+                      height: 1.4.h,
                     ),
                   ),
-                  const SizedBox(height: 7),
-                  Row(
-                      // children: [
-                      //   const Icon(Icons.videocam),
-                      //   const SizedBox(width: 5),
-                      //   Text(lessons),
-                      //   const SizedBox(width: 15),
-                      //   const Icon(Icons.access_time_filled_rounded),
-                      //   const SizedBox(width: 5),
-                      //   Text(duration),
-                      // ],
-                      ),
+                  SizedBox(height: 7.h),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: 150,
+                        width: 120.w,
                         child: LinearPercentIndicator(
                           animation: true,
                           animationDuration: 700,
-                          lineHeight: 10,
+                          lineHeight: 10.h,
                           percent: percent,
-                          barRadius: const Radius.circular(16),
+                          barRadius: Radius.circular(16.r),
                           progressColor: const Color(0xFF006257),
                           backgroundColor: const Color.fromARGB(56, 0, 98, 86),
                         ),
                       ),
-                      const SizedBox(width: 5),
+                      SizedBox(width: 1.w),
                       Text(formattedPercentText),
                     ],
                   ),

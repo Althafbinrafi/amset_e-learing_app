@@ -77,9 +77,22 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
           } else if (snapshot.hasError) {
             print('Snapshot error: ${snapshot.error}');
             return Center(
-                child: Text(
-              'Failed to load course data',
-              style: TextStyle(color: Colors.white),
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.signal_wifi_statusbar_connected_no_internet_4_rounded,
+                  size: 40,
+                  color: Colors.white,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'Check Your Connection !',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
             ));
           } else if (!snapshot.hasData) {
             return Center(child: Text('No course data found'));

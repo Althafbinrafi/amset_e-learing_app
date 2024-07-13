@@ -66,6 +66,8 @@ class Chapter {
         videoUrl: json["videoUrl"] ?? '', // Handle null value
       );
 
+  get lessons => null;
+
   Map<String, dynamic> toJson() => {
         "_id": id,
         "title": title,

@@ -1,35 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-//import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height / 1.4;
-
     return Scaffold(
-      backgroundColor: Color(0xFF006257),
+      backgroundColor: const Color(0xFF006257),
       body: Column(
         children: [
           Expanded(
             child: Container(
-              child: Center(
+              color: const Color(0xFF006257),
+              child: const Center(
                 child: Text(
                   'Notifications',
                   style: TextStyle(fontSize: 28, color: Colors.white),
                 ),
               ),
-              color: Color(0xFF006257),
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 40),
-            height: screenHeight,
-            width: screenWidth,
-            decoration: BoxDecoration(
+            padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 40.h),
+            height: 0.7.sh, // Using 70% of the screen height
+            width: 1.sw, // Using the full screen width
+            decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30),
                 topRight: Radius.circular(30),
@@ -37,10 +34,24 @@ class NotificationPage extends StatelessWidget {
               color: Color.fromARGB(255, 255, 255, 255),
             ),
             child: Center(
-                child: Text(
-              'No Notifications !',
-              style: TextStyle(fontSize: 16),
-            )),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/images/Push notifications-bro.svg',
+                    height: 200.h,
+                    width: 200.w,
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  const Text(
+                    'No Notifications !',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

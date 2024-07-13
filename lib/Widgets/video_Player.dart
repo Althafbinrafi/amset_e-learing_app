@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class CoursePlayer extends StatefulWidget {
   final String videoUrl;
@@ -11,27 +11,19 @@ class CoursePlayer extends StatefulWidget {
 }
 
 class _CoursePlayerState extends State<CoursePlayer> {
-  late VideoPlayerController _controller;
-  bool _isInitialized = false;
-  bool _hasError = false;
+  late YoutubePlayerController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(widget.videoUrl)
-      ..initialize().then((_) {
-        setState(() {
-          _isInitialized = true;
-          _hasError = false;
-        });
-        _controller.play();
-      }).catchError((error) {
-        setState(() {
-          _isInitialized = false;
-          _hasError = true;
-        });
-        print('Error initializing video player: $error');
-      });
+    _controller = YoutubePlayerController(
+      initialVideoId: YoutubePlayer.convertUrlToId(widget.videoUrl) ?? '',
+      flags: YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+        enableCaption: true,
+      ),
+    );
   }
 
   @override
@@ -42,14 +34,32 @@ class _CoursePlayerState extends State<CoursePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    if (_hasError) {
-      return Center(child: Text('Failed to load video'));
-    }
-    return _isInitialized
-        ? AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            child: VideoPlayer(_controller),
-          )
-        : Center(child: CircularProgressIndicator());
+    return YoutubePlayer(
+      controller: _controller,
+      showVideoProgressIndicator: true,
+      progressIndicatorColor: const Color.fromARGB(255, 255, 255, 255),
+      bottomActions: [
+        CurrentPosition(),
+        ProgressBar(
+          isExpanded: true,
+          colors: ProgressBarColors(
+            handleColor: Color(0xFF006257),
+            playedColor: Color(0xFF006257),
+          ),
+        ),
+        
+        RemainingDuration(),
+        
+        PlaybackSpeedButton(
+            icon: Icon(
+          Icons.speed,
+          color: Colors.white,
+        )),
+        FullScreenButton(),
+      ],
+      onReady: () {
+        print('Player is ready.');
+      },
+    );
   }
 }

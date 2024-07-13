@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:developer'; // Import the developer package for logging
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -87,18 +88,14 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final heightFactor = size.height / 812;
-    final widthFactor = size.width / 375;
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: 10 * widthFactor,
-              vertical: 20 * heightFactor,
+              horizontal: 10.w,
+              vertical: 20.h,
             ),
             child: Form(
               key: _formKey,
@@ -106,16 +103,15 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 50 * heightFactor),
+                  SizedBox(height: 50.h),
                   Image.asset(
                     'assets/images/login.png',
-                    height: 250 * heightFactor,
-                    width: 250 * widthFactor,
+                    height: 250.h,
+                    width: 250.w,
                   ),
-                  SizedBox(height: 50 * heightFactor),
+                  SizedBox(height: 50.h),
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
+                    padding: EdgeInsets.symmetric(horizontal: 30.w),
                     child: TextFormField(
                       controller: _fullnameController,
                       validator: (value) {
@@ -126,20 +122,18 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20 * widthFactor,
-                          vertical: 20 * heightFactor,
+                          horizontal: 20.w,
+                          vertical: 20.h,
                         ),
                         labelText: 'Full Name',
                         labelStyle: const TextStyle(color: Colors.grey),
                         enabledBorder: OutlineInputBorder(
                           borderSide:
                               const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(18 * widthFactor)),
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(18 * widthFactor)),
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
                           borderSide: const BorderSide(
                               color: Color(0xFF006257), width: 2),
                         ),
@@ -147,10 +141,9 @@ class _LoginPageState extends State<LoginPage> {
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  SizedBox(height: 20 * heightFactor),
+                  SizedBox(height: 20.h),
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
+                    padding: EdgeInsets.symmetric(horizontal: 30.w),
                     child: TextFormField(
                       controller: _emailController,
                       validator: (value) {
@@ -161,20 +154,18 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20 * widthFactor,
-                          vertical: 20 * heightFactor,
+                          horizontal: 20.w,
+                          vertical: 20.h,
                         ),
                         labelText: 'Email',
                         labelStyle: const TextStyle(color: Colors.grey),
                         enabledBorder: OutlineInputBorder(
                           borderSide:
                               const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(18 * widthFactor)),
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(18 * widthFactor)),
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
                           borderSide: const BorderSide(
                               color: Color(0xFF006257), width: 2),
                         ),
@@ -182,10 +173,9 @@ class _LoginPageState extends State<LoginPage> {
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  SizedBox(height: 20 * heightFactor),
+                  SizedBox(height: 20.h),
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 30.0 * widthFactor),
+                    padding: EdgeInsets.symmetric(horizontal: 30.w),
                     child: TextFormField(
                       controller: _passwordController,
                       validator: (value) {
@@ -196,19 +186,16 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20 * widthFactor,
-                            vertical: 20 * heightFactor),
+                            horizontal: 20.w, vertical: 20.h),
                         labelText: 'Password',
                         labelStyle: const TextStyle(color: Colors.grey),
                         enabledBorder: OutlineInputBorder(
                           borderSide:
                               const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(18 * widthFactor)),
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(18 * widthFactor)),
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
                           borderSide: const BorderSide(
                               color: Color(0xFF006257), width: 2),
                         ),
@@ -230,10 +217,10 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: !_isPasswordVisible,
                     ),
                   ),
-                  SizedBox(height: 60 * heightFactor),
+                  SizedBox(height: 60.h),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20 * widthFactor),
+                      borderRadius: BorderRadius.circular(20.w),
                       color: const Color(0xFF006257),
                     ),
                     child: ElevatedButton(
@@ -253,14 +240,14 @@ class _LoginPageState extends State<LoginPage> {
                         backgroundColor: const Color(0xFF006257),
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(
-                          horizontal: 80 * widthFactor,
-                          vertical: 15 * heightFactor,
+                          horizontal: 80.w,
+                          vertical: 15.h,
                         ),
                       ),
                       child: _isLoading
                           ? SizedBox(
-                              height: 20 * heightFactor,
-                              width: 20 * widthFactor,
+                              height: 20.h,
+                              width: 20.w,
                               child: const CircularProgressIndicator(
                                 valueColor:
                                     AlwaysStoppedAnimation<Color>(Colors.white),
@@ -268,14 +255,14 @@ class _LoginPageState extends State<LoginPage> {
                             )
                           : Text(
                               'Login',
-                              style: TextStyle(fontSize: 18 * heightFactor),
+                              style: TextStyle(fontSize: 18.sp),
                             ),
                     ),
                   ),
-                  SizedBox(height: 30 * heightFactor),
+                  SizedBox(height: 30.h),
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 5 * heightFactor),
-                    width: 110 * widthFactor,
+                    padding: EdgeInsets.symmetric(vertical: 5.h),
+                    width: 110.w,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(40),
                     ),
@@ -284,16 +271,16 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         Image.asset(
                           'assets/images/logo1.png',
-                          height: 30 * heightFactor,
-                          width: 30 * heightFactor,
+                          height: 30.h,
+                          width: 30.h,
                         ),
-                        SizedBox(width: 5 * widthFactor),
+                        SizedBox(width: 5.w),
                         Text(
                           'amset',
                           style: GoogleFonts.prozaLibre(
                             textStyle: TextStyle(
                               color: const Color.fromARGB(255, 0, 0, 0),
-                              fontSize: 18 * heightFactor,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.w500,
                             ),
                           ),

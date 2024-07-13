@@ -1,10 +1,16 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:amset/Models/allCoursesModel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:amset/Pages/course_page.dart';
 import 'package:amset/Pages/notification_page.dart';
 import 'package:amset/Pages/profile_page.dart';
-import 'package:amset/Models/courseFetchModel.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:convert';
 
 class Dashboard extends StatefulWidget {
   final String fullName;
@@ -81,11 +87,11 @@ class _DashboardState extends State<Dashboard> {
           children: _pages,
         ),
         bottomNavigationBar: Container(
-          margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
-          decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 167, 144, 144),
-            borderRadius: BorderRadius.all(Radius.circular(25)),
-            boxShadow: [
+          margin: EdgeInsets.only(bottom: 20.h, left: 20.w, right: 20.w),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 167, 144, 144),
+            borderRadius: BorderRadius.all(Radius.circular(25.r)),
+            boxShadow: const [
               BoxShadow(
                 color: Colors.black12,
                 spreadRadius: 1,
@@ -94,7 +100,7 @@ class _DashboardState extends State<Dashboard> {
             ],
           ),
           child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(25)),
+            borderRadius: BorderRadius.all(Radius.circular(25.r)),
             child: BottomNavigationBar(
               backgroundColor: const Color.fromARGB(0, 103, 82, 82),
               currentIndex: _currentIndex,
@@ -143,7 +149,7 @@ class _DashboardState extends State<Dashboard> {
   }
 }
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   final String fullName;
   final String avatarPath;
 
@@ -151,20 +157,68 @@ class DashboardPage extends StatelessWidget {
       {super.key, required this.fullName, required this.avatarPath});
 
   @override
+  _DashboardPageState createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  late Future<List<Course>> _futureCourses;
+  final PageController _pageController = PageController(initialPage: 0);
+  int _currentPage = 0;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureCourses = _fetchCourses();
+    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
+      if (_currentPage < 2) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
+      }
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _timer.cancel();
+    super.dispose();
+  }
+
+  Future<List<Course>> _fetchCourses() async {
+    final response =
+        await http.get(Uri.parse('https://amset-server.vercel.app/api/course'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      AllCoursesModel coursesModel = AllCoursesModel.fromJson(data);
+      return coursesModel.courses
+          .where((course) => course.isPublished)
+          .toList();
+    } else {
+      throw Exception('Failed to load courses');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenheight = MediaQuery.of(context).size.width;
     return Stack(
       children: [
         Container(
-          height: 230,
-          padding: const EdgeInsets.only(top: 70, left: 50, right: 50),
-          decoration: const BoxDecoration(
+          height: 200.h,
+          padding: EdgeInsets.only(top: 60.h, left: 50.w, right: 50.w),
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(25),
-              bottomRight: Radius.circular(25),
+              bottomLeft: Radius.circular(25.r),
+              bottomRight: Radius.circular(25.r),
             ),
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               end: Alignment.centerLeft,
               begin: Alignment.centerRight,
               colors: <Color>[Color(0xFF00C8B2), Color(0xFF008172)],
@@ -186,7 +240,7 @@ class DashboardPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        fullName,
+                        widget.fullName,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 25,
@@ -196,9 +250,9 @@ class DashboardPage extends StatelessWidget {
                     ],
                   ),
                   CircleAvatar(
-                    radius: 25,
-                    backgroundImage: avatarPath.isNotEmpty
-                        ? FileImage(File(avatarPath))
+                    radius: 25.r,
+                    backgroundImage: widget.avatarPath.isNotEmpty
+                        ? FileImage(File(widget.avatarPath))
                         : const AssetImage('assets/images/man.png')
                             as ImageProvider,
                     onBackgroundImageError: (_, __) {
@@ -207,7 +261,7 @@ class DashboardPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 40.h),
             ],
           ),
         ),
@@ -215,12 +269,12 @@ class DashboardPage extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                margin: const EdgeInsets.only(top: 150),
-                height: 130,
-                width: MediaQuery.of(context).size.width - 70,
+                margin: EdgeInsets.only(top: 140.h),
+                height: 120.h,
+                width: MediaQuery.of(context).size.width - 70.w,
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 255, 255, 255),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(18.r),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black12,
@@ -229,29 +283,49 @@ class DashboardPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Center(
-                  child: Text("Special Events shows here"),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18.r),
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (int page) {
+                      setState(() {
+                        _currentPage = page;
+                      });
+                    },
+                    children: const [
+                      Image(
+                        image: AssetImage('assets/images/event1.png'),
+                        fit: BoxFit.cover,
+                      ),
+                      Image(
+                        image: AssetImage('assets/images/event2.png'),
+                        fit: BoxFit.cover,
+                      ),
+                      Image(
+                        image: AssetImage('assets/images/event3.png'),
+                        fit: BoxFit.cover,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 10),
-              const Row(
+              SizedBox(height: 10.h),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Color(0xFF006257),
-                    maxRadius: 5,
-                  ),
-                  SizedBox(width: 4),
-                  CircleAvatar(
-                    backgroundColor: Color(0xFFBDBDBD),
-                    maxRadius: 5,
-                  ),
-                  SizedBox(width: 4),
-                  CircleAvatar(
-                    backgroundColor: Color(0xFFBDBDBD),
-                    maxRadius: 5,
-                  ),
-                ],
+                children: List<Widget>.generate(3, (int index) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: EdgeInsets.symmetric(horizontal: 2.w),
+                    width: _currentPage == index ? 17.w : 7.w,
+                    height: 7.h,
+                    decoration: BoxDecoration(
+                      color: _currentPage == index
+                          ? const Color(0xFF006257)
+                          : const Color(0xFFBDBDBD),
+                      borderRadius: BorderRadius.circular(5.r),
+                    ),
+                  );
+                }),
               ),
             ],
           ),
@@ -259,63 +333,57 @@ class DashboardPage extends StatelessWidget {
         Positioned(
           bottom: 0,
           child: Container(
-            width: screenWidth,
+            width: MediaQuery.of(context).size.width,
             padding:
-                const EdgeInsets.only(left: 30, right: 30, bottom: 0, top: 20),
-            height: 510,
+                EdgeInsets.only(left: 30.w, right: 30.w, bottom: 0, top: 1.h),
+            height: 430.h,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  margin: const EdgeInsets.only(left: 10),
+                  margin: EdgeInsets.only(left: 10.w),
                   child: const Text(
                     'Our Courses',
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5.h),
                 Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 1,
-                    childAspectRatio: 2,
-                    children: [
-                      _buildCourseCard(
-                        context,
-                        'assets/images/restaurent.png',
-                        'Restaurant Operations and Management',
-                        '11 Lessons',
-                        '6 Hours',
-                        'Rs. 999 /-',
-                        0,
-                      ),
-                      _buildCourseCard(
-                        context,
-                        'assets/images/mobile.png',
-                        'Mobile Retail Excellence',
-                        '8 Lessons',
-                        '4 Hours',
-                        'Rs. 799 /-',
-                        1,
-                      ),
-                      _buildCourseCard(
-                        context,
-                        'assets/images/market.png',
-                        'Hypermarket Management Mastery',
-                        '23 Lessons',
-                        '12 Hours',
-                        'Rs. 1299 /-',
-                        2,
-                      ),
-                      _buildCourseCard(
-                        context,
-                        'assets/images/fasion.png',
-                        'Fashion Design Coaching',
-                        '10 Lessons',
-                        '5 Hours',
-                        'Rs. 899 /-',
-                        3,
-                      ),
-                    ],
+                  child: FutureBuilder<List<Course>>(
+                    future: _futureCourses,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return const Center(
+                            child: Text('Error loading courses'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                            child: Text('No courses available'));
+                      } else {
+                        final courses = snapshot.data!;
+                        return GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 1,
+                            childAspectRatio: 1.8,
+                          ),
+                          itemCount: courses.length,
+                          itemBuilder: (context, index) {
+                            final course = courses[index];
+                            return _buildCourseCard(
+                              context,
+                              course.imageUrl ?? 'assets/images/default.png',
+                              course.title,
+                              '${course.chapters.length} Lessons',
+                              course.description ?? 'No description available',
+                              'Rs. ${course.price} /-',
+                              index,
+                            );
+                          },
+                        );
+                      }
+                    },
                   ),
                 ),
               ],
@@ -327,84 +395,139 @@ class DashboardPage extends StatelessWidget {
   }
 
   void _showCourseDrawer(BuildContext context, String title, String lessons,
-      String duration, String price) {
+      String description, String price) {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            height: 642,
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Divider(
-                  color: Color.fromARGB(255, 122, 121, 121),
-                  endIndent: 150,
-                  indent: 150,
-                  thickness: 4,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  title,
-                  style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Course Description:',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                const SizedBox(height: 5),
-                const Text(
-                  '''
-                  Unlock the secrets to excelling in the mobile retail industry with our comprehensive course, "Mobile Retail Excellence." Designed for aspiring entrepreneurs, retail managers, and sales professionals, this course offers a deep dive into the strategies and skills necessary to thrive in the fast-paced world of mobile retail.
-
-                  Over the span of 8 engaging lessons, you will learn how to optimize your retail operations, enhance customer experiences, and boost sales. Each lesson is crafted to provide practical insights and actionable techniques, ensuring you can apply what you learn directly to your business. By the end of the course, you'll be equipped with the knowledge and confidence to achieve excellence in mobile retail.
-                  ''',
-                  style: TextStyle(fontSize: 16),
-                ),
-                const Text(
-                  '''
-                  Course Details:
-                  Duration: 4 hours
-                  Fee: Rs. 799 /-
-                  ''',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF006257),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      'Enroll',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
+        return Container(
+          height: 450.h,
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 20.h),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Divider(
+                        color: Color.fromARGB(255, 122, 121, 121),
+                        endIndent: 150,
+                        indent: 150,
+                        thickness: 4,
                       ),
-                    ),
+                      SizedBox(height: 10.h),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10.h),
+                      const Text(
+                        'Course Description:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      SizedBox(height: 5.h),
+                      Text(
+                        description,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(height: 10.h),
+                      Text(
+                        '''
+                        Course Details:
+                        $lessons
+                        Fee: $price 
+                        ''',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 80.h), // Adjust as needed
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+              Positioned(
+                bottom: 0.h,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Are You Interested?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF006257),
+                          fontSize: 18,
+                        ),
+                      ),
+                      SizedBox(width: 10.w),
+                      Container(
+                        width: MediaQuery.of(context).size.width / 3,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF006257),
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: TextButton(
+                          onPressed: () => _launchWhatsApp(),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/images/whatsapp.svg',
+                                color: Colors.white,
+                                height: 20.0,
+                                width: 20.0,
+                                allowDrawingOutsideViewBox: true,
+                              ),
+                              SizedBox(width: 5.w),
+                              const Text(
+                                'Contact',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  Widget _buildCourseCard(BuildContext context, String imagePath, String title,
-      String lessons, String duration, String price, int index) {
-    double screenheight = MediaQuery.of(context).size.width;
+  Future<void> _launchWhatsApp() async {
+    const phoneNumber = '+918086996655';
+    const message = 'I am interested in this course. Amset Academy';
+    final url =
+        'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
+  Widget _buildCourseCard(BuildContext context, String imagePath, String title,
+      String lessons, String description, String price, int index) {
     final List<Color> backgroundColors = [
       Colors.red.shade100,
       Colors.green.shade100,
@@ -415,10 +538,12 @@ class DashboardPage extends StatelessWidget {
     Color backgroundColor = backgroundColors[index % backgroundColors.length];
 
     return GestureDetector(
-      onTap: () => _showCourseDrawer(context, title, lessons, duration, price),
+      onTap: () =>
+          _showCourseDrawer(context, title, lessons, description, price),
       child: Container(
-        padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.all(10),
+        padding: EdgeInsets.all(15.w),
+        margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+        height: 300.h, // Set the height to 300
         decoration: BoxDecoration(
           boxShadow: const [
             BoxShadow(
@@ -428,23 +553,26 @@ class DashboardPage extends StatelessWidget {
             ),
           ],
           color: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(18.r),
         ),
         child: Row(
           children: [
             Container(
-              height: screenheight,
-              width: 130,
+              width: 120.w,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(18.r),
                 color: backgroundColor,
                 image: DecorationImage(
-                  image: AssetImage(imagePath),
+                  image: imagePath.isNotEmpty
+                      ? NetworkImage(imagePath)
+                      : const AssetImage(
+                          'assets/images/default.png',
+                        ) as ImageProvider,
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-            const SizedBox(width: 20),
+            SizedBox(width: 15.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -452,6 +580,8 @@ class DashboardPage extends StatelessWidget {
                 children: [
                   Text(
                     title,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
@@ -460,25 +590,31 @@ class DashboardPage extends StatelessWidget {
                       height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 5.h),
                   Row(
                     children: [
+                      Icon(
+                        Icons.videocam_rounded,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
                       Text(
                         lessons,
-                        style: const TextStyle(fontWeight: FontWeight.w300),
+                        style: const TextStyle(fontWeight: FontWeight.w400),
                       ),
-                      const SizedBox(width: 20),
-                      Text(
-                        duration,
-                        style: const TextStyle(fontWeight: FontWeight.w300),
+                      SizedBox(width: 20.w),
+                      const Text(
+                        '', // You may update this with actual data
+                        style: TextStyle(fontWeight: FontWeight.w400),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 5.h),
                   Text(
                     price,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 17,
                       color: Color(0xFF006257),
                       fontWeight: FontWeight.bold,
                     ),

@@ -1,9 +1,9 @@
+import 'package:amset/screens/dashboard.dart';
+import 'package:amset/screens/skip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:amset/screens/skip.dart';
-import 'package:amset/screens/dashboard.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
@@ -19,24 +19,31 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF006257)),
-        useMaterial3: true,
-      ),
-      home: const AuthCheckPage(),
+    return ScreenUtilInit(
+      designSize: const Size(375, 812),
+      builder: (context, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Skip Page',
+          theme: ThemeData(
+              //primarySwatch: Colors.blue,
+              primaryColor: Color(0xFF006257),
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Color(0xFF006257),
+              )),
+          home: const AuthCheckPage(),
+        );
+      },
     );
   }
 }
 
 class AuthCheckPage extends StatefulWidget {
-  const AuthCheckPage({Key? key}) : super(key: key);
+  const AuthCheckPage({super.key});
 
   @override
   _AuthCheckPageState createState() => _AuthCheckPageState();
@@ -56,12 +63,16 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
     String? userId = prefs.getString('user_id');
     String? avatarPath = prefs.getString('avatar_path');
 
-    if (token != null && fullName != null && userId != null && avatarPath != null) {
+    if (token != null &&
+        fullName != null &&
+        userId != null &&
+        avatarPath != null) {
       // Token exists, navigate to Dashboard
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => Dashboard(fullName: fullName, avatarPath: avatarPath),
+          builder: (context) =>
+              Dashboard(fullName: fullName, avatarPath: avatarPath),
         ),
       );
     } else {
