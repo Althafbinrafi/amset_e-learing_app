@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
     statusBarColor: Colors.transparent, // Set status bar color
     statusBarIconBrightness:
@@ -14,6 +16,8 @@ void main() {
     systemNavigationBarIconBrightness:
         Brightness.dark, // Set system navigation bar icons to dark color
   ));
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
 
   runApp(const MyApp());
 }

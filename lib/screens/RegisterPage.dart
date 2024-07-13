@@ -1,93 +1,17 @@
-import 'package:amset/screens/RegisterPage.dart';
+import 'package:amset/screens/login.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:amset/screens/dashboard.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:developer'; // Import the developer package for logging
-import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _fullnameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  bool _isPasswordVisible = false;
-  bool _isLoading = false;
-
-  final _formKey = GlobalKey<FormState>();
-
-  Future<void> _login() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    try {
-      final response = await http.post(
-        Uri.parse('https://amset-server.vercel.app/api/user/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email,
-          'password': password,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = json.decode(response.body);
-        log(response.body);
-        if (responseBody['success']) {
-          final String token = responseBody['token'];
-          final String fullName = _fullnameController.text;
-          final String userId = responseBody['user']['_id'];
-          final String avatarPath = responseBody['user']['avatarPath'] ??
-              'assets/images/man.png'; // Assuming avatarPath is returned from the API
-          final String email = responseBody['user']['email'];
-
-          // Store the token, full name, user ID, and email
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('auth_token', token);
-          await prefs.setString('full_name', fullName);
-          await prefs.setString('user_id', userId);
-          await prefs.setString('email', email);
-          await prefs.setString('avatar_path', avatarPath);
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  Dashboard(fullName: fullName, avatarPath: avatarPath),
-            ),
-          );
-        } else {
-          _showError(responseBody['message']);
-          log('Login failed: ${responseBody['message']}');
-        }
-      } else {
-        _showError('Failed to login. Please try again.');
-        log('HTTP error: ${response.statusCode} - ${response.reasonPhrase}');
-        log('Response body: ${response.body}');
-      }
-    } catch (e) {
-      _showError('An error occurred. Please try again.');
-      log('Exception: $e');
-    }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
+class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,22 +24,27 @@ class _LoginPageState extends State<LoginPage> {
               vertical: 20.h,
             ),
             child: Form(
-              key: _formKey,
+              //key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: 50.h),
-                  Image.asset(
-                    'assets/images/login.png',
-                    height: 250.h,
-                    width: 250.w,
+                  Text(
+                    'Register Here',
+                    style: TextStyle(
+                        color: Color(0xFF006257),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 40.sp),
                   ),
-                  SizedBox(height: 50.h),
+                  SizedBox(
+                    height: 90.h,
+                  ),
+// Fullname........................................//
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 30.w),
                     child: TextFormField(
-                      controller: _fullnameController,
+                      // controller: _fullnameController,
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Enter your Fullname';
@@ -144,10 +73,44 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   SizedBox(height: 20.h),
+// Mobile Number........................................//
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 30.w),
                     child: TextFormField(
-                      controller: _emailController,
+                      // controller: _fullnameController,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter your Mobile Number';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 20.w,
+                          vertical: 20.h,
+                        ),
+                        labelText: 'Mobile Number',
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              const BorderSide(color: Colors.grey, width: 2),
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF006257), width: 2),
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+// Email........................................//
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30.w),
+                    child: TextFormField(
+                      // controller: _emailController,
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Email cannot be empty';
@@ -176,10 +139,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   SizedBox(height: 20.h),
+// password ........................................//
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 30.w),
                     child: TextFormField(
-                      controller: _passwordController,
+                      //   controller: _passwordController,
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Enter your Password';
@@ -203,20 +167,66 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.grey,
+                            // _isPasswordVisible
+                            //     ? Icons.visibility
+                            //     :
+                            Icons.visibility_off,
+                            // color: Colors.grey,
                           ),
                           onPressed: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
+                            // setState(() {
+                            //   _isPasswordVisible = !_isPasswordVisible;
+                            // });
                           },
                         ),
                       ),
                       style: const TextStyle(color: Colors.black),
-                      obscureText: !_isPasswordVisible,
+                      //    obscureText: !_isPasswordVisible,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30.w),
+                    child: TextFormField(
+                      //   controller: _passwordController,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Confirm your Password';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal: 20.w, vertical: 20.h),
+                        labelText: 'Confirm Password',
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              const BorderSide(color: Colors.grey, width: 2),
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF006257), width: 2),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            // _isPasswordVisible
+                            //     ? Icons.visibility
+                            //     :
+                            Icons.visibility_off,
+                            // color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            // setState(() {
+                            //   _isPasswordVisible = !_isPasswordVisible;
+                            // });
+                          },
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.black),
+                      //    obscureText: !_isPasswordVisible,
                     ),
                   ),
                   SizedBox(height: 40.h),
@@ -227,16 +237,16 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          setState(() {
-                            _isLoading = true;
-                          });
-                          _login().then((_) {
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          });
-                        }
+                        // if (_formKey.currentState!.validate()) {
+                        //   setState(() {
+                        //     _isLoading = true;
+                        //   });
+                        //   _login().then((_) {
+                        //     setState(() {
+                        //       _isLoading = false;
+                        //     });
+                        //   });
+                        // }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF006257),
@@ -246,29 +256,32 @@ class _LoginPageState extends State<LoginPage> {
                           vertical: 15.h,
                         ),
                       ),
-                      child: _isLoading
-                          ? SizedBox(
-                              height: 20.h,
-                              width: 20.w,
-                              child: const CircularProgressIndicator(
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Text(
-                              'Login',
-                              style: TextStyle(fontSize: 18.sp),
-                            ),
+                      child:
+                          // _isLoading
+                          //   ?
+                          //     SizedBox(
+                          //   height: 20.h,
+                          //   width: 20.w,
+                          //   child: const CircularProgressIndicator(
+                          //     valueColor:
+                          //         AlwaysStoppedAnimation<Color>(Colors.white),
+                          //   ),
+                          // ),
+                          // :
+                          Text(
+                        'Create Account',
+                        style: TextStyle(fontSize: 18.sp),
+                      ),
                     ),
                   ),
                   SizedBox(height: 15.h),
                   RichText(
                     text: TextSpan(
-                        text: "Don't have an account?  ",
+                        text: "Already have an account?  ",
                         style: TextStyle(color: Colors.black),
                         children: [
                           TextSpan(
-                              text: "Sign Up",
+                              text: "Log In",
                               style: TextStyle(
                                   color: const Color(0xFF006257),
                                   fontWeight: FontWeight.bold),
@@ -276,7 +289,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ..onTap = () {
                                   Navigator.pushReplacement(context,
                                       MaterialPageRoute(builder: (context) {
-                                    return RegisterPage();
+                                    return LoginPage();
                                   }));
                                 })
                         ]),

@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:amset/Pages/lessons/CourseDetails.dart';
-import 'package:amset/Models/myCourseModel.dart'; // Assuming the model classes are here
 
 class AllLessonsPage extends StatefulWidget {
   final String courseId;
@@ -29,8 +28,6 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
   Future<CourseFetchModel> fetchCourse(String courseId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
-    print('Token: $token');
-    print('Course ID: $courseId');
     if (token == null) {
       throw Exception('Token not found');
     }
@@ -43,18 +40,12 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
         },
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
         return CourseFetchModel.fromJson(jsonDecode(response.body));
       } else {
-        print(
-            'Failed to load course data. Status code: ${response.statusCode}');
         throw Exception('Failed to load course data');
       }
     } catch (e) {
-      print('Error fetching course data: $e');
       throw Exception('Error fetching course data');
     }
   }
@@ -75,7 +66,6 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
               color: Colors.white,
             ));
           } else if (snapshot.hasError) {
-            print('Snapshot error: ${snapshot.error}');
             return Center(
                 child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -137,8 +127,8 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                     itemBuilder: (context, index) {
                       return Column(
                         children: [
-                          _buildLessonContainer(
-                              context, snapshot.data!.chapters[index]),
+                          _buildLessonContainer(context,
+                              snapshot.data!.chapters[index], widget.courseId),
                           if (index < snapshot.data!.chapters.length - 1)
                             SizedBox(height: 20),
                         ],
@@ -167,7 +157,8 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
     );
   }
 
-  Widget _buildLessonContainer(BuildContext context, Chapter chapter) {
+  Widget _buildLessonContainer(
+      BuildContext context, Chapter chapter, String courseId) {
     return GestureDetector(
       child: Container(
         padding: EdgeInsets.all(15),
@@ -222,8 +213,9 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
         ),
       ),
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return CourseDetailsPage(chapter: chapter);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+          return CourseDetailsPage(chapter: chapter, courseId: courseId);
         }));
       },
     );

@@ -1,16 +1,20 @@
+import 'package:amset/Pages/lessons/all_lessons.dart';
 import 'package:amset/Widgets/video_Player.dart';
 import 'package:flutter/material.dart';
 import 'package:amset/Models/courseFetchModel.dart';
-
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:amset/Pages/lessons/AllLessonsPage.dart'; // Import the AllLessonsPage
 
 class CourseDetailsPage extends StatefulWidget {
   final Chapter chapter;
+  final String courseId;
 
-  const CourseDetailsPage({Key? key, required this.chapter}) : super(key: key);
+  const CourseDetailsPage(
+      {Key? key, required this.chapter, required this.courseId})
+      : super(key: key);
 
   @override
   _CourseDetailsPageState createState() => _CourseDetailsPageState();
@@ -19,19 +23,17 @@ class CourseDetailsPage extends StatefulWidget {
 class _CourseDetailsPageState extends State<CourseDetailsPage> {
   int _selectedIndex = 0;
   late Future<CourseFetchModel> futureCourse;
+  ValueNotifier<bool> isFullScreen = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
-    futureCourse = fetchCourse(widget
-        .chapter.id); // Assuming chapter id is used to fetch course details
+    futureCourse = fetchCourse(widget.courseId);
   }
 
   Future<CourseFetchModel> fetchCourse(String courseId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
-    print('Token: $token');
-    print('Course ID: $courseId');
     if (token == null) {
       throw Exception('Token not found');
     }
@@ -44,156 +46,179 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
         },
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
         return CourseFetchModel.fromJson(jsonDecode(response.body));
       } else {
-        print(
-            'Failed to load course data. Status code: ${response.statusCode}');
         throw Exception('Failed to load course data');
       }
     } catch (e) {
-      print('Error fetching course data: $e');
       throw Exception('Error fetching course data');
     }
   }
 
+  Future<bool> _onWillPop() async {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+          builder: (context) => AllLessonsPage(
+                courseId: widget.courseId,
+              )),
+    );
+    return false; // Prevent the default back action
+  }
+
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    return Scaffold(
-      backgroundColor: Color(0xFF006257),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              flex: 2,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                color: Color(0xFF006257),
-                child: CoursePlayer(videoUrl: widget.chapter.videoUrl),
-              ),
-            ),
-            Expanded(
-              flex: 4,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: const Color(0xFF006257),
+        body: SafeArea(
+          child: ValueListenableBuilder<bool>(
+            valueListenable: isFullScreen,
+            builder: (context, isFullScreen, child) {
+              return Column(
+                children: [
+                  Expanded(
+                    flex: isFullScreen ? 1 : 2,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 18.5),
+                      color: const Color(0xFF006257),
+                      child: CoursePlayer(
+                        videoUrl: widget.chapter.videoUrl,
+                        isFullScreen: this.isFullScreen,
+                      ),
+                    ),
                   ),
-                  color: Color.fromARGB(255, 255, 255, 255),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF006257),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedIndex = 0;
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  color: _selectedIndex == 0
-                                      ? Colors.white
-                                      : Colors.transparent,
-                                ),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  'Video Lessons',
-                                  style: TextStyle(
-                                    color: _selectedIndex == 0
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedIndex = 1;
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  color: _selectedIndex == 1
-                                      ? Colors.white
-                                      : Colors.transparent,
-                                ),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  'Description',
-                                  style: TextStyle(
-                                    color: _selectedIndex == 1
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 30),
+                  if (!isFullScreen)
                     Expanded(
-                      child: _selectedIndex == 0
-                          ? FutureBuilder<CourseFetchModel>(
-                              future: futureCourse,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
+                      flex: 5,
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF006257),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedIndex = 0;
+                                        });
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          color: _selectedIndex == 0
+                                              ? Colors.white
+                                              : Colors.transparent,
+                                        ),
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 10),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          'Video Lessons',
+                                          style: TextStyle(
+                                            color: _selectedIndex == 0
+                                                ? Colors.black
+                                                : Colors.white,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  );
-                                } else if (snapshot.hasError) {
-                                  print('Snapshot error: ${snapshot.error}');
-                                  return Center(
-                                    child: Text(
-                                      'Failed to load course data',
-                                      style: TextStyle(color: Colors.white),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedIndex = 1;
+                                        });
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                          color: _selectedIndex == 1
+                                              ? Colors.white
+                                              : Colors.transparent,
+                                        ),
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 10),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          'Description',
+                                          style: TextStyle(
+                                            color: _selectedIndex == 1
+                                                ? Colors.black
+                                                : Colors.white,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  );
-                                } else if (!snapshot.hasData) {
-                                  return Center(
-                                      child: Text('No course data found'));
-                                } else {
-                                  return _buildLessonsList(snapshot.data!);
-                                }
-                              },
-                            )
-                          : _buildDescriptionContent(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                            Expanded(
+                              child: _selectedIndex == 0
+                                  ? FutureBuilder<CourseFetchModel>(
+                                      future: futureCourse,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                            ),
+                                          );
+                                        } else if (snapshot.hasError) {
+                                          return const Center(
+                                            child: Text(
+                                              'Failed to load course data',
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                          );
+                                        } else if (!snapshot.hasData) {
+                                          return const Center(
+                                              child:
+                                                  Text('No course data found'));
+                                        } else {
+                                          return _buildLessonsList(
+                                              snapshot.data!);
+                                        }
+                                      },
+                                    )
+                                  : _buildDescriptionContent(),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -202,7 +227,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
   Widget _buildLessonsList(CourseFetchModel course) {
     final lessons = course.chapters;
     if (lessons.isEmpty) {
-      return Center(child: Text('No lessons available'));
+      return const Center(child: Text('No lessons available'));
     }
     return ListView.builder(
       itemCount: lessons.length,
@@ -213,15 +238,26 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
   }
 
   Widget _buildLessonContainer(BuildContext context, Chapter chapter) {
+    bool isCurrentChapter =
+        chapter.id == widget.chapter.id; // Check if it's the current chapter
     return GestureDetector(
+      onTap: isCurrentChapter
+          ? null
+          : () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) {
+                return CourseDetailsPage(
+                    chapter: chapter, courseId: widget.courseId);
+              }));
+            },
       child: Container(
         padding: EdgeInsets.all(15),
-        margin: EdgeInsets.only(bottom: 10),
+        margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Color(0xFF006257)),
-          boxShadow: [
+          border: Border.all(color: const Color.fromARGB(141, 0, 98, 86)),
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               spreadRadius: 1,
@@ -236,18 +272,21 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
               width: 60,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: Color(0xFF006257),
+                color: const Color(0xFF006257),
               ),
-              child: Icon(Icons.play_arrow, size: 40, color: Colors.white),
+              child: isCurrentChapter
+                  ? const Icon(Icons.pause, size: 35, color: Colors.white)
+                  : const Icon(Icons.play_arrow, size: 40, color: Colors.white),
             ),
-            SizedBox(width: 20),
+            const SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     chapter.title,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Text('Part ${chapter.position}'),
                 ],
@@ -256,11 +295,6 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
           ],
         ),
       ),
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return CourseDetailsPage(chapter: chapter);
-        }));
-      },
     );
   }
 
@@ -270,7 +304,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
       child: SingleChildScrollView(
         child: Text(
           widget.chapter.description,
-          style: TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
         ),
       ),
     );

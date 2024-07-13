@@ -232,18 +232,18 @@ class _DashboardPageState extends State<DashboardPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Hello',
                         style: TextStyle(
                           color: Colors.white70,
-                          fontSize: 20,
+                          fontSize: 20.sp,
                         ),
                       ),
                       Text(
                         widget.fullName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 25,
+                          fontSize: 25.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       )
@@ -342,9 +342,9 @@ class _DashboardPageState extends State<DashboardPage> {
               children: [
                 Container(
                   margin: EdgeInsets.only(left: 10.w),
-                  child: const Text(
+                  child: Text(
                     'Our Courses',
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: 20.sp),
                   ),
                 ),
                 SizedBox(height: 5.h),
@@ -419,23 +419,23 @@ class _DashboardPageState extends State<DashboardPage> {
                       SizedBox(height: 10.h),
                       Text(
                         title,
-                        style: const TextStyle(
-                          fontSize: 24,
+                        style: TextStyle(
+                          fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(height: 10.h),
-                      const Text(
+                      Text(
                         'Course Description:',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 20.sp,
                         ),
                       ),
                       SizedBox(height: 5.h),
                       Text(
                         description,
-                        style: const TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 16.sp),
                       ),
                       SizedBox(height: 10.h),
                       Text(
@@ -444,9 +444,9 @@ class _DashboardPageState extends State<DashboardPage> {
                         $lessons
                         Fee: $price 
                         ''',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                         ),
                       ),
                       SizedBox(height: 80.h), // Adjust as needed
@@ -469,7 +469,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF006257),
-                          fontSize: 18,
+                          fontSize: 18.sp,
                         ),
                       ),
                       SizedBox(width: 10.w),
@@ -480,7 +480,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: TextButton(
-                          onPressed: () => _launchWhatsApp(),
+                          onPressed: () => _launchWhatsApp(title),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -492,11 +492,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                 allowDrawingOutsideViewBox: true,
                               ),
                               SizedBox(width: 5.w),
-                              const Text(
+                              Text(
                                 'Contact',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 18,
+                                  fontSize: 18.sp,
                                 ),
                               ),
                             ],
@@ -514,9 +514,13 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Future<void> _launchWhatsApp() async {
-    const phoneNumber = '+918086996655';
-    const message = 'I am interested in this course. Amset Academy';
+  Future<void> _launchWhatsApp(String title) async {
+    const phoneNumber = '+918089891475';
+    final message = '''I am interested in the course,
+*"$title"*
+How can I know more?
+http://amset-client.vercel.app
+Amset Academy. ''';
     final url =
         'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
     if (await canLaunch(url)) {
@@ -582,12 +586,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     title,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 18.0,
+                    style: TextStyle(
+                      fontSize: 18.0.sp,
                       fontWeight: FontWeight.w500,
                       color: Color(0xff1d1b1e),
-                      letterSpacing: 0.3,
-                      height: 1.4,
+                      letterSpacing: 0.3.sp,
+                      height: 1.4.h,
                     ),
                   ),
                   SizedBox(height: 5.h),
@@ -613,8 +617,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   SizedBox(height: 5.h),
                   Text(
                     price,
-                    style: const TextStyle(
-                      fontSize: 17,
+                    style: TextStyle(
+                      fontSize: 17.sp,
                       color: Color(0xFF006257),
                       fontWeight: FontWeight.bold,
                     ),
