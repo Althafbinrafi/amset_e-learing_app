@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, depend_on_referenced_packages, unused_import, use_super_parameters, library_private_types_in_public_api
+
 import 'dart:developer';
 
 import 'package:amset/Models/myCourseModel.dart';
@@ -69,13 +71,13 @@ class _CoursePageState extends State<CoursePage> {
         children: [
           Expanded(
             child: Container(
+              color: const Color(0xFF006257),
               child: const Center(
                 child: Text(
                   'My Courses',
                   style: TextStyle(fontSize: 28, color: Colors.white),
                 ),
               ),
-              color: const Color(0xFF006257),
             ),
           ),
           Container(
@@ -214,7 +216,7 @@ class _CoursePageState extends State<CoursePage> {
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xff1d1b1e),
+                      color: const Color(0xff1d1b1e),
                       letterSpacing: 0.3,
                       height: 1.4.h,
                     ),

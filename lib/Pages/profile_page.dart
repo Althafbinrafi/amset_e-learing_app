@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
+
 import 'package:amset/screens/skip.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -5,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io'; // Import for File
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -229,12 +231,12 @@ class EditProfilePage extends StatefulWidget {
   final String currentAvatar;
 
   const EditProfilePage({
-    Key? key,
+    super.key,
     required this.currentName,
     required this.currentEmail,
     required this.currentPhone,
     required this.currentAvatar,
-  }) : super(key: key);
+  });
 
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
@@ -288,8 +290,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 70,
-        backgroundColor: Color(0xFF006257),
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: const Color(0xFF006257),
+        iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           'Edit Profile',
           style: TextStyle(color: Colors.white),
@@ -301,7 +303,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Center(
@@ -316,7 +318,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
               ),
-              Text('Add Photo'),
+              const Text('Add Photo'),
               const SizedBox(height: 30),
               TextField(
                 controller: _nameController,
@@ -346,6 +348,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 30),
               Center(
+                // ignore: sized_box_for_whitespace
                 child: Container(
                   height: 50,
                   width: MediaQuery.of(context).size.width / 2,

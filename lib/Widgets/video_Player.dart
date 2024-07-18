@@ -1,4 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api, file_names
+
 import 'package:flutter/material.dart';
+import 'dart:developer';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class CoursePlayer extends StatefulWidget {
@@ -6,8 +9,7 @@ class CoursePlayer extends StatefulWidget {
   final ValueNotifier<bool> isFullScreen;
 
   const CoursePlayer(
-      {Key? key, required this.videoUrl, required this.isFullScreen})
-      : super(key: key);
+      {super.key, required this.videoUrl, required this.isFullScreen});
 
   @override
   _CoursePlayerState createState() => _CoursePlayerState();
@@ -56,13 +58,13 @@ class _CoursePlayerState extends State<CoursePlayer> {
         CurrentPosition(),
         ProgressBar(
           isExpanded: true,
-          colors: ProgressBarColors(
+          colors: const ProgressBarColors(
             handleColor: Color(0xFF006257),
             playedColor: Color(0xFF006257),
           ),
         ),
         RemainingDuration(),
-        PlaybackSpeedButton(
+        const PlaybackSpeedButton(
           icon: Icon(
             Icons.speed,
             color: Colors.white,
@@ -71,7 +73,7 @@ class _CoursePlayerState extends State<CoursePlayer> {
         FullScreenButton(),
       ],
       onReady: () {
-        print('Player is ready.');
+        log('Player is ready.');
       },
     );
   }

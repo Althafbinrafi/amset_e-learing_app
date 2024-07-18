@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:amset/screens/dashboard.dart';
 import 'package:amset/screens/skip.dart';
 import 'package:flutter/material.dart';
@@ -35,9 +37,9 @@ class MyApp extends StatelessWidget {
           title: 'Skip Page',
           theme: ThemeData(
               //primarySwatch: Colors.blue,
-              primaryColor: Color(0xFF006257),
+              primaryColor: const Color(0xFF006257),
               colorScheme: ColorScheme.fromSeed(
-                seedColor: Color(0xFF006257),
+                seedColor: const Color(0xFF006257),
               )),
           home: const AuthCheckPage(),
         );

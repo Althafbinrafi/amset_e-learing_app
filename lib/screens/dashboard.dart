@@ -1,8 +1,11 @@
+// ignore_for_file: depend_on_referenced_packages, deprecated_member_use, library_private_types_in_public_api
+
 import 'dart:async';
 import 'dart:io';
 import 'package:amset/Models/allCoursesModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:amset/Pages/course_page.dart';
@@ -10,24 +13,26 @@ import 'package:amset/Pages/notification_page.dart';
 import 'package:amset/Pages/profile_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'dart:convert';
 
 class Dashboard extends StatefulWidget {
   final String fullName;
   final String avatarPath;
 
-  const Dashboard({Key? key, required this.fullName, required this.avatarPath})
-      : super(key: key);
+  const Dashboard(
+      {super.key, required this.fullName, required this.avatarPath});
 
   @override
   State<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   int _currentIndex = 0;
+  late AnimationController _controller;
 
   final List<Widget> _pages = [
-    DashboardPage(fullName: '', avatarPath: ''),
+    const DashboardPage(fullName: '', avatarPath: ''),
     const CoursePage(),
     const NotificationPage(),
     const ProfilePage(),
@@ -36,6 +41,10 @@ class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
     _getFullName();
   }
 
@@ -49,6 +58,13 @@ class _DashboardState extends State<Dashboard> {
           avatarPath: storedAvatarPath ?? widget.avatarPath);
     });
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -87,60 +103,57 @@ class _DashboardState extends State<Dashboard> {
           children: _pages,
         ),
         bottomNavigationBar: Container(
-          margin: EdgeInsets.only(bottom: 20.h, left: 20.w, right: 20.w),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 167, 144, 144),
-            borderRadius: BorderRadius.all(Radius.circular(25.r)),
-            boxShadow: const [
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+          //margin: EdgeInsets.only(bottom: 20.h, left: 30.w, right: 30.w),
+          decoration: const BoxDecoration(
+            color: Color(0xFF006257),
+            //borderRadius: BorderRadius.all(Radius.circular(25.r)),
+            boxShadow: [
               BoxShadow(
                 color: Colors.black12,
-                spreadRadius: 1,
+                spreadRadius: 2,
                 blurRadius: 10,
               ),
             ],
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(25.r)),
-            child: BottomNavigationBar(
-              backgroundColor: const Color.fromARGB(0, 103, 82, 82),
-              currentIndex: _currentIndex,
-              onTap: (index) {
+            child: GNav(
+              gap: 5,
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+              //tabActiveBorder: Border.all(width: 1, color: Colors.white),
+              tabBackgroundColor: Colors.white,
+              activeColor: const Color(0xFF006257),
+              color: const Color.fromARGB(
+                  255, 255, 255, 255), // Inactive icon color
+              tabs: const [
+                GButton(
+                  iconSize: 30,
+                  icon: Icons.home,
+                  text: 'Home',
+                ),
+                GButton(
+                  iconSize: 30,
+                  icon: Icons.menu_book_rounded,
+                  text: 'Course',
+                ),
+                GButton(
+                  iconSize: 30,
+                  icon: Icons.notifications,
+                  text: 'Notification',
+                ),
+                GButton(
+                  iconSize: 30,
+                  icon: Icons.account_circle,
+                  text: 'Profile',
+                ),
+              ],
+              selectedIndex: _currentIndex,
+              onTabChange: (index) {
                 setState(() {
                   _currentIndex = index;
                 });
               },
-              selectedItemColor: const Color(0xFF006257),
-              unselectedItemColor: Colors.grey,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.home,
-                    size: 30,
-                  ),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.menu_book_rounded,
-                    size: 30,
-                  ),
-                  label: 'Course',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.notifications,
-                    size: 30,
-                  ),
-                  label: 'Notification',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.account_circle,
-                    size: 30,
-                  ),
-                  label: 'Profile',
-                ),
-              ],
             ),
           ),
         ),
@@ -148,6 +161,8 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 }
+
+// The rest of the code remains unchanged...
 
 class DashboardPage extends StatefulWidget {
   final String fullName;
@@ -400,6 +415,7 @@ class _DashboardPageState extends State<DashboardPage> {
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
+        // ignore: sized_box_for_whitespace
         return Container(
           height: 450.h,
           child: Stack(
@@ -460,7 +476,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 right: 0,
                 child: Container(
                   color: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -589,7 +605,7 @@ Amset Academy. ''';
                     style: TextStyle(
                       fontSize: 18.0.sp,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xff1d1b1e),
+                      color: const Color(0xff1d1b1e),
                       letterSpacing: 0.3.sp,
                       height: 1.4.h,
                     ),
@@ -597,10 +613,10 @@ Amset Academy. ''';
                   SizedBox(height: 5.h),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.videocam_rounded,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Text(
@@ -619,7 +635,7 @@ Amset Academy. ''';
                     price,
                     style: TextStyle(
                       fontSize: 17.sp,
-                      color: Color(0xFF006257),
+                      color: const Color(0xFF006257),
                       fontWeight: FontWeight.bold,
                     ),
                   )

@@ -2,6 +2,8 @@
 //
 //     final myCourseModel = myCourseModelFromJson(jsonString);
 
+// ignore_for_file: file_names
+
 import 'dart:convert';
 
 MyCourseModel myCourseModelFromJson(String str) => MyCourseModel.fromJson(json.decode(str));

@@ -1,9 +1,12 @@
+// ignore_for_file: unused_import, file_names
+
 import 'package:amset/Pages/lessons/all_lessons.dart';
 import 'package:amset/Widgets/video_Player.dart';
 import 'package:flutter/material.dart';
 import 'package:amset/Models/courseFetchModel.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
+// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:amset/Pages/lessons/AllLessonsPage.dart'; // Import the AllLessonsPage
@@ -13,10 +16,10 @@ class CourseDetailsPage extends StatefulWidget {
   final String courseId;
 
   const CourseDetailsPage(
-      {Key? key, required this.chapter, required this.courseId})
-      : super(key: key);
+      {super.key, required this.chapter, required this.courseId});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CourseDetailsPageState createState() => _CourseDetailsPageState();
 }
 
@@ -69,6 +72,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -83,7 +87,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                     flex: isFullScreen ? 1 : 2,
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 18.5),
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 18.5),
                       color: const Color(0xFF006257),
                       child: CoursePlayer(
                         videoUrl: widget.chapter.videoUrl,
@@ -96,18 +100,18 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                       flex: 5,
                       child: Container(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(
+                            const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(30),
                             topRight: Radius.circular(30),
                           ),
-                          color: const Color.fromARGB(255, 255, 255, 255),
+                          color: Color.fromARGB(255, 255, 255, 255),
                         ),
                         child: Column(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(5),
+                              padding: const EdgeInsets.all(5),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF006257),
                                 borderRadius: BorderRadius.circular(30),
@@ -130,7 +134,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                                               : Colors.transparent,
                                         ),
                                         padding:
-                                            EdgeInsets.symmetric(vertical: 10),
+                                            const EdgeInsets.symmetric(vertical: 10),
                                         alignment: Alignment.center,
                                         child: Text(
                                           'Video Lessons',
@@ -161,7 +165,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                                               : Colors.transparent,
                                         ),
                                         padding:
-                                            EdgeInsets.symmetric(vertical: 10),
+                                            const EdgeInsets.symmetric(vertical: 10),
                                         alignment: Alignment.center,
                                         child: Text(
                                           'Description',
@@ -251,7 +255,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
               }));
             },
       child: Container(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: Colors.white,

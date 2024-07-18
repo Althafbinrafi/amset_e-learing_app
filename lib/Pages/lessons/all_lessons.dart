@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_import, depend_on_referenced_packages, use_super_parameters, library_private_types_in_public_api
+
 import 'package:amset/Models/courseFetchModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -56,17 +58,17 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
     double screenHeight = MediaQuery.of(context).size.height / 1.4;
 
     return Scaffold(
-      backgroundColor: Color(0xFF006257),
+      backgroundColor: const Color(0xFF006257),
       body: FutureBuilder<CourseFetchModel>(
         future: futureCourse,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
                 child: CircularProgressIndicator(
               color: Colors.white,
             ));
           } else if (snapshot.hasError) {
-            return Center(
+            return const Center(
                 child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -85,13 +87,14 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
               ],
             ));
           } else if (!snapshot.hasData) {
-            return Center(child: Text('No course data found'));
+            return const Center(child: Text('No course data found'));
           } else {
             return Column(
               children: [
                 Expanded(
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    color: const Color(0xFF006257),
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -102,20 +105,19 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                             style: GoogleFonts.prozaLibre(
                                 fontSize: 25, color: Colors.white),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 30,
                           ),
                         ],
                       ),
                     ),
-                    color: Color(0xFF006257),
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 40),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
                   height: screenHeight,
                   width: screenWidth,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
@@ -130,7 +132,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                           _buildLessonContainer(context,
                               snapshot.data!.chapters[index], widget.courseId),
                           if (index < snapshot.data!.chapters.length - 1)
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                         ],
                       );
                     },
@@ -142,12 +144,12 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
         },
       ),
       floatingActionButton: Container(
-        margin: EdgeInsets.only(top: 20, left: 10),
+        margin: const EdgeInsets.only(top: 20, left: 10),
         height: 40,
         width: 70,
         child: FloatingActionButton(
           backgroundColor: Colors.white,
-          child: Text('Back'),
+          child: const Text('Back'),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -161,16 +163,16 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
       BuildContext context, Chapter chapter, String courseId) {
     return GestureDetector(
       child: Container(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         height: 90,
         width: double.infinity,
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: Color(0xFF006257),
+            color: const Color(0xFF006257),
           ),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               spreadRadius: 1,
@@ -185,15 +187,15 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
               width: 60,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(40),
-                color: Color(0xFF006257),
+                color: const Color(0xFF006257),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.play_arrow,
                 size: 40,
                 color: Colors.white,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
             Expanded(
@@ -203,7 +205,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                 children: [
                   Text(
                     chapter.title,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Text('Part ${chapter.position}'),
                 ],

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:amset/screens/login.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   Text(
                     'Register Here',
                     style: TextStyle(
-                        color: Color(0xFF006257),
+                        color: const Color(0xFF006257),
                         fontWeight: FontWeight.w700,
                         fontSize: 40.sp),
                   ),
@@ -166,7 +168,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               color: Color(0xFF006257), width: 2),
                         ),
                         suffixIcon: IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             // _isPasswordVisible
                             //     ? Icons.visibility
                             //     :
@@ -211,7 +213,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               color: Color(0xFF006257), width: 2),
                         ),
                         suffixIcon: IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             // _isPasswordVisible
                             //     ? Icons.visibility
                             //     :
@@ -278,18 +280,18 @@ class _RegisterPageState extends State<RegisterPage> {
                   RichText(
                     text: TextSpan(
                         text: "Already have an account?  ",
-                        style: TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Colors.black),
                         children: [
                           TextSpan(
                               text: "Log In",
-                              style: TextStyle(
-                                  color: const Color(0xFF006257),
+                              style: const TextStyle(
+                                  color: Color(0xFF006257),
                                   fontWeight: FontWeight.bold),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
                                   Navigator.pushReplacement(context,
                                       MaterialPageRoute(builder: (context) {
-                                    return LoginPage();
+                                    return const LoginPage();
                                   }));
                                 })
                         ]),

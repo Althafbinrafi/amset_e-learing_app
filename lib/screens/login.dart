@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
+
 import 'package:amset/screens/RegisterPage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPre
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -265,18 +267,18 @@ class _LoginPageState extends State<LoginPage> {
                   RichText(
                     text: TextSpan(
                         text: "Don't have an account?  ",
-                        style: TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Colors.black),
                         children: [
                           TextSpan(
                               text: "Sign Up",
-                              style: TextStyle(
-                                  color: const Color(0xFF006257),
+                              style: const TextStyle(
+                                  color: Color(0xFF006257),
                                   fontWeight: FontWeight.bold),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
                                   Navigator.pushReplacement(context,
                                       MaterialPageRoute(builder: (context) {
-                                    return RegisterPage();
+                                    return const RegisterPage();
                                   }));
                                 })
                         ]),

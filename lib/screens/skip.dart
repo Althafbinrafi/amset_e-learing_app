@@ -68,7 +68,7 @@ class _SkipPageState extends State<SkipPage> {
         _isLoading = false;
       });
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        return LoginPage();
+        return const LoginPage();
       }));
     });
   }
@@ -210,8 +210,8 @@ class CircularAvatarIndicator extends StatelessWidget {
   const CircularAvatarIndicator({
     required this.currentPage,
     required this.totalPages,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
