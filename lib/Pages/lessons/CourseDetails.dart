@@ -1,9 +1,10 @@
-// ignore_for_file: unused_import, file_names
+// ignore_for_file: unused_import, file_names, deprecated_member_use
 
 import 'package:amset/Pages/lessons/all_lessons.dart';
 import 'package:amset/Widgets/video_Player.dart';
 import 'package:flutter/material.dart';
 import 'package:amset/Models/courseFetchModel.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 // ignore: depend_on_referenced_packages
@@ -72,7 +73,6 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -86,8 +86,8 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                   Expanded(
                     flex: isFullScreen ? 1 : 2,
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 18.5),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20.w, vertical: 18.5.h),
                       color: const Color(0xFF006257),
                       child: CoursePlayer(
                         videoUrl: widget.chapter.videoUrl,
@@ -99,22 +99,22 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                     Expanded(
                       flex: 5,
                       child: Container(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                        decoration: const BoxDecoration(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 15.w, vertical: 10.h),
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
+                            topLeft: Radius.circular(30.r),
+                            topRight: Radius.circular(30.r),
                           ),
-                          color: Color.fromARGB(255, 255, 255, 255),
+                          color: const Color.fromARGB(255, 255, 255, 255),
                         ),
                         child: Column(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(5),
+                              padding: EdgeInsets.all(5.w),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF006257),
-                                borderRadius: BorderRadius.circular(30),
+                                borderRadius: BorderRadius.circular(30.r),
                               ),
                               child: Row(
                                 children: [
@@ -128,13 +128,13 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                                       child: Container(
                                         decoration: BoxDecoration(
                                           borderRadius:
-                                              BorderRadius.circular(30),
+                                              BorderRadius.circular(30.r),
                                           color: _selectedIndex == 0
                                               ? Colors.white
                                               : Colors.transparent,
                                         ),
-                                        padding:
-                                            const EdgeInsets.symmetric(vertical: 10),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 10.h),
                                         alignment: Alignment.center,
                                         child: Text(
                                           'Video Lessons',
@@ -142,13 +142,13 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                                             color: _selectedIndex == 0
                                                 ? Colors.black
                                                 : Colors.white,
-                                            fontSize: 18,
+                                            fontSize: 18.sp,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 5),
+                                  SizedBox(width: 5.w),
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () {
@@ -159,13 +159,13 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                                       child: Container(
                                         decoration: BoxDecoration(
                                           borderRadius:
-                                              BorderRadius.circular(30),
+                                              BorderRadius.circular(30.r),
                                           color: _selectedIndex == 1
                                               ? Colors.white
                                               : Colors.transparent,
                                         ),
-                                        padding:
-                                            const EdgeInsets.symmetric(vertical: 10),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 10.h),
                                         alignment: Alignment.center,
                                         child: Text(
                                           'Description',
@@ -173,7 +173,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                                             color: _selectedIndex == 1
                                                 ? Colors.black
                                                 : Colors.white,
-                                            fontSize: 18,
+                                            fontSize: 18.sp,
                                           ),
                                         ),
                                       ),
@@ -182,7 +182,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 30),
+                            SizedBox(height: 30.h),
                             Expanded(
                               child: _selectedIndex == 0
                                   ? FutureBuilder<CourseFetchModel>(
@@ -255,11 +255,11 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
               }));
             },
       child: Container(
-        padding: const EdgeInsets.all(15),
-        margin: const EdgeInsets.only(bottom: 10),
+        padding: EdgeInsets.all(15.w),
+        margin: EdgeInsets.only(bottom: 10.h),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(18.r),
           border: Border.all(color: const Color.fromARGB(141, 0, 98, 86)),
           boxShadow: const [
             BoxShadow(
@@ -272,25 +272,25 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
         child: Row(
           children: [
             Container(
-              height: 60,
-              width: 60,
+              height: 60.h,
+              width: 60.w,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(30.r),
                 color: const Color(0xFF006257),
               ),
               child: isCurrentChapter
-                  ? const Icon(Icons.pause, size: 35, color: Colors.white)
-                  : const Icon(Icons.play_arrow, size: 40, color: Colors.white),
+                  ? Icon(Icons.pause, size: 35.sp, color: Colors.white)
+                  : Icon(Icons.play_arrow, size: 40.sp, color: Colors.white),
             ),
-            const SizedBox(width: 20),
+            SizedBox(width: 20.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     chapter.title,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                   ),
                   Text('Part ${chapter.position}'),
                 ],
@@ -304,11 +304,11 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
 
   Widget _buildDescriptionContent() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(16.0.w),
       child: SingleChildScrollView(
         child: Text(
           widget.chapter.description,
-          style: const TextStyle(fontSize: 16),
+          style: TextStyle(fontSize: 16.sp),
         ),
       ),
     );

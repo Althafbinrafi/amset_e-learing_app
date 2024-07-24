@@ -50,7 +50,8 @@ dependencies:
   flutter_screenutil: ^5.9.3
   url_launcher: ^6.3.0
   google_nav_bar: ^5.0.6
-  # flutter_screenutil: ^5.9.1
+  shimmer: ^3.0.0
+  
 
 
 dev_dependencies:

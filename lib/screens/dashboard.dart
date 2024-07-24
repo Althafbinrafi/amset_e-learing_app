@@ -1,12 +1,12 @@
-// ignore_for_file: depend_on_referenced_packages, deprecated_member_use, library_private_types_in_public_api
+// ignore_for_file: deprecated_member_use
 
 import 'dart:async';
-import 'dart:io';
+
 import 'package:amset/Models/allCoursesModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:amset/Pages/course_page.dart';
@@ -14,7 +14,7 @@ import 'package:amset/Pages/notification_page.dart';
 import 'package:amset/Pages/profile_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
 
 class Dashboard extends StatefulWidget {
@@ -69,6 +69,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: duplicate_ignore
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         return await showDialog(
@@ -121,28 +123,28 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             borderRadius: BorderRadius.all(Radius.circular(25.r)),
             child: GNav(
               gap: 5,
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
               tabBackgroundColor: Colors.white,
               activeColor: const Color(0xFF006257),
               color: const Color.fromARGB(255, 255, 255, 255),
               tabs: const [
                 GButton(
-                  iconSize: 30,
+                  iconSize: 25,
                   icon: Icons.home,
                   text: 'Home',
                 ),
                 GButton(
-                  iconSize: 30,
+                  iconSize: 25,
                   icon: Icons.menu_book_rounded,
                   text: 'Course',
                 ),
                 GButton(
-                  iconSize: 30,
-                  icon: Icons.notifications,
-                  text: 'Notification',
+                  iconSize: 25,
+                  icon: Icons.favorite_rounded,
+                  text: 'Favourite',
                 ),
                 GButton(
-                  iconSize: 30,
+                  iconSize: 25,
                   icon: Icons.account_circle,
                   text: 'Profile',
                 ),
@@ -169,6 +171,7 @@ class DashboardPage extends StatefulWidget {
       {super.key, required this.fullName, required this.avatarPath});
 
   @override
+  // ignore: library_private_types_in_public_api
   _DashboardPageState createState() => _DashboardPageState();
 }
 
@@ -177,11 +180,12 @@ class _DashboardPageState extends State<DashboardPage> {
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
   late Timer _timer;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _futureCourses = _fetchCourses();
+    _loadCourses();
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       if (_currentPage < 2) {
         _currentPage++;
@@ -203,18 +207,31 @@ class _DashboardPageState extends State<DashboardPage> {
     super.dispose();
   }
 
-  Future<List<Course>> _fetchCourses() async {
-    final response =
-        await http.get(Uri.parse('https://amset-server.vercel.app/api/course'));
+  Future<void> _loadCourses() async {
+    setState(() {
+      _futureCourses = _fetchCourses();
+    });
+  }
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      AllCoursesModel coursesModel = AllCoursesModel.fromJson(data);
-      return coursesModel.courses
-          .where((course) => course.isPublished)
-          .toList();
-    } else {
-      throw Exception('Failed to load courses');
+  Future<List<Course>> _fetchCourses() async {
+    try {
+      final response = await http
+          .get(Uri.parse('https://amset-server.vercel.app/api/course'));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        AllCoursesModel coursesModel = AllCoursesModel.fromJson(data);
+        _hasError = false;
+        return coursesModel.courses
+            .where((course) => course.isPublished)
+            .toList();
+      } else {
+        _hasError = true;
+        throw Exception('Failed to load courses');
+      }
+    } catch (e) {
+      _hasError = true;
+      rethrow;
     }
   }
 
@@ -222,251 +239,344 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            snap: true,
-            centerTitle: true,
-            toolbarHeight: 80,
-            backgroundColor: const Color(0xFF008172),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircleAvatar(
-                  radius: 23.r,
-                  backgroundImage: widget.avatarPath.isNotEmpty
-                      ? FileImage(File(widget.avatarPath))
-                      : const AssetImage('assets/images/man.png')
-                          as ImageProvider,
-                ),
-                // Align(
-                //   alignment: Alignment.center,
-                //   child: Text(
-                //     'Amset',
-                //     textAlign: TextAlign.center,
-                //     style: GoogleFonts.aBeeZee(
-                //       fontSize: 24.sp,
-                //       color: Colors.white,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //   ),
-                // ),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.search,
-                        size: 30,
-                        color: Colors.white,
-                      ),
+      body: _hasError ? _buildErrorPage() : _buildDashboard(),
+    );
+  }
+
+  Widget _buildErrorPage() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, color: Colors.red, size: 100.r),
+          SizedBox(height: 20.h),
+          Text('Failed to load courses', style: TextStyle(fontSize: 18.sp)),
+          SizedBox(height: 20.h),
+          ElevatedButton(
+            onPressed: _loadCourses,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashboard() {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          snap: true,
+          centerTitle: true,
+          toolbarHeight: 58,
+          backgroundColor: const Color(0xFF008172),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                ' Amset',
+                style: TextStyle(
+                    fontSize: 25.sp,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.search,
+                      size: 30,
+                      color: Colors.white,
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.bookmark_border_outlined,
-                        size: 30,
-                        color: Colors.white,
-                      ),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.notifications,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              SizedBox(height: 20.h),
+              Container(
+                margin: EdgeInsets.only(top: 20.h),
+                height: 120.h,
+                width: MediaQuery.of(context).size.width - 40.w,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  borderRadius: BorderRadius.circular(18.r),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      spreadRadius: 1,
+                      blurRadius: 10,
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                SizedBox(height: 20.h),
-                Container(
-                  margin: EdgeInsets.only(top: 20.h),
-                  height: 120.h,
-                  width: MediaQuery.of(context).size.width - 40.w,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                    borderRadius: BorderRadius.circular(18.r),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        spreadRadius: 1,
-                        blurRadius: 10,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18.r),
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (int page) {
+                      setState(() {
+                        _currentPage = page;
+                      });
+                    },
+                    children: const [
+                      Image(
+                        image: AssetImage('assets/images/skip1.png'),
+                        fit: BoxFit.cover,
+                      ),
+                      Image(
+                        image: AssetImage('assets/images/skip2.png'),
+                        fit: BoxFit.cover,
+                      ),
+                      Image(
+                        image: AssetImage('assets/images/skip3.png'),
+                        fit: BoxFit.cover,
                       ),
                     ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(18.r),
-                    child: PageView(
-                      controller: _pageController,
-                      onPageChanged: (int page) {
-                        setState(() {
-                          _currentPage = page;
-                        });
-                      },
-                      children: const [
-                        Image(
-                          image: AssetImage('assets/images/skip1.png'),
-                          fit: BoxFit.cover,
-                        ),
-                        Image(
-                          image: AssetImage('assets/images/skip2.png'),
-                          fit: BoxFit.cover,
-                        ),
-                        Image(
-                          image: AssetImage('assets/images/skip3.png'),
-                          fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(height: 10.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List<Widget>.generate(3, (int index) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: EdgeInsets.symmetric(horizontal: 2.w),
+                    width: _currentPage == index ? 17.w : 7.w,
+                    height: 7.h,
+                    decoration: BoxDecoration(
+                      color: _currentPage == index
+                          ? const Color(0xFF006257)
+                          : const Color(0xFFBDBDBD),
+                      borderRadius: BorderRadius.circular(5.r),
+                    ),
+                  );
+                }),
+              ),
+              SizedBox(height: 30.h),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(' Recommended',
+                            style: TextStyle(
+                              color: const Color.fromARGB(255, 0, 0, 0),
+                              fontSize: 20.sp,
+                            )),
+                        GestureDetector(
+                          child: const Text('See All'),
+                          onTap: () {},
                         ),
                       ],
                     ),
-                  ),
+                    SizedBox(height: 5.h),
+                    FutureBuilder<List<Course>>(
+                      future: _futureCourses,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _buildShimmerEffect(); // Show shimmer effect while loading
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                              child: Text('Error loading courses'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(
+                              child: Text('No courses available'));
+                        } else {
+                          final courses = snapshot.data!;
+                          return SizedBox(
+                            height:
+                                224.h, // Fixed height for the horizontal list
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: courses.length,
+                              itemBuilder: (context, index) {
+                                final course = courses[index];
+                                return _buildCourseCard(
+                                  context,
+                                  course.imageUrl ??
+                                      'assets/images/default.png',
+                                  course.title,
+                                  '${course.chapters.length} Lessons',
+                                  course.description ??
+                                      'No description available',
+                                  'Rs. ${course.price} /-',
+                                  index,
+                                );
+                              },
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    SizedBox(height: 20.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(' Explore',
+                            style: TextStyle(
+                              color: const Color.fromARGB(255, 0, 0, 0),
+                              fontSize: 20.sp,
+                            )),
+                        GestureDetector(
+                          child: const Text('See All'),
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5.h),
+                    FutureBuilder<List<Course>>(
+                      future: _futureCourses,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _buildShimmerEffect(); // Show shimmer effect while loading
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                              child: Text('Error loading courses'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(
+                              child: Text('No courses available'));
+                        } else {
+                          final courses = snapshot.data!;
+                          return SizedBox(
+                            height:
+                                250.h, // Fixed height for the horizontal list
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: courses.length,
+                              itemBuilder: (context, index) {
+                                final course = courses[index];
+                                return _buildCourseCard(
+                                  context,
+                                  course.imageUrl ??
+                                      'assets/images/default.png',
+                                  course.title,
+                                  '${course.chapters.length} Lessons',
+                                  course.description ??
+                                      'No description available',
+                                  'Rs. ${course.price} /-',
+                                  index,
+                                );
+                              },
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    SizedBox(height: 5.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text(' Premium',
+                                style: TextStyle(
+                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                  fontSize: 20.sp,
+                                )),
+                            SizedBox(width: 4.w),
+                            const Icon(Icons.workspace_premium_rounded,
+                                color: Colors.amber),
+                          ],
+                        ),
+                        GestureDetector(
+                          child: const Text('See All'),
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 5.h),
+                    FutureBuilder<List<Course>>(
+                      future: _futureCourses,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _buildShimmerEffect(); // Show shimmer effect while loading
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                              child: Text('Error loading courses'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(
+                              child: Text('No courses available'));
+                        } else {
+                          final courses = snapshot.data!;
+                          return SizedBox(
+                            height:
+                                250.h, // Fixed height for the horizontal list
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: courses.length,
+                              itemBuilder: (context, index) {
+                                final course = courses[index];
+                                return _buildCourseCard(
+                                  context,
+                                  course.imageUrl ??
+                                      'assets/images/default.png',
+                                  course.title,
+                                  '${course.chapters.length} Lessons',
+                                  course.description ??
+                                      'No description available',
+                                  'Rs. ${course.price} /-',
+                                  index,
+                                );
+                              },
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
-                SizedBox(height: 10.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List<Widget>.generate(3, (int index) {
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: EdgeInsets.symmetric(horizontal: 2.w),
-                      width: _currentPage == index ? 17.w : 7.w,
-                      height: 7.h,
-                      decoration: BoxDecoration(
-                        color: _currentPage == index
-                            ? const Color(0xFF006257)
-                            : const Color(0xFFBDBDBD),
-                        borderRadius: BorderRadius.circular(5.r),
-                      ),
-                    );
-                  }),
-                ),
-                SizedBox(height: 30.h),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            ' Recommended',
-                            style: GoogleFonts.aBeeZee(fontSize: 20.sp),
-                          ),
-                          Text('See All'),
-                        ],
-                      ),
-                      SizedBox(height: 5.h),
-                      FutureBuilder<List<Course>>(
-                        future: _futureCourses,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return const Center(
-                                child: Text('Error loading courses'));
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
-                            return const Center(
-                                child: Text('No courses available'));
-                          } else {
-                            final courses = snapshot.data!;
-                            return SizedBox(
-                              height:
-                                  250.h, // Fixed height for the horizontal list
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: courses.length,
-                                itemBuilder: (context, index) {
-                                  final course = courses[index];
-                                  return _buildCourseCard(
-                                    context,
-                                    course.imageUrl ??
-                                        'assets/images/default.png',
-                                    course.title,
-                                    '${course.chapters.length} Lessons',
-                                    course.description ??
-                                        'No description available',
-                                    'Rs. ${course.price} /-',
-                                    index,
-                                  );
-                                },
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                      // SizedBox(
-                      //   height: 1,
-                      // ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            ' Explore',
-                            style: GoogleFonts.aBeeZee(fontSize: 20.sp),
-                          ),
-                          Text('See All'),
-                          // Container(
-                          //   child: Text('See All'),
-                          //   decoration: BoxDecoration(
-                          //       color: const Color.fromARGB(107, 158, 158, 158),
-                          //       borderRadius: BorderRadius.circular(10)),
-                          //   padding: EdgeInsets.symmetric(
-                          //       horizontal: 10, vertical: 5),
-                          // )
-                        ],
-                      ),
-                      SizedBox(height: 5.h),
-                      FutureBuilder<List<Course>>(
-                        future: _futureCourses,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return const Center(
-                                child: Text('Error loading courses'));
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
-                            return const Center(
-                                child: Text('No courses available'));
-                          } else {
-                            final courses = snapshot.data!;
-                            return SizedBox(
-                              height:
-                                  250.h, // Fixed height for the horizontal list
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: courses.length,
-                                itemBuilder: (context, index) {
-                                  final course = courses[index];
-                                  return _buildCourseCard(
-                                    context,
-                                    course.imageUrl ??
-                                        'assets/images/default.png',
-                                    course.title,
-                                    '${course.chapters.length} Lessons',
-                                    course.description ??
-                                        'No description available',
-                                    'Rs. ${course.price} /-',
-                                    index,
-                                  );
-                                },
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShimmerEffect() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: SizedBox(
+        height: 250.h,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: 6,
+          itemBuilder: (_, __) => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: 180.w,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18.r),
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -477,6 +587,7 @@ class _DashboardPageState extends State<DashboardPage> {
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
+        // ignore: sized_box_for_whitespace
         return Container(
           height: 450.h,
           child: Stack(
@@ -591,6 +702,22 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  Future<void> _launchWhatsApp(String title) async {
+    const phoneNumber = '+918089891475';
+    final message = '''I am interested in the course,
+*"$title"*
+How can I know more?
+http://amset-client.vercel.app
+Amset Academy. ''';
+    final url =
+        'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   Widget _buildCourseCard(BuildContext context, String imagePath, String title,
       String lessons, String description, String price, int index) {
     final List<Color> backgroundColors = [
@@ -609,13 +736,6 @@ class _DashboardPageState extends State<DashboardPage> {
         width: 180.w, // Fixed width for each course card
         margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
         decoration: BoxDecoration(
-          // boxShadow: const [
-          //   BoxShadow(
-          //     color: Colors.black12,
-          //     spreadRadius: 1,
-          //     blurRadius: 10,
-          //   ),
-          // ],
           color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(18.r),
         ),
@@ -636,9 +756,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
             ),
-            SizedBox(
-              height: 5,
-            ),
+            SizedBox(height: 5.h),
             Padding(
               padding: EdgeInsets.all(0.w),
               child: Column(
@@ -648,9 +766,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.aBeeZee(
+                    style: TextStyle(
                       fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       height: 1.2,
                       color: const Color(0xff1d1b1e),
                     ),
@@ -666,43 +784,21 @@ class _DashboardPageState extends State<DashboardPage> {
                             color: Colors.grey,
                             size: 20.sp,
                           ),
-                          SizedBox(
-                            width: 3,
-                          ),
+                          SizedBox(width: 3.w),
                           Text(
                             'Hypermarket',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.grey,
-                            ),
+                            style:
+                                TextStyle(fontSize: 14.sp, color: Colors.grey),
                           ),
                         ],
                       ),
-                      Icon(
-                        Icons.bookmark_border_outlined,
-                        color: const Color.fromARGB(255, 90, 89, 89),
-                      )
+                      const Icon(
+                        Icons.favorite_outline_rounded,
+                        color: Color.fromARGB(255, 90, 89, 89),
+                      ),
                     ],
                   ),
                   SizedBox(height: 5.h),
-                  // Text(
-                  //   description,
-                  //   maxLines: 3,
-                  //   overflow: TextOverflow.ellipsis,
-                  //   style: TextStyle(
-                  //     fontSize: 14.sp,
-                  //     color: Colors.black54,
-                  //   ),
-                  // ),
-                  // SizedBox(height: 5.h),
-                  // Text(
-                  //   price,
-                  //   style: TextStyle(
-                  //     fontSize: 16.sp,
-                  //     color: const Color(0xFF006257),
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
                 ],
               ),
             ),
@@ -710,20 +806,5 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
       ),
     );
-  }
-}
-
-Future<void> _launchWhatsApp(String title) async {
-  const phoneNumber = '+918089891475';
-  final message = '''I am interested in the course,
-*"$title"*
-How can I know more?
-http://amset-client.vercel.app
-Amset Academy. ''';
-  final url = 'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Could not launch $url';
   }
 }

@@ -4,6 +4,7 @@ import 'package:amset/screens/skip.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io'; // Import for File
 
 class ProfilePage extends StatefulWidget {
@@ -111,9 +112,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height / 1.4;
-
     return Scaffold(
       backgroundColor: const Color(0xFF006257),
       body: Column(
@@ -130,9 +128,9 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            height: screenHeight,
-            width: screenWidth,
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+            height: 0.7.sh, // Using 70% of the screen height
+            width: 1.sw, // Using the full screen width
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30),
@@ -149,11 +147,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     GestureDetector(
                       onTap: _editProfile,
                       child: Container(
-                        padding: const EdgeInsets.all(5),
-                        height: 50,
-                        width: 50,
+                        padding: EdgeInsets.all(5.w),
+                        height: 50.h,
+                        width: 50.w,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(40),
+                          borderRadius: BorderRadius.circular(40.r),
                           color: const Color(0xFF006257),
                         ),
                         child: const Icon(
@@ -166,11 +164,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
                 CircleAvatar(
-                  maxRadius: 90,
+                  maxRadius: 90.r,
                   backgroundColor: Colors.transparent,
                   child: SizedBox(
-                    height: 170,
-                    width: 170,
+                    height: 170.h,
+                    width: 170.w,
                     child: ClipOval(
                       child: _avatarPath.isNotEmpty &&
                               _avatarPath != 'assets/images/man.png'
@@ -182,35 +180,35 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5.h),
                 Text(
                   _fullName,
-                  style: const TextStyle(fontSize: 22),
+                  style: TextStyle(fontSize: 22.sp),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 Text(
                   _email,
-                  style: const TextStyle(fontSize: 20, color: Colors.grey),
+                  style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10.h),
                 Text(
                   _phone,
-                  style: const TextStyle(fontSize: 20, color: Colors.grey),
+                  style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                 ),
-                const SizedBox(height: 50),
+                SizedBox(height: 50.h),
                 Container(
-                  width: 200,
+                  width: 200.w,
                   decoration: BoxDecoration(
                     color: const Color(0xFF006257),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: TextButton(
                     onPressed: _confirmLogout,
-                    child: const Text(
+                    child: Text(
                       'Log Out',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 18.sp,
                       ),
                     ),
                   ),
@@ -289,7 +287,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 70,
+        leading: GestureDetector(
+          child: const Icon(Icons.arrow_back_ios_new_rounded),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+        toolbarHeight: 70.h,
         backgroundColor: const Color(0xFF006257),
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
@@ -299,18 +303,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+          padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 20.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(
-                height: 30,
+              SizedBox(
+                height: 30.h,
               ),
               Center(
                 child: GestureDetector(
                   onTap: _pickImage,
                   child: CircleAvatar(
-                    radius: 60,
+                    radius: 60.r,
                     backgroundImage: _avatarPath != null
                         ? FileImage(File(_avatarPath!))
                         : const AssetImage('assets/images/man.png')
@@ -319,49 +323,49 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
               const Text('Add Photo'),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Full Name',
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                      borderRadius: BorderRadius.all(Radius.circular(10.r))),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               TextField(
                 controller: _emailController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                      borderRadius: BorderRadius.all(Radius.circular(10.r))),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               TextField(
                 controller: _phoneController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Phone Number',
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                      borderRadius: BorderRadius.all(Radius.circular(10.r))),
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
               Center(
                 // ignore: sized_box_for_whitespace
                 child: Container(
-                  height: 50,
-                  width: MediaQuery.of(context).size.width / 2,
+                  height: 50.h,
+                  width: 0.5.sw, // Using 50% of the screen width
                   child: ElevatedButton(
                     style: TextButton.styleFrom(
                         backgroundColor: const Color(0xFF006257),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
+                          borderRadius: BorderRadius.circular(30.r),
                         )),
                     onPressed: _saveProfile,
-                    child: const Text(
+                    child: Text(
                       'Save',
-                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      style: TextStyle(color: Colors.white, fontSize: 20.sp),
                     ),
                   ),
                 ),

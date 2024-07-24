@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+//import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotificationPage extends StatelessWidget {
@@ -16,7 +16,7 @@ class NotificationPage extends StatelessWidget {
               color: const Color(0xFF006257),
               child: const Center(
                 child: Text(
-                  'Notifications',
+                  'Favourites',
                   style: TextStyle(fontSize: 28, color: Colors.white),
                 ),
               ),
@@ -37,16 +37,16 @@ class NotificationPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SvgPicture.asset(
-                    'assets/images/Push notifications-bro.svg',
-                    height: 200.h,
-                    width: 200.w,
-                  ),
+                  // SvgPicture.asset(
+                  //   'assets/images/Push notifications-bro.svg',
+                  //   height: 200.h,
+                  //   width: 200.w,
+                  // ),
                   SizedBox(
                     height: 10.h,
                   ),
                   const Text(
-                    'No Notifications !',
+                    'Nohting Found !',
                     style: TextStyle(fontSize: 16),
                   ),
                 ],

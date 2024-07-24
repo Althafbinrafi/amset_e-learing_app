@@ -3,6 +3,7 @@
 import 'package:amset/Models/courseFetchModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -54,9 +55,6 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height / 1.4;
-
     return Scaffold(
       backgroundColor: const Color(0xFF006257),
       body: FutureBuilder<CourseFetchModel>(
@@ -93,7 +91,8 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
               children: [
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
                     color: const Color(0xFF006257),
                     child: Center(
                       child: Column(
@@ -103,10 +102,10 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                             snapshot.data!.course.title,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.prozaLibre(
-                                fontSize: 25, color: Colors.white),
+                                fontSize: 25.sp, color: Colors.white),
                           ),
-                          const SizedBox(
-                            height: 30,
+                          SizedBox(
+                            height: 30.h,
                           ),
                         ],
                       ),
@@ -114,9 +113,10 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
-                  height: screenHeight,
-                  width: screenWidth,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 30.w, vertical: 40.h),
+                  height: 0.7.sh, // Using 70% of the screen height
+                  width: 1.sw, // Using the full screen width
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
@@ -132,7 +132,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                           _buildLessonContainer(context,
                               snapshot.data!.chapters[index], widget.courseId),
                           if (index < snapshot.data!.chapters.length - 1)
-                            const SizedBox(height: 20),
+                            SizedBox(height: 20.h),
                         ],
                       );
                     },
@@ -144,9 +144,9 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
         },
       ),
       floatingActionButton: Container(
-        margin: const EdgeInsets.only(top: 20, left: 10),
-        height: 40,
-        width: 70,
+        margin: EdgeInsets.only(top: 20.h, left: 10.w),
+        height: 40.h,
+        width: 70.w,
         child: FloatingActionButton(
           backgroundColor: Colors.white,
           child: const Text('Back'),
@@ -163,12 +163,12 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
       BuildContext context, Chapter chapter, String courseId) {
     return GestureDetector(
       child: Container(
-        padding: const EdgeInsets.all(15),
-        height: 90,
+        padding: EdgeInsets.all(15.w),
+        height: 90.h,
         width: double.infinity,
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(18.r),
           border: Border.all(
             color: const Color(0xFF006257),
           ),
@@ -183,10 +183,10 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
         child: Row(
           children: [
             Container(
-              height: 60,
-              width: 60,
+              height: 60.h,
+              width: 60.w,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(40),
+                borderRadius: BorderRadius.circular(40.r),
                 color: const Color(0xFF006257),
               ),
               child: const Icon(
@@ -195,8 +195,8 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                 color: Colors.white,
               ),
             ),
-            const SizedBox(
-              width: 20,
+            SizedBox(
+              width: 20.w,
             ),
             Expanded(
               child: Column(
@@ -205,7 +205,8 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                 children: [
                   Text(
                     chapter.title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                   ),
                   Text('Part ${chapter.position}'),
                 ],
