@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:amset/Models/allCoursesModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,8 +55,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     String? storedAvatarPath = prefs.getString('avatar_path');
     setState(() {
       _pages[0] = DashboardPage(
-          fullName: storedFullName ?? widget.fullName,
-          avatarPath: storedAvatarPath ?? widget.avatarPath);
+        fullName: storedFullName ?? widget.fullName,
+        avatarPath: storedAvatarPath ?? widget.avatarPath,
+      );
     });
   }
 
@@ -64,7 +66,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     _controller.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +89,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Yes',
-                    style: TextStyle(
-                      color: Color(0xFF006257),
-                    )),
+                child: const Text(
+                  'Yes',
+                  style: TextStyle(
+                    color: Color(0xFF006257),
+                  ),
+                ),
               ),
             ],
           ),
@@ -104,10 +107,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         ),
         bottomNavigationBar: Container(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-          //margin: EdgeInsets.only(bottom: 20.h, left: 30.w, right: 30.w),
           decoration: const BoxDecoration(
             color: Color(0xFF006257),
-            //borderRadius: BorderRadius.all(Radius.circular(25.r)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black12,
@@ -121,11 +122,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             child: GNav(
               gap: 5,
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-              //tabActiveBorder: Border.all(width: 1, color: Colors.white),
               tabBackgroundColor: Colors.white,
               activeColor: const Color(0xFF006257),
-              color: const Color.fromARGB(
-                  255, 255, 255, 255), // Inactive icon color
+              color: const Color.fromARGB(255, 255, 255, 255),
               tabs: const [
                 GButton(
                   iconSize: 30,
@@ -161,8 +160,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 }
-
-// The rest of the code remains unchanged...
 
 class DashboardPage extends StatefulWidget {
   final String fullName;
@@ -223,189 +220,254 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          height: 200.h,
-          padding: EdgeInsets.only(top: 60.h, left: 50.w, right: 50.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(25.r),
-              bottomRight: Radius.circular(25.r),
-            ),
-            gradient: const LinearGradient(
-              end: Alignment.centerLeft,
-              begin: Alignment.centerRight,
-              colors: <Color>[Color(0xFF00C8B2), Color(0xFF008172)],
-            ),
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Hello',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 20.sp,
-                        ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            snap: true,
+            centerTitle: true,
+            toolbarHeight: 80,
+            backgroundColor: const Color(0xFF008172),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CircleAvatar(
+                  radius: 23.r,
+                  backgroundImage: widget.avatarPath.isNotEmpty
+                      ? FileImage(File(widget.avatarPath))
+                      : const AssetImage('assets/images/man.png')
+                          as ImageProvider,
+                ),
+                // Align(
+                //   alignment: Alignment.center,
+                //   child: Text(
+                //     'Amset',
+                //     textAlign: TextAlign.center,
+                //     style: GoogleFonts.aBeeZee(
+                //       fontSize: 24.sp,
+                //       color: Colors.white,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.search,
+                        size: 30,
+                        color: Colors.white,
                       ),
-                      Text(
-                        widget.fullName,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 25.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    ],
-                  ),
-                  CircleAvatar(
-                    radius: 25.r,
-                    backgroundImage: widget.avatarPath.isNotEmpty
-                        ? FileImage(File(widget.avatarPath))
-                        : const AssetImage('assets/images/man.png')
-                            as ImageProvider,
-                    onBackgroundImageError: (_, __) {
-                      // Provide a fallback for the image
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(height: 40.h),
-            ],
-          ),
-        ),
-        Center(
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.only(top: 140.h),
-                height: 120.h,
-                width: MediaQuery.of(context).size.width - 70.w,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  borderRadius: BorderRadius.circular(18.r),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      spreadRadius: 1,
-                      blurRadius: 10,
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.bookmark_border_outlined,
+                        size: 30,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18.r),
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: (int page) {
-                      setState(() {
-                        _currentPage = page;
-                      });
-                    },
-                    children: const [
-                      Image(
-                        image: AssetImage('assets/images/event1.png'),
-                        fit: BoxFit.cover,
-                      ),
-                      Image(
-                        image: AssetImage('assets/images/event2.png'),
-                        fit: BoxFit.cover,
-                      ),
-                      Image(
-                        image: AssetImage('assets/images/event3.png'),
-                        fit: BoxFit.cover,
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                SizedBox(height: 20.h),
+                Container(
+                  margin: EdgeInsets.only(top: 20.h),
+                  height: 120.h,
+                  width: MediaQuery.of(context).size.width - 40.w,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                    borderRadius: BorderRadius.circular(18.r),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        spreadRadius: 1,
+                        blurRadius: 10,
                       ),
                     ],
                   ),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List<Widget>.generate(3, (int index) {
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: EdgeInsets.symmetric(horizontal: 2.w),
-                    width: _currentPage == index ? 17.w : 7.w,
-                    height: 7.h,
-                    decoration: BoxDecoration(
-                      color: _currentPage == index
-                          ? const Color(0xFF006257)
-                          : const Color(0xFFBDBDBD),
-                      borderRadius: BorderRadius.circular(5.r),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(18.r),
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: (int page) {
+                        setState(() {
+                          _currentPage = page;
+                        });
+                      },
+                      children: const [
+                        Image(
+                          image: AssetImage('assets/images/skip1.png'),
+                          fit: BoxFit.cover,
+                        ),
+                        Image(
+                          image: AssetImage('assets/images/skip2.png'),
+                          fit: BoxFit.cover,
+                        ),
+                        Image(
+                          image: AssetImage('assets/images/skip3.png'),
+                          fit: BoxFit.cover,
+                        ),
+                      ],
                     ),
-                  );
-                }),
-              ),
-            ],
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            padding:
-                EdgeInsets.only(left: 30.w, right: 30.w, bottom: 0, top: 1.h),
-            height: 430.h,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(left: 10.w),
-                  child: Text(
-                    'Our Courses',
-                    style: TextStyle(fontSize: 20.sp),
                   ),
                 ),
-                SizedBox(height: 5.h),
-                Expanded(
-                  child: FutureBuilder<List<Course>>(
-                    future: _futureCourses,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return const Center(
-                            child: Text('Error loading courses'));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(
-                            child: Text('No courses available'));
-                      } else {
-                        final courses = snapshot.data!;
-                        return GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 1,
-                            childAspectRatio: 1.8,
+                SizedBox(height: 10.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List<Widget>.generate(3, (int index) {
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: EdgeInsets.symmetric(horizontal: 2.w),
+                      width: _currentPage == index ? 17.w : 7.w,
+                      height: 7.h,
+                      decoration: BoxDecoration(
+                        color: _currentPage == index
+                            ? const Color(0xFF006257)
+                            : const Color(0xFFBDBDBD),
+                        borderRadius: BorderRadius.circular(5.r),
+                      ),
+                    );
+                  }),
+                ),
+                SizedBox(height: 30.h),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            ' Recommended',
+                            style: GoogleFonts.aBeeZee(fontSize: 20.sp),
                           ),
-                          itemCount: courses.length,
-                          itemBuilder: (context, index) {
-                            final course = courses[index];
-                            return _buildCourseCard(
-                              context,
-                              course.imageUrl ?? 'assets/images/default.png',
-                              course.title,
-                              '${course.chapters.length} Lessons',
-                              course.description ?? 'No description available',
-                              'Rs. ${course.price} /-',
-                              index,
+                          Text('See All'),
+                        ],
+                      ),
+                      SizedBox(height: 5.h),
+                      FutureBuilder<List<Course>>(
+                        future: _futureCourses,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return const Center(
+                                child: Text('Error loading courses'));
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return const Center(
+                                child: Text('No courses available'));
+                          } else {
+                            final courses = snapshot.data!;
+                            return SizedBox(
+                              height:
+                                  250.h, // Fixed height for the horizontal list
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: courses.length,
+                                itemBuilder: (context, index) {
+                                  final course = courses[index];
+                                  return _buildCourseCard(
+                                    context,
+                                    course.imageUrl ??
+                                        'assets/images/default.png',
+                                    course.title,
+                                    '${course.chapters.length} Lessons',
+                                    course.description ??
+                                        'No description available',
+                                    'Rs. ${course.price} /-',
+                                    index,
+                                  );
+                                },
+                              ),
                             );
-                          },
-                        );
-                      }
-                    },
+                          }
+                        },
+                      ),
+                      // SizedBox(
+                      //   height: 1,
+                      // ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            ' Explore',
+                            style: GoogleFonts.aBeeZee(fontSize: 20.sp),
+                          ),
+                          Text('See All'),
+                          // Container(
+                          //   child: Text('See All'),
+                          //   decoration: BoxDecoration(
+                          //       color: const Color.fromARGB(107, 158, 158, 158),
+                          //       borderRadius: BorderRadius.circular(10)),
+                          //   padding: EdgeInsets.symmetric(
+                          //       horizontal: 10, vertical: 5),
+                          // )
+                        ],
+                      ),
+                      SizedBox(height: 5.h),
+                      FutureBuilder<List<Course>>(
+                        future: _futureCourses,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return const Center(
+                                child: Text('Error loading courses'));
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return const Center(
+                                child: Text('No courses available'));
+                          } else {
+                            final courses = snapshot.data!;
+                            return SizedBox(
+                              height:
+                                  250.h, // Fixed height for the horizontal list
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: courses.length,
+                                itemBuilder: (context, index) {
+                                  final course = courses[index];
+                                  return _buildCourseCard(
+                                    context,
+                                    course.imageUrl ??
+                                        'assets/images/default.png',
+                                    course.title,
+                                    '${course.chapters.length} Lessons',
+                                    course.description ??
+                                        'No description available',
+                                    'Rs. ${course.price} /-',
+                                    index,
+                                  );
+                                },
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        )
-      ],
+        ],
+      ),
     );
   }
 
@@ -415,7 +477,6 @@ class _DashboardPageState extends State<DashboardPage> {
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
-        // ignore: sized_box_for_whitespace
         return Container(
           height: 450.h,
           child: Stack(
@@ -465,7 +526,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           fontSize: 16.sp,
                         ),
                       ),
-                      SizedBox(height: 80.h), // Adjust as needed
+                      SizedBox(height: 80.h),
                     ],
                   ),
                 ),
@@ -530,22 +591,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Future<void> _launchWhatsApp(String title) async {
-    const phoneNumber = '+918089891475';
-    final message = '''I am interested in the course,
-*"$title"*
-How can I know more?
-http://amset-client.vercel.app
-Amset Academy. ''';
-    final url =
-        'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
   Widget _buildCourseCard(BuildContext context, String imagePath, String title,
       String lessons, String description, String price, int index) {
     final List<Color> backgroundColors = [
@@ -561,90 +606,124 @@ Amset Academy. ''';
       onTap: () =>
           _showCourseDrawer(context, title, lessons, description, price),
       child: Container(
-        padding: EdgeInsets.all(15.w),
+        width: 180.w, // Fixed width for each course card
         margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
-        height: 300.h, // Set the height to 300
         decoration: BoxDecoration(
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              spreadRadius: 1,
-              blurRadius: 10,
-            ),
-          ],
+          // boxShadow: const [
+          //   BoxShadow(
+          //     color: Colors.black12,
+          //     spreadRadius: 1,
+          //     blurRadius: 10,
+          //   ),
+          // ],
           color: const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(18.r),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 120.w,
+              height: 120.h, // Fixed height for the image
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18.r),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(5.r)),
                 color: backgroundColor,
                 image: DecorationImage(
                   image: imagePath.isNotEmpty
                       ? NetworkImage(imagePath)
-                      : const AssetImage(
-                          'assets/images/default.png',
-                        ) as ImageProvider,
+                      : const AssetImage('assets/images/default.png')
+                          as ImageProvider,
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-            SizedBox(width: 15.w),
-            Expanded(
+            SizedBox(
+              height: 5,
+            ),
+            Padding(
+              padding: EdgeInsets.all(0.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     title,
-                    maxLines: 3,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 18.0.sp,
-                      fontWeight: FontWeight.w500,
+                    style: GoogleFonts.aBeeZee(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
                       color: const Color(0xff1d1b1e),
-                      letterSpacing: 0.3.sp,
-                      height: 1.4.h,
                     ),
                   ),
                   SizedBox(height: 5.h),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(
-                        Icons.videocam_rounded,
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.label,
+                            color: Colors.grey,
+                            size: 20.sp,
+                          ),
+                          SizedBox(
+                            width: 3,
+                          ),
+                          Text(
+                            'Hypermarket',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        lessons,
-                        style: const TextStyle(fontWeight: FontWeight.w400),
-                      ),
-                      SizedBox(width: 20.w),
-                      const Text(
-                        '', // You may update this with actual data
-                        style: TextStyle(fontWeight: FontWeight.w400),
-                      ),
+                      Icon(
+                        Icons.bookmark_border_outlined,
+                        color: const Color.fromARGB(255, 90, 89, 89),
+                      )
                     ],
                   ),
                   SizedBox(height: 5.h),
-                  Text(
-                    price,
-                    style: TextStyle(
-                      fontSize: 17.sp,
-                      color: const Color(0xFF006257),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
+                  // Text(
+                  //   description,
+                  //   maxLines: 3,
+                  //   overflow: TextOverflow.ellipsis,
+                  //   style: TextStyle(
+                  //     fontSize: 14.sp,
+                  //     color: Colors.black54,
+                  //   ),
+                  // ),
+                  // SizedBox(height: 5.h),
+                  // Text(
+                  //   price,
+                  //   style: TextStyle(
+                  //     fontSize: 16.sp,
+                  //     color: const Color(0xFF006257),
+                  //     fontWeight: FontWeight.bold,
+                  //   ),
+                  // ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
+  }
+}
+
+Future<void> _launchWhatsApp(String title) async {
+  const phoneNumber = '+918089891475';
+  final message = '''I am interested in the course,
+*"$title"*
+How can I know more?
+http://amset-client.vercel.app
+Amset Academy. ''';
+  final url = 'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
   }
 }
