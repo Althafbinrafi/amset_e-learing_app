@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 // Assuming these pages exist in your project
 import 'package:amset/Pages/lessons/CourseDetails.dart';
@@ -95,7 +96,7 @@ class _CoursePageState extends State<CoursePage> {
               future: futureCourseData,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return _buildShimmerEffect();
                 } else if (snapshot.hasError) {
                   log('Snapshot error: ${snapshot.error}');
                   return Center(
@@ -147,6 +148,55 @@ class _CoursePageState extends State<CoursePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerEffect() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.builder(
+        itemCount: 6,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 10.h),
+            child: Row(
+              children: [
+                Container(
+                  width: 100.w,
+                  height: 100.h,
+                  color: Colors.white,
+                ),
+                SizedBox(width: 15.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 20.h,
+                        color: Colors.white,
+                      ),
+                      SizedBox(height: 10.h),
+                      Container(
+                        width: double.infinity,
+                        height: 20.h,
+                        color: Colors.white,
+                      ),
+                      SizedBox(height: 10.h),
+                      Container(
+                        width: 100.w,
+                        height: 20.h,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

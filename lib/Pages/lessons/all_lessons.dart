@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
+
 import 'package:amset/Pages/lessons/CourseDetails.dart';
 
 class AllLessonsPage extends StatefulWidget {
@@ -61,29 +63,27 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
         future: futureCourse,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator(
-              color: Colors.white,
-            ));
+            return _buildShimmerEffect();
           } else if (snapshot.hasError) {
             return const Center(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.signal_wifi_statusbar_connected_no_internet_4_rounded,
-                  size: 40,
-                  color: Colors.white,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Check Your Connection !',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ],
-            ));
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.signal_wifi_statusbar_connected_no_internet_4_rounded,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Check Your Connection !',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            );
           } else if (!snapshot.hasData) {
             return const Center(child: Text('No course data found'));
           } else {
@@ -159,6 +159,76 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
     );
   }
 
+  Widget _buildShimmerEffect() {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+            color: const Color(0xFF006257),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 40.h),
+          height: 0.7.sh, // Using 70% of the screen height
+          width: 1.sw, // Using the full screen width
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+            color: Color.fromARGB(255, 255, 255, 255),
+          ),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: ListView.builder(
+              itemCount: 6,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 100.w,
+                        height: 100.h,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 15.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 20.h,
+                              color: Colors.white,
+                            ),
+                            SizedBox(height: 10.h),
+                            Container(
+                              width: double.infinity,
+                              height: 20.h,
+                              color: Colors.white,
+                            ),
+                            SizedBox(height: 10.h),
+                            Container(
+                              width: 100.w,
+                              height: 20.h,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildLessonContainer(
       BuildContext context, Chapter chapter, String courseId) {
     return GestureDetector(
@@ -205,8 +275,10 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                 children: [
                   Text(
                     chapter.title,
-                    style:
-                        TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        overflow: TextOverflow.ellipsis),
                   ),
                   Text('Part ${chapter.position}'),
                 ],
