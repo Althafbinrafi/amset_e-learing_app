@@ -1,8 +1,7 @@
-// ignore_for_file: use_build_context_synchronously, depend_on_referenced_packages, unused_import, use_super_parameters, library_private_types_in_public_api
-
 import 'dart:developer';
 
 import 'package:amset/Models/myCourseModel.dart';
+import 'package:amset/Pages/lessons/all_lessons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -12,9 +11,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
-// Assuming these pages exist in your project
-import 'package:amset/Pages/lessons/CourseDetails.dart';
-import 'package:amset/Pages/lessons/all_lessons.dart';
+import 'package:amset/screens/dashboard.dart';
 
 class CoursePage extends StatefulWidget {
   const CoursePage({Key? key}) : super(key: key);
@@ -64,90 +61,105 @@ class _CoursePageState extends State<CoursePage> {
     }
   }
 
+  Future<bool> _onWillPop(BuildContext context) async {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const Dashboard(
+          fullName: 'User Name',
+          avatarPath: 'assets/avatar.png',
+        ),
+      ),
+    );
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF006257),
-      body: Column(
-        children: [
-          Expanded(
-            child: Container(
-              color: const Color(0xFF006257),
-              child: const Center(
-                child: Text(
-                  'My Courses',
-                  style: TextStyle(fontSize: 28, color: Colors.white),
+    return WillPopScope(
+      onWillPop: () => _onWillPop(context),
+      child: Scaffold(
+        backgroundColor: const Color(0xFF006257),
+        body: Column(
+          children: [
+            Expanded(
+              child: Container(
+                color: const Color(0xFF006257),
+                child: const Center(
+                  child: Text(
+                    'My Courses',
+                    style: TextStyle(fontSize: 28, color: Colors.white),
+                  ),
                 ),
               ),
             ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 40.h),
-            height: 0.7.sh, // Using 70% of the screen height
-            width: 1.sw, // Using the full screen width
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 40.h),
+              height: 0.7.sh, // Using 70% of the screen height
+              width: 1.sw, // Using the full screen width
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+                color: Color.fromARGB(255, 255, 255, 255),
               ),
-              color: Color.fromARGB(255, 255, 255, 255),
-            ),
-            child: FutureBuilder<MyCourseModel>(
-              future: futureCourseData,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return _buildShimmerEffect();
-                } else if (snapshot.hasError) {
-                  log('Snapshot error: ${snapshot.error}');
-                  return Center(
-                      child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/images/No connection-bro.svg',
-                        height: 200.h,
-                        width: 200.w,
-                      ),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      const Text('Check Your Connection !'),
-                    ],
-                  ));
-                } else if (!snapshot.hasData) {
-                  return const Center(child: Text('No data available'));
-                }
-
-                final courseData = snapshot.data!.courseData;
-
-                return ListView.builder(
-                  itemCount: courseData.length,
-                  itemBuilder: (context, index) {
-                    final courseDatum = courseData[index];
-                    return Column(
+              child: FutureBuilder<MyCourseModel>(
+                future: futureCourseData,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _buildShimmerEffect();
+                  } else if (snapshot.hasError) {
+                    log('Snapshot error: ${snapshot.error}');
+                    return Center(
+                        child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildCourseContainer(
-                          context,
-                          courseDatum.course.imageUrl,
-                          courseDatum.course.title,
-                          'Lessons', // Replace with actual lessons data if available
-                          'Duration', // Replace with actual duration data if available
-                          double.parse(courseDatum.progressPercentage
-                                  .replaceAll('%', '')) /
-                              100,
-                          courseDatum.progressPercentage,
-                          const Color.fromARGB(255, 255, 255, 255),
-                          courseDatum.course.id,
+                        SvgPicture.asset(
+                          'assets/images/No connection-bro.svg',
+                          height: 200.h,
+                          width: 200.w,
                         ),
-                        SizedBox(height: 1.h),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        const Text('Check Your Connection !'),
                       ],
-                    );
-                  },
-                );
-              },
+                    ));
+                  } else if (!snapshot.hasData) {
+                    return const Center(child: Text('No data available'));
+                  }
+
+                  final courseData = snapshot.data!.courseData;
+
+                  return ListView.builder(
+                    itemCount: courseData.length,
+                    itemBuilder: (context, index) {
+                      final courseDatum = courseData[index];
+                      return Column(
+                        children: [
+                          _buildCourseContainer(
+                            context,
+                            courseDatum.course.imageUrl,
+                            courseDatum.course.title,
+                            'Lessons', // Replace with actual lessons data if available
+                            'Duration', // Replace with actual duration data if available
+                            double.parse(courseDatum.progressPercentage
+                                    .replaceAll('%', '')) /
+                                100,
+                            courseDatum.progressPercentage,
+                            const Color.fromARGB(255, 255, 255, 255),
+                            courseDatum.course.id,
+                          ),
+                          SizedBox(height: 1.h),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -166,7 +178,10 @@ class _CoursePageState extends State<CoursePage> {
                 Container(
                   width: 100.w,
                   height: 100.h,
-                  color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
                 SizedBox(width: 15.w),
                 Expanded(
@@ -176,19 +191,28 @@ class _CoursePageState extends State<CoursePage> {
                       Container(
                         width: double.infinity,
                         height: 20.h,
-                        color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                       ),
                       SizedBox(height: 10.h),
                       Container(
                         width: double.infinity,
                         height: 20.h,
-                        color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                       ),
                       SizedBox(height: 10.h),
                       Container(
                         width: 100.w,
                         height: 20.h,
-                        color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                       ),
                     ],
                   ),
@@ -220,9 +244,28 @@ class _CoursePageState extends State<CoursePage> {
       onTap: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('selected_course_id', courseId);
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return AllLessonsPage(courseId: courseId);
-        }));
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                AllLessonsPage(courseId: courseId),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              const begin = Offset(0.0, 0.1);
+              const end = Offset.zero;
+              const curve = Curves.linear;
+
+              var tween =
+                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+
+              return SlideTransition(
+                position: offsetAnimation,
+                child: child,
+              );
+            },
+          ),
+        );
       },
       child: Container(
         padding: EdgeInsets.all(15.w),

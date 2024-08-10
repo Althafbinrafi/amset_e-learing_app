@@ -1,21 +1,40 @@
-// ignore_for_file: deprecated_member_use
-
 import 'dart:async';
-
 import 'package:amset/Models/allCoursesModel.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-// ignore: depend_on_referenced_packages
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:amset/Pages/course_page.dart';
 import 'package:amset/Pages/notification_page.dart';
 import 'package:amset/Pages/profile_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
+
+//import 'Models/allCoursesModel.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Amset',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const Dashboard(
+          fullName: 'User Name', avatarPath: 'assets/avatar.png'),
+    );
+  }
+}
 
 class Dashboard extends StatefulWidget {
   final String fullName;
@@ -32,13 +51,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   int _currentIndex = 0;
   late AnimationController _controller;
 
-  final List<Widget> _pages = [
-    const DashboardPage(fullName: '', avatarPath: ''),
-    const CoursePage(),
-    const NotificationPage(),
-    const ProfilePage(),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -46,19 +58,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _getFullName();
-  }
-
-  Future<void> _getFullName() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedFullName = prefs.getString('full_name');
-    String? storedAvatarPath = prefs.getString('avatar_path');
-    setState(() {
-      _pages[0] = DashboardPage(
-        fullName: storedFullName ?? widget.fullName,
-        avatarPath: storedAvatarPath ?? widget.avatarPath,
-      );
-    });
   }
 
   @override
@@ -69,94 +68,165 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: duplicate_ignore
-    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
-        return await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: Colors.white,
-            title: const Text('Exit App'),
-            content: const Text('Are you sure you want to exit the app?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text(
-                  'No',
-                  style: TextStyle(
-                    color: Color(0xFF006257),
+        if (_currentIndex == 0) {
+          return await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: Colors.white,
+              title: const Text('Exit App'),
+              content: const Text('Are you sure you want to exit the app?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    'No',
+                    style: TextStyle(
+                      color: Color(0xFF006257),
+                    ),
                   ),
                 ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text(
-                  'Yes',
-                  style: TextStyle(
-                    color: Color(0xFF006257),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    'Yes',
+                    style: TextStyle(
+                      color: Color(0xFF006257),
+                    ),
                   ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      child: Scaffold(
-        body: IndexedStack(
-          index: _currentIndex,
-          children: _pages,
-        ),
-        bottomNavigationBar: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-          decoration: const BoxDecoration(
-            color: Color(0xFF006257),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                spreadRadius: 2,
-                blurRadius: 10,
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(25.r)),
-            child: GNav(
-              gap: 5,
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-              tabBackgroundColor: Colors.white,
-              activeColor: const Color(0xFF006257),
-              color: const Color.fromARGB(255, 255, 255, 255),
-              tabs: const [
-                GButton(
-                  iconSize: 25,
-                  icon: Icons.home,
-                  text: 'Home',
-                ),
-                GButton(
-                  iconSize: 25,
-                  icon: Icons.menu_book_rounded,
-                  text: 'Course',
-                ),
-                GButton(
-                  iconSize: 25,
-                  icon: Icons.favorite_rounded,
-                  text: 'Favourite',
-                ),
-                GButton(
-                  iconSize: 25,
-                  icon: Icons.account_circle,
-                  text: 'Profile',
                 ),
               ],
-              selectedIndex: _currentIndex,
-              onTabChange: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
             ),
+          );
+        } else {
+          setState(() {
+            _currentIndex = 0;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const Dashboard(
+                      fullName: 'User Name', avatarPath: 'assets/avatar.png')),
+            );
+          });
+          return false;
+        }
+      },
+      child: Scaffold(
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF006257),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: AssetImage(widget.avatarPath),
+                      radius: 40.r,
+                    ),
+                    SizedBox(height: 10.h),
+                    Text(
+                      widget.fullName,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text('Home'),
+                onTap: () {
+                  setState(() {
+                    _currentIndex = 0;
+                  });
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const Dashboard(
+                            fullName: 'User Name',
+                            avatarPath: 'assets/avatar.png')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.menu_book_rounded),
+                title: const Text('Course'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CoursePage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.favorite_rounded),
+                title: const Text('Favourite'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NotificationPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_circle),
+                title: const Text('Profile'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProfilePage()),
+                  );
+                },
+              ),
+            ],
           ),
+        ),
+        appBar: _currentIndex == 0
+            ? AppBar(
+                backgroundColor: const Color(0xFF008172),
+                title: Text(' Amset',
+                    style: GoogleFonts.roboto(
+                        fontSize: 25.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600)),
+                actions: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.search,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.notifications,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              )
+            : null,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: [
+            DashboardPage(
+                fullName: widget.fullName, avatarPath: widget.avatarPath),
+            Container(), // Placeholder for CoursePage, NotificationPage, and ProfilePage
+            Container(),
+            Container(),
+          ],
         ),
       ),
     );
@@ -171,7 +241,6 @@ class DashboardPage extends StatefulWidget {
       {super.key, required this.fullName, required this.avatarPath});
 
   @override
-  // ignore: library_private_types_in_public_api
   _DashboardPageState createState() => _DashboardPageState();
 }
 
@@ -248,9 +317,10 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, color: Colors.red, size: 100.r),
+          Icon(Icons.error_outline,
+              color: const Color.fromARGB(255, 114, 113, 113), size: 100.r),
           SizedBox(height: 20.h),
-          Text('Failed to load courses', style: TextStyle(fontSize: 18.sp)),
+          Text('Check Your Connection', style: TextStyle(fontSize: 18.sp)),
           SizedBox(height: 20.h),
           ElevatedButton(
             onPressed: _loadCourses,
@@ -264,45 +334,6 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildDashboard() {
     return CustomScrollView(
       slivers: [
-        SliverAppBar(
-          floating: true,
-          snap: true,
-          centerTitle: true,
-          toolbarHeight: 58,
-          backgroundColor: const Color(0xFF008172),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                ' Amset',
-                style: TextStyle(
-                    fontSize: 25.sp,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600),
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.search,
-                      size: 30,
-                      color: Colors.white,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.notifications,
-                      size: 30,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
         SliverToBoxAdapter(
           child: Column(
             children: [
@@ -378,9 +409,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       children: [
                         Text(' Recommended',
                             style: TextStyle(
-                              color: const Color.fromARGB(255, 0, 0, 0),
-                              fontSize: 20.sp,
-                            )),
+                                color: const Color.fromARGB(255, 0, 0, 0),
+                                fontSize: 20.sp)),
                         GestureDetector(
                           child: const Text('See All'),
                           onTap: () {},
@@ -434,9 +464,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       children: [
                         Text(' Explore',
                             style: TextStyle(
-                              color: const Color.fromARGB(255, 0, 0, 0),
-                              fontSize: 20.sp,
-                            )),
+                                color: const Color.fromARGB(255, 0, 0, 0),
+                                fontSize: 20.sp)),
                         GestureDetector(
                           child: const Text('See All'),
                           onTap: () {},
@@ -492,9 +521,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           children: [
                             Text(' Premium',
                                 style: TextStyle(
-                                  color: const Color.fromARGB(255, 0, 0, 0),
-                                  fontSize: 20.sp,
-                                )),
+                                    color: const Color.fromARGB(255, 0, 0, 0),
+                                    fontSize: 20.sp)),
                             SizedBox(width: 4.w),
                             const Icon(Icons.workspace_premium_rounded,
                                 color: Colors.amber),
@@ -568,12 +596,61 @@ class _DashboardPageState extends State<DashboardPage> {
           itemCount: 6,
           itemBuilder: (_, __) => Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: 180.w,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18.r),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 180.w,
+                  height: 120.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18.r),
+                  ),
+                ),
+                SizedBox(height: 8.5.h),
+                Container(
+                  width: 180.w,
+                  height: 20.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18.r),
+                  ),
+                ),
+                SizedBox(height: 8.5.h),
+                Container(
+                  width: 180.w,
+                  height: 20.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18.r),
+                  ),
+                ),
+                SizedBox(height: 8.5.h),
+                SizedBox(
+                  width: 180.w,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        width: 100.w,
+                        height: 20.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18.r),
+                        ),
+                      ),
+                      Container(
+                        width: 20.w,
+                        height: 20.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18.r),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -720,15 +797,6 @@ Amset Academy. ''';
 
   Widget _buildCourseCard(BuildContext context, String imagePath, String title,
       String lessons, String description, String price, int index) {
-    final List<Color> backgroundColors = [
-      Colors.red.shade100,
-      Colors.green.shade100,
-      Colors.blue.shade100,
-      Colors.orange.shade100,
-    ];
-
-    Color backgroundColor = backgroundColors[index % backgroundColors.length];
-
     return GestureDetector(
       onTap: () =>
           _showCourseDrawer(context, title, lessons, description, price),
@@ -746,7 +814,6 @@ Amset Academy. ''';
               height: 120.h, // Fixed height for the image
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(5.r)),
-                color: backgroundColor,
                 image: DecorationImage(
                   image: imagePath.isNotEmpty
                       ? NetworkImage(imagePath)

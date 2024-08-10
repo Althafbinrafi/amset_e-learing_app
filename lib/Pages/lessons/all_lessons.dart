@@ -146,10 +146,10 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
       floatingActionButton: Container(
         margin: EdgeInsets.only(top: 20.h, left: 10.w),
         height: 40.h,
-        width: 70.w,
+        width: 40.w,
         child: FloatingActionButton(
           backgroundColor: Colors.white,
-          child: const Text('Back'),
+          child: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -191,7 +191,9 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                       Container(
                         width: 100.w,
                         height: 100.h,
-                        color: Colors.white,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
                       ),
                       SizedBox(width: 15.w),
                       Expanded(
@@ -201,19 +203,25 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                             Container(
                               width: double.infinity,
                               height: 20.h,
-                              color: Colors.white,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30)),
                             ),
                             SizedBox(height: 10.h),
                             Container(
                               width: double.infinity,
                               height: 20.h,
-                              color: Colors.white,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30)),
                             ),
                             SizedBox(height: 10.h),
                             Container(
                               width: 100.w,
                               height: 20.h,
-                              color: Colors.white,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30)),
                             ),
                           ],
                         ),

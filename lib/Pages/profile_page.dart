@@ -146,6 +146,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     GestureDetector(
                       onTap: _editProfile,
+                      
                       child: Container(
                         padding: EdgeInsets.all(5.w),
                         height: 50.h,
