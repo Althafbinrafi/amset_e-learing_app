@@ -1,3 +1,4 @@
+import 'package:amset/screens/explore.dart';
 import 'package:amset/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -58,6 +59,26 @@ class _SkipPageState extends State<SkipPage> {
     "Let Amset be your partner in turning hypermarket and supermarket career dreams into reality.",
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _startAutoScroll();
+  }
+
+  void _startAutoScroll() {
+    Future.delayed(const Duration(seconds: 4), () {
+      if (_pageController.hasClients) {
+        int nextPage = (_currentPage + 1) % images.length;
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        _startAutoScroll();
+      }
+    });
+  }
+
   void _onGetStartedPressed() {
     setState(() {
       _isLoading = true;
@@ -68,7 +89,7 @@ class _SkipPageState extends State<SkipPage> {
         _isLoading = false;
       });
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        return const LoginPage();
+        return const ExplorePage();
       }));
     });
   }
@@ -77,14 +98,14 @@ class _SkipPageState extends State<SkipPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
+        padding: EdgeInsets.symmetric(horizontal: 35.w, vertical: 30.h),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: 500.h,
+                height: 470.h,
                 child: PageView.builder(
                   controller: _pageController,
                   itemCount: images.length,
@@ -102,21 +123,21 @@ class _SkipPageState extends State<SkipPage> {
                           fit: BoxFit.contain,
                           height: 300.h,
                         ),
-                        SizedBox(height: 20.h),
+                        SizedBox(height: 25.h),
                         Text(
                           titles[index],
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 28.sp,
+                            fontSize: 25.sp,
                           ),
                         ),
                         SizedBox(height: 10.h),
-                        Divider(
-                          color: const Color(0xFF006257),
-                          thickness: 3,
-                          endIndent: 100.w,
-                          indent: 100.w,
-                        ),
+                        // Divider(
+                        //   color: const Color(0xFF006257),
+                        //   thickness: 3,
+                        //   endIndent: 100.w,
+                        //   indent: 100.w,
+                        // ),
                         SizedBox(height: 10.h),
                         Text(
                           descriptions[index],
@@ -131,24 +152,20 @@ class _SkipPageState extends State<SkipPage> {
                   },
                 ),
               ),
-              SizedBox(height: 20.h),
+              // SizedBox(height: 4.h),
               CircularAvatarIndicator(
                 currentPage: _currentPage,
                 totalPages: images.length,
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 100.h),
               Container(
                 width: 300.w,
                 decoration: BoxDecoration(
-                  color: _currentPage == images.length - 1
-                      ? const Color(0xFF006257)
-                      : Colors.grey[400],
-                  borderRadius: BorderRadius.circular(20.r),
+                  color: const Color(0xFF006257),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: TextButton(
-                  onPressed: _currentPage == images.length - 1
-                      ? _onGetStartedPressed
-                      : null,
+                  onPressed: _onGetStartedPressed,
                   child: _isLoading
                       ? SizedBox(
                           height: 20.h,
@@ -166,35 +183,35 @@ class _SkipPageState extends State<SkipPage> {
                         ),
                 ),
               ),
-              SizedBox(height: 30.h),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 5.h),
-                width: 110.w,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(40.r),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/logo1.png',
-                      height: 30.h,
-                      width: 30.h,
-                    ),
-                    SizedBox(width: 5.w),
-                    Text(
-                      'amset',
-                      style: GoogleFonts.prozaLibre(
-                        textStyle: TextStyle(
-                          color: const Color.fromARGB(255, 0, 0, 0),
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // SizedBox(height: 30.h),
+              // Container(
+              //   padding: EdgeInsets.symmetric(vertical: 5.h),
+              //   width: 110.w,
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(10.r),
+              //   ),
+              // child: Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Image.asset(
+              //       'assets/images/logo1.png',
+              //       height: 30.h,
+              //       width: 30.h,
+              //     ),
+              //     SizedBox(width: 5.w),
+              //     Text(
+              //       'amset',
+              //       style: GoogleFonts.prozaLibre(
+              //         textStyle: TextStyle(
+              //           color: const Color.fromARGB(255, 0, 0, 0),
+              //           fontSize: 18.sp,
+              //           fontWeight: FontWeight.w500,
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // ),
             ],
           ),
         ),
@@ -219,11 +236,11 @@ class CircularAvatarIndicator extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalPages, (index) {
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: 4.w),
-          height: 10.h,
-          width: 10.h,
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          height: 6,
+          width: 19,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(5), // Rounded corners
             color: currentPage == index
                 ? const Color(0xFF006257)
                 : const Color(0xFFBDBDBD),

@@ -192,6 +192,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         ),
         appBar: _currentIndex == 0
             ? AppBar(
+                iconTheme: IconThemeData(color: Colors.white),
+                centerTitle: true,
                 backgroundColor: const Color(0xFF008172),
                 title: Text(' Amset',
                     style: GoogleFonts.roboto(
@@ -199,14 +201,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         color: Colors.white,
                         fontWeight: FontWeight.w600)),
                 actions: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.search,
-                      size: 30,
-                      color: Colors.white,
-                    ),
-                  ),
+                  // IconButton(
+                  //   onPressed: () {},
+                  //   icon: const Icon(
+                  //     Icons.search,
+                  //     size: 30,
+                  //     color: Colors.white,
+                  //   ),
+                  // ),
                   IconButton(
                     onPressed: () {},
                     icon: const Icon(
