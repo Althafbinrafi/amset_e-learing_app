@@ -1,7 +1,5 @@
 import 'package:amset/screens/explore.dart';
-import 'package:amset/screens/login.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
 
 void main() {
@@ -152,7 +150,7 @@ class _SkipPageState extends State<SkipPage> {
                   },
                 ),
               ),
-              // SizedBox(height: 4.h),
+              SizedBox(height: 14.h),
               CircularAvatarIndicator(
                 currentPage: _currentPage,
                 totalPages: images.length,

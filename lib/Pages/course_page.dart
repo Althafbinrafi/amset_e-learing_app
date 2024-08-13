@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, deprecated_member_use, use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:amset/Models/myCourseModel.dart';
@@ -14,7 +16,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:amset/screens/dashboard.dart';
 
 class CoursePage extends StatefulWidget {
-  const CoursePage({Key? key}) : super(key: key);
+  const CoursePage({super.key});
 
   @override
   _CoursePageState createState() => _CoursePageState();
