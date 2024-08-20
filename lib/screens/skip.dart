@@ -64,7 +64,7 @@ class _SkipPageState extends State<SkipPage> {
   }
 
   void _startAutoScroll() {
-    Future.delayed(const Duration(seconds: 4), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (_pageController.hasClients) {
         int nextPage = (_currentPage + 1) % images.length;
         _pageController.animateToPage(
@@ -233,12 +233,14 @@ class CircularAvatarIndicator extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalPages, (index) {
-        return Container(
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300), // Duration for animation
+          curve: Curves.linear, // Animation curve
           margin: const EdgeInsets.symmetric(horizontal: 3),
           height: 6,
-          width: 19,
+          width: currentPage == index ? 16 : 6,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5), // Rounded corners
+            borderRadius: BorderRadius.circular(5),
             color: currentPage == index
                 ? const Color(0xFF006257)
                 : const Color(0xFFBDBDBD),

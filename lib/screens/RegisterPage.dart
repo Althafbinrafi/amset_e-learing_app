@@ -1,10 +1,5 @@
-// ignore_for_file: file_names
-
-import 'package:amset/screens/login.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -14,325 +9,341 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final PageController _pageController = PageController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  int _currentPage = 0;
+
+  // Form field controllers
+  TextEditingController fullNameController = TextEditingController();
+  TextEditingController mobileNumberController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController qualificationController = TextEditingController();
+  TextEditingController experienceController = TextEditingController();
+  TextEditingController jobTitleController = TextEditingController();
+  TextEditingController companyController = TextEditingController();
+
+  List<String> jobCategories = [
+    'Engineering',
+    'Marketing',
+    'Sales',
+    'Design',
+    'Developer',
+    'UI/UX',
+    'Saloon & Spa'
+  ];
+  List<String> selectedCategories = [];
+
+  // Country code options
+  String selectedCountryCode = '+91'; // Default country code
+  List<String> countryCodes = ['+1', '+91', '+44', '+61', '+81', '+86'];
+
+  void _nextPage() {
+    if (_currentPage < 2) {
+      setState(() {
+        _currentPage++;
+        _pageController.nextPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut);
+      });
+    } else {
+      // Final submit logic
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save();
+        // Submit the data to the backend
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration Submitted!')),
+        );
+      }
+    }
+  }
+
+  void _previousPage() {
+    if (_currentPage > 0) {
+      setState(() {
+        _currentPage--;
+        _pageController.previousPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut);
+      });
+    }
+  }
+
+  OutlineInputBorder _buildInputBorder(Color borderColor) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(18.w),
+      borderSide: BorderSide(color: borderColor, width: 2),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
+      contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+      enabledBorder: _buildInputBorder(Colors.grey.shade300),
+      focusedBorder: _buildInputBorder(const Color(0xFF006257)),
+      errorBorder: _buildInputBorder(Colors.red),
+      focusedErrorBorder: _buildInputBorder(Colors.red),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 10.w,
-              vertical: 20.h,
-            ),
-            child: Form(
-              //key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(height: 50.h),
-                  Text(
-                    'Register Here',
-                    style: TextStyle(
-                        color: const Color(0xFF006257),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 40.sp),
-                  ),
-                  SizedBox(
-                    height: 90.h,
-                  ),
-// Fullname........................................//
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.w),
-                    child: TextFormField(
-                      // controller: _fullnameController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Enter your Fullname';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20.w,
-                          vertical: 20.h,
-                        ),
-                        labelText: 'Full Name',
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF006257), width: 2),
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-// Mobile Number........................................//
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.w),
-                    child: TextFormField(
-                      // controller: _fullnameController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Enter your Mobile Number';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20.w,
-                          vertical: 20.h,
-                        ),
-                        labelText: 'Mobile Number',
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF006257), width: 2),
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-// Email........................................//
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.w),
-                    child: TextFormField(
-                      // controller: _emailController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Email cannot be empty';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20.w,
-                          vertical: 20.h,
-                        ),
-                        labelText: 'Email',
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF006257), width: 2),
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-// password ........................................//
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.w),
-                    child: TextFormField(
-                      //   controller: _passwordController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Enter your Password';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20.w, vertical: 20.h),
-                        labelText: 'Password',
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF006257), width: 2),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: const Icon(
-                            // _isPasswordVisible
-                            //     ? Icons.visibility
-                            //     :
-                            Icons.visibility_off,
-                            // color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            // setState(() {
-                            //   _isPasswordVisible = !_isPasswordVisible;
-                            // });
-                          },
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.black),
-                      //    obscureText: !_isPasswordVisible,
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.w),
-                    child: TextFormField(
-                      //   controller: _passwordController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Confirm your Password';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20.w, vertical: 20.h),
-                        labelText: 'Confirm Password',
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF006257), width: 2),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: const Icon(
-                            // _isPasswordVisible
-                            //     ? Icons.visibility
-                            //     :
-                            Icons.visibility_off,
-                            // color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            // setState(() {
-                            //   _isPasswordVisible = !_isPasswordVisible;
-                            // });
-                          },
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.black),
-                      //    obscureText: !_isPasswordVisible,
-                    ),
-                  ),
-                  SizedBox(height: 40.h),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.w),
-                      color: const Color(0xFF006257),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // if (_formKey.currentState!.validate()) {
-                        //   setState(() {
-                        //     _isLoading = true;
-                        //   });
-                        //   _login().then((_) {
-                        //     setState(() {
-                        //       _isLoading = false;
-                        //     });
-                        //   });
-                        // }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF006257),
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 80.w,
-                          vertical: 15.h,
-                        ),
-                      ),
-                      child:
-                          // _isLoading
-                          //   ?
-                          //     SizedBox(
-                          //   height: 20.h,
-                          //   width: 20.w,
-                          //   child: const CircularProgressIndicator(
-                          //     valueColor:
-                          //         AlwaysStoppedAnimation<Color>(Colors.white),
-                          //   ),
-                          // ),
-                          // :
-                          Text(
-                        'Create Account',
-                        style: TextStyle(fontSize: 18.sp),
+      appBar: AppBar(
+        toolbarHeight: 90.h,
+        leading: GestureDetector(
+          child: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          'Register',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: 22.sp,
+          ),
+        ),
+        backgroundColor: const Color.fromRGBO(55, 202, 0, 1),
+      ),
+      body: Form(
+        key: _formKey,
+        child: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            _buildPrimaryDetailsPage(),
+            _buildQualificationPage(),
+            _buildJobCategoriesPage(),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _currentPage > 0
+                ? ElevatedButton(
+                    onPressed: _previousPage,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade400,
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 30.w, vertical: 15.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.w),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 15.h),
-                  RichText(
-                    text: TextSpan(
-                        text: "Already have an account?  ",
-                        style: const TextStyle(color: Colors.black),
-                        children: [
-                          TextSpan(
-                              text: "Log In",
-                              style: const TextStyle(
-                                  color: Color(0xFF006257),
-                                  fontWeight: FontWeight.bold),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(builder: (context) {
-                                    return const LoginPage();
-                                  }));
-                                })
-                        ]),
-                  ),
-                  SizedBox(
-                    height: 30.h,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 5.h),
-                    width: 110.w,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(40),
+                    child: const Text(
+                      "Previous",
+                      style: TextStyle(color: Colors.white),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/images/logo1.png',
-                          height: 30.h,
-                          width: 30.h,
-                        ),
-                        SizedBox(width: 5.w),
-                        Text(
-                          'amset',
-                          style: GoogleFonts.prozaLibre(
-                            textStyle: TextStyle(
-                              color: const Color.fromARGB(255, 0, 0, 0),
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  )
+                : const SizedBox.shrink(),
+            ElevatedButton(
+              onPressed: _nextPage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF006257),
+                elevation: 0,
+                padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.w),
+                ),
               ),
+              child: Text(
+                _currentPage == 2 ? "Submit" : "Next",
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrimaryDetailsPage() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Primary Details',
+              style: TextStyle(
+                color: const Color(0xFF006257),
+                fontSize: 25.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 30.h),
+            _buildTextFormField(fullNameController, 'Full Name'),
+            SizedBox(height: 20.h),
+            _buildMobileNumberField(), // Modified mobile number field with country code
+            SizedBox(height: 20.h),
+            _buildTextFormField(emailController, 'Email'),
+            SizedBox(height: 20.h),
+            _buildTextFormField(passwordController, 'Password',
+                obscureText: true),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileNumberField() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Country code dropdown
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: EdgeInsets.only(right: 10.w),
+            child: DropdownButtonFormField<String>(
+              value: selectedCountryCode,
+              decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 10.w, vertical: 20.h),
+                enabledBorder: _buildInputBorder(Colors.grey.shade300),
+                focusedBorder: _buildInputBorder(const Color(0xFF006257)),
+              ),
+              items: countryCodes.map((String code) {
+                return DropdownMenuItem<String>(
+                  value: code,
+                  child: Text(
+                    code,
+                    style: TextStyle(fontSize: 16.sp),
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedCountryCode = value!;
+                });
+              },
             ),
           ),
         ),
+        // Mobile number input field
+        Expanded(
+          flex: 5,
+          child: TextFormField(
+            controller: mobileNumberController,
+            keyboardType: TextInputType.phone,
+            decoration: _buildInputDecoration('Mobile Number'),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Enter your Mobile Number';
+              }
+              return null;
+            },
+            style: TextStyle(fontSize: 16.sp),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQualificationPage() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Qualification & Job Details',
+              style: TextStyle(
+                color: const Color(0xFF006257),
+                fontSize: 25.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 30.h),
+            _buildTextFormField(qualificationController, 'Qualification'),
+            SizedBox(height: 20.h),
+            _buildTextFormField(experienceController, 'Years of Experience'),
+            SizedBox(height: 20.h),
+            _buildTextFormField(jobTitleController, 'Last Job Title'),
+            SizedBox(height: 20.h),
+            _buildTextFormField(companyController, 'Last Company Name'),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildJobCategoriesPage() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30.h),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'Job Categories',
+            style: TextStyle(
+              color: const Color(0xFF006257),
+              fontSize: 25.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 30.h),
+          Wrap(
+            spacing: 10.w,
+            runSpacing: 10.h,
+            children: jobCategories.map((category) {
+              bool isSelected = selectedCategories.contains(category);
+              return FilterChip(
+                label: Text(category),
+                selected: isSelected,
+                onSelected: (bool selected) {
+                  setState(() {
+                    if (selected) {
+                      selectedCategories.add(category);
+                    } else {
+                      selectedCategories.remove(category);
+                    }
+                  });
+                },
+                selectedColor: const Color(0xFF006257).withOpacity(0.2),
+                labelStyle: TextStyle(
+                  color: isSelected
+                      ? const Color(0xFF006257)
+                      : Colors.black.withOpacity(0.6),
+                  fontSize: 16.sp,
+                ),
+                backgroundColor: Colors.grey.shade200,
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextFormField(TextEditingController controller, String labelText,
+      {bool obscureText = false}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: _buildInputDecoration(labelText),
+      validator: (value) {
+        if (value!.isEmpty) return 'Please enter your $labelText';
+        return null;
+      },
+      style: TextStyle(fontSize: 16.sp),
     );
   }
 }

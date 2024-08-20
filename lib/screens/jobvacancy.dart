@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:amset/screens/RegisterPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,11 +13,28 @@ class JobVacancyPage extends StatefulWidget {
 }
 
 class _JobVacancyPageState extends State<JobVacancyPage> {
+  bool _isLoading = false;
+
+  void _onGetStartedPressed() {
+    setState(() {
+      _isLoading = true;
+    });
+
+    Future.delayed(const Duration(seconds: 3), () {
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return const RegisterPage();
+      }));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF006257),
+        backgroundColor: const Color.fromRGBO(55, 202, 0, 1),
         toolbarHeight: 80,
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
@@ -60,10 +79,10 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
 
                 final vacancies = [
                   '20+ vacancies',
-                  '15 vacancies',
-                  '10 vacancies',
-                  '5 vacancies',
-                  '7 vacancies'
+                  '15+ vacancies',
+                  '10+ vacancies',
+                  '50+ vacancies',
+                  '70+ vacancies'
                 ];
 
                 final svgImages = [
@@ -90,8 +109,9 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
                       child: Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(7.w),
-                            width: 60.h,
+                            padding: EdgeInsets.all(7),
+                            width: 60.h, // Same as height to make it square
+                            height: 60.h, // Ensures the container is square
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10.r),
                               color: const Color.fromRGBO(217, 217, 217, 41),
@@ -122,7 +142,7 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
                                       companies[index],
                                       style: TextStyle(
                                         fontWeight: FontWeight.normal,
-                                        fontSize: 12.sp,
+                                        fontSize: 12.5.sp,
                                         color: const Color.fromRGBO(
                                             117, 115, 115, 1),
                                       ),
@@ -130,8 +150,8 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
                                     Text(
                                       vacancies[index],
                                       style: TextStyle(
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 10.sp,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12.sp,
                                         color: const Color.fromRGBO(
                                             255, 154, 0, 1),
                                       ),
@@ -166,29 +186,28 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
                 height: 20,
               ),
               Container(
-                alignment: Alignment.bottomCenter,
                 width: 300.w,
                 decoration: BoxDecoration(
                   color: const Color(0xFF006257),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: TextButton(
-                  onPressed: () {},
-                  child: GestureDetector(
-                    child: Text(
-                      'Register',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18.sp,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) {
-                        return const RegisterPage();
-                      }));
-                    },
-                  ),
+                  onPressed: _onGetStartedPressed,
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20.h,
+                          width: 20.w,
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Register',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18.sp,
+                          ),
+                        ),
                 ),
               ),
             ],

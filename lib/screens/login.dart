@@ -4,7 +4,6 @@ import 'package:amset/screens/RegisterPage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:amset/screens/dashboard.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:developer'; // Import the developer package for logging
@@ -292,27 +291,27 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(40),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/images/logo1.png',
-                          height: 30.h,
-                          width: 30.h,
-                        ),
-                        SizedBox(width: 5.w),
-                        Text(
-                          'amset',
-                          style: GoogleFonts.prozaLibre(
-                            textStyle: TextStyle(
-                              color: const Color.fromARGB(255, 0, 0, 0),
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    // child: Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     Image.asset(
+                    //       'assets/images/logo1.png',
+                    //       height: 30.h,
+                    //       width: 30.h,
+                    //     ),
+                    //     SizedBox(width: 5.w),
+                    //     Text(
+                    //       'amset',
+                    //       style: GoogleFonts.prozaLibre(
+                    //         textStyle: TextStyle(
+                    //           color: const Color.fromARGB(255, 0, 0, 0),
+                    //           fontSize: 18.sp,
+                    //           fontWeight: FontWeight.w500,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ),
                 ],
               ),
