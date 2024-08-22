@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:amset/Api%20Services/JobVacancyApiService.dart';
+import 'package:amset/Models/vacancyModel.dart';
+import 'package:amset/screens/jobvacancy.dart';
+import 'package:amset/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:amset/screens/jobvacancy.dart';
-import 'package:amset/screens/login.dart';
+import 'package:shimmer/shimmer.dart'; // Import shimmer package
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -18,58 +21,8 @@ class _ExplorePageState extends State<ExplorePage> {
   int _currentPage = 0;
   late Timer _timer;
 
-  void _onGetStartedPressed() {
-    setState(() {
-      _isLoading = true;
-    });
-
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Standard Fade Transition to Login Page
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 600),
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const LoginPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-        ),
-      );
-    });
-  }
-
-  void _navigateToJobVacancyPage() {
-    // Cool Slide Transition to Job Vacancy Page
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 300),
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const JobVacancyPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.1, 0.0); // Slide from right to left
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-
-          var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-      ),
-    );
-  }
+  // Initialize the Future directly here
+  Future<JobVacancyModel?> _jobVacancyFuture = ApiService().fetchJobVacancies();
 
   @override
   void initState() {
@@ -97,27 +50,74 @@ class _ExplorePageState extends State<ExplorePage> {
     super.dispose();
   }
 
+  void _onGetStartedPressed() {
+    setState(() {
+      _isLoading = true;
+    });
+
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        _isLoading = false;
+      });
+
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 600),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const LoginPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  Widget _buildShimmer() {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10.w,
+        mainAxisSpacing: 10.h,
+      ),
+      itemCount: 6, // Number of shimmer placeholders
+      itemBuilder: (BuildContext context, int index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  height: 40.sp,
+                  width: 40.sp,
+                  color: Colors.grey[300],
+                ),
+                SizedBox(height: 5.h),
+                Container(
+                  height: 12.sp,
+                  width: 60.sp,
+                  color: Colors.grey[300],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // List of SVG paths
-    final List<String> svgImages = [
-      'assets/images/food.svg',
-      'assets/images/saloon.svg',
-      'assets/images/fashion.svg',
-      'assets/images/hyper.svg',
-      'assets/images/electric.svg',
-      'assets/images/IT.svg',
-    ];
-
-    final List<String> jobTitles = [
-      'Restaurent',
-      'Saloon & Spa',
-      'Fasion Design',
-      'Hypermarket',
-      'Electrician',
-      'IT Field',
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -231,41 +231,72 @@ class _ExplorePageState extends State<ExplorePage> {
             SizedBox(
               height: 15.h,
             ),
+            // Job Vacancies Grid with Shimmer Effect
             Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 10.w,
-                  mainAxisSpacing: 10.h,
-                ),
-                itemCount: 6,
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    onTap: _navigateToJobVacancyPage,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(10.r),
+              child: FutureBuilder<JobVacancyModel?>(
+                future: _jobVacancyFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _buildShimmer(); // Show shimmer while loading
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text('Failed to load data.'));
+                  } else if (snapshot.hasData && snapshot.data != null) {
+                    final jobVacancies = snapshot.data!.data;
+
+                    return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 10.w,
+                        mainAxisSpacing: 10.h,
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            svgImages[index],
-                            height: 40.sp,
-                            width: 40.sp,
-                            fit: BoxFit.contain,
+                      itemCount: jobVacancies.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final job = jobVacancies[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return JobVacancyPage();
+                            }));
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.network(
+                                  job.imageUrl,
+                                  height: 40.sp,
+                                  width: 40.sp,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.broken_image,
+                                      size: 40,
+                                      color: Colors.red,
+                                    );
+                                  },
+                                ),
+                                SizedBox(height: 5.h),
+                                Text(
+                                  job.title,
+                                  style: TextStyle(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w500),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
                           ),
-                          SizedBox(height: 5.h),
-                          Text(
-                            jobTitles[index],
-                            style: TextStyle(
-                                fontSize: 12.sp, fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                        );
+                      },
+                    );
+                  } else {
+                    return const Center(child: Text('No data available.'));
+                  }
                 },
               ),
             ),
