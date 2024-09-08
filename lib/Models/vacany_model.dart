@@ -1,23 +1,19 @@
-// To parse this JSON data, do
-//
-//     final vacancyModel = vacancyModelFromJson(jsonString);
-
 import 'dart:convert';
 
-VacancyModel vacancyModelFromJson(String str) => VacancyModel.fromJson(json.decode(str));
+JobVacancyModel jobVacancyModelFromJson(String str) => JobVacancyModel.fromJson(json.decode(str));
 
-String vacancyModelToJson(VacancyModel data) => json.encode(data.toJson());
+String jobVacancyModelToJson(JobVacancyModel data) => json.encode(data.toJson());
 
-class VacancyModel {
+class JobVacancyModel {
     int results;
     List<Datum> data;
 
-    VacancyModel({
+    JobVacancyModel({
         required this.results,
         required this.data,
     });
 
-    factory VacancyModel.fromJson(Map<String, dynamic> json) => VacancyModel(
+    factory JobVacancyModel.fromJson(Map<String, dynamic> json) => JobVacancyModel(
         results: json["results"],
         data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
     );

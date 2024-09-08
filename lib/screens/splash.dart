@@ -8,6 +8,7 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _SplashScreenState createState() => _SplashScreenState();
 }
 
@@ -21,7 +22,11 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const SkipPage()),
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => const SkipPage(),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
       );
     });
   }
@@ -29,6 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           children: [
@@ -42,6 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     'Your Gateway to',
                     style: GoogleFonts.dmSans(
                       textStyle: TextStyle(
+                        letterSpacing: -0.5.w,
                         color: Colors.black,
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w400,
@@ -52,6 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     'Retail Careers',
                     style: GoogleFonts.dmSans(
                       textStyle: TextStyle(
+                        letterSpacing: -0.5.w,
                         color: const Color.fromRGBO(117, 192, 68, 1),
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w500,

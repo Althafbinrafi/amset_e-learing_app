@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'package:amset/Api%20Services/JobVacancyApiService.dart';
-import 'package:amset/Models/vacancyModel.dart';
+import 'package:amset/Api%20Services/jobvacancy_api_services.dart';
+import 'package:amset/Models/vacany_model.dart';
 import 'package:amset/screens/jobvacancy.dart';
 import 'package:amset/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:shimmer/shimmer.dart'; // Import shimmer package
 
 class ExplorePage extends StatefulWidget {
@@ -22,7 +22,7 @@ class _ExplorePageState extends State<ExplorePage> {
   late Timer _timer;
 
   // Initialize the Future directly here
-  Future<JobVacancyModel?> _jobVacancyFuture = ApiService().fetchJobVacancies();
+  final Future<JobVacancyModel?> _jobVacancyFuture = ApiService().fetchJobVacancies();
 
   @override
   void initState() {
@@ -256,7 +256,7 @@ class _ExplorePageState extends State<ExplorePage> {
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return JobVacancyPage();
+                              return const JobVacancyPage();
                             }));
                           },
                           child: Container(

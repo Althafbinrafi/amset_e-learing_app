@@ -1,14 +1,14 @@
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
-
-import 'package:amset/screens/RegisterPage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:amset/screens/register_page.dart';
 import 'package:amset/screens/dashboard.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:developer'; // Import the developer package for logging
 import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Import ScreenUtil
+import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool _isPasswordVisible = false;
+  //bool _isPasswordVisible = false;
   bool _isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -62,6 +62,7 @@ class _LoginPageState extends State<LoginPage> {
           await prefs.setString('avatar_path', avatarPath);
 
           Navigator.pushReplacement(
+            // ignore: use_build_context_synchronously
             context,
             MaterialPageRoute(
               builder: (context) =>
@@ -89,233 +90,253 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  OutlineInputBorder _buildInputBorder(Color borderColor) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20.w),
+      borderSide: BorderSide(color: borderColor, width: 2),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
+      contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+      enabledBorder: _buildInputBorder(Colors.grey.shade300),
+      focusedBorder: _buildInputBorder(const Color(0xFF006257)),
+      errorBorder: _buildInputBorder(Colors.red),
+      focusedErrorBorder: _buildInputBorder(Colors.red),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
+      body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 10.w,
-              vertical: 20.h,
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(height: 50.h),
-                  // Image.asset(
-                  //   'assets/images/login.png',
-                  //   height: 250.h,
-                  //   width: 250.w,
-                  // ),
-                  Icon(Icons.lock_rounded, size: 130.h, color: Colors.grey),
-                  SizedBox(height: 50.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.w),
-                    child: TextFormField(
-                      controller: _fullnameController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Enter your Fullname';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20.w,
-                          vertical: 20.h,
-                        ),
-                        labelText: 'Full Name',
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF006257), width: 2),
+            padding: EdgeInsets.symmetric(horizontal: 30.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Centered content
+                SizedBox(
+                  height: MediaQuery.of(context).size.height -
+                      100.h, // Ensure no overflow
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 50.h),
+                      SizedBox(
+                        height: 37,
+                        width: 61,
+                        child: Image.asset(
+                          'assets/images/logo1.png',
+                          height: 100.h,
+                          fit: BoxFit.contain,
                         ),
                       ),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.w),
-                    child: TextFormField(
-                      controller: _emailController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Email cannot be empty';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20.w,
-                          vertical: 20.h,
-                        ),
-                        labelText: 'Email',
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF006257), width: 2),
+                      SizedBox(height: 20.h),
+                      Text(
+                        'Login to Your\n     Success',
+                        style: GoogleFonts.dmSans(
+                          letterSpacing: -0.5.w,
+                          color: Colors.black,
+                          fontSize: 25.sp,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.w),
-                    child: TextFormField(
-                      controller: _passwordController,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Enter your Password';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20.w, vertical: 20.h),
-                        labelText: 'Password',
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 2),
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(18.w)),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF006257), width: 2),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
-                        ),
-                      ),
-                      style: const TextStyle(color: Colors.black),
-                      obscureText: !_isPasswordVisible,
-                    ),
-                  ),
-                  SizedBox(height: 40.h),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.w),
-                      color: const Color(0xFF006257),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          setState(() {
-                            _isLoading = true;
-                          });
-                          _login().then((_) {
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          });
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF006257),
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 80.w,
-                          vertical: 15.h,
-                        ),
-                      ),
-                      child: _isLoading
-                          ? SizedBox(
-                              height: 20.h,
-                              width: 20.w,
-                              child: const CircularProgressIndicator(
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                      SizedBox(height: 30.h),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.h),
+                              child: TextFormField(
+                                controller: _fullnameController,
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Enter your Fullname';
+                                  }
+                                  return null;
+                                },
+                                decoration: _buildInputDecoration('Full Name'),
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 16.sp, letterSpacing: -0.5.w),
                               ),
-                            )
-                          : Text(
-                              'Login',
-                              style: TextStyle(fontSize: 18.sp),
                             ),
-                    ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.h),
+                              child: TextFormField(
+                                controller: _emailController,
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Email cannot be empty';
+                                  }
+                                  return null;
+                                },
+                                decoration: _buildInputDecoration('Email'),
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 16.sp, letterSpacing: -0.5.w),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.h),
+                              child: TextFormField(
+                                controller: _passwordController,
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Enter your Password';
+                                  }
+                                  return null;
+                                },
+                                decoration: _buildInputDecoration('Password'),
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 16.sp, letterSpacing: -0.5.w),
+                              ),
+                            ),
+                            SizedBox(height: 40.h),
+                            GestureDetector(
+                              onTap: () {
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+                                  _login().then((_) {
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                  });
+                                }
+                              },
+                              child: Container(
+                                width: 143.w,
+                                height: 45.h,
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                  borderRadius: BorderRadius.circular(40.r),
+                                ),
+                                child: Center(
+                                  child: _isLoading
+                                      ? SizedBox(
+                                          height: 20.h,
+                                          width: 20.w,
+                                          child:
+                                              const CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.white),
+                                          ),
+                                        )
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'Login',
+                                              style: GoogleFonts.dmSans(
+                                                letterSpacing: -0.5.w,
+                                                color: Colors.white,
+                                                fontSize: 18.sp,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                            SizedBox(width: 6.w),
+                                            const Icon(
+                                              Icons.arrow_forward_sharp,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 30.h),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                    height: 23,
+                                    width: 23,
+                                    child: SvgPicture.asset(
+                                        'assets/images/google 1.svg')),
+                                const SizedBox(width: 10),
+                                RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(children: [
+                                    TextSpan(
+                                        text: 'Register with',
+                                        style: GoogleFonts.dmSans(
+                                            color: Colors.black,
+                                            letterSpacing: -0.5.w,
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w400)),
+                                    TextSpan(
+                                        text: ' Google',
+                                        style: GoogleFonts.dmSans(
+                                            color: Colors.black,
+                                            letterSpacing: -0.5.w,
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w600)),
+                                  ]),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 15.h),
-                  RichText(
-                    text: TextSpan(
+                ),
+                // Divider and bottom text
+                Column(
+                  children: [
+                    Divider(
+                      color: Colors.grey.shade300,
+                      height: 30.h,
+                      thickness: 1.5,
+                    ),
+                    SizedBox(height: 15.h),
+                    RichText(
+                      text: TextSpan(
                         text: "Don't have an account?  ",
-                        style: const TextStyle(color: Colors.black),
+                        style: GoogleFonts.dmSans(
+                          letterSpacing: -0.5.w,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 13.sp,
+                          color: const Color.fromRGBO(46, 53, 58, 0.44),
+                        ),
                         children: [
                           TextSpan(
-                              text: "Sign Up",
-                              style: const TextStyle(
-                                  color: Color(0xFF006257),
-                                  fontWeight: FontWeight.bold),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(builder: (context) {
-                                    return const RegisterPage();
-                                  }));
-                                })
-                        ]),
-                  ),
-                  SizedBox(
-                    height: 30.h,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 5.h),
-                    width: 110.w,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(40),
+                            text: "Register Here",
+                            style: GoogleFonts.dmSans(
+                              color: Colors.green,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13.sp,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder:
+                                        (context, animation1, animation2) =>
+                                            const Registerpage(),
+                                    transitionDuration: Duration.zero,
+                                    reverseTransitionDuration: Duration.zero,
+                                  ),
+                                );
+                              },
+                          ),
+                        ],
+                      ),
                     ),
-                    // child: Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     Image.asset(
-                    //       'assets/images/logo1.png',
-                    //       height: 30.h,
-                    //       width: 30.h,
-                    //     ),
-                    //     SizedBox(width: 5.w),
-                    //     Text(
-                    //       'amset',
-                    //       style: GoogleFonts.prozaLibre(
-                    //         textStyle: TextStyle(
-                    //           color: const Color.fromARGB(255, 0, 0, 0),
-                    //           fontSize: 18.sp,
-                    //           fontWeight: FontWeight.w500,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                  ),
-                ],
-              ),
+                    SizedBox(height: 20.h),
+                  ],
+                ),
+              ],
             ),
           ),
         ),

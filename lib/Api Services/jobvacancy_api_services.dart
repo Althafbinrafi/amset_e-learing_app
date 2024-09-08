@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:amset/Models/vacancyModel.dart';
+import 'package:amset/Models/vacany_model.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {

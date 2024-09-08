@@ -1,11 +1,11 @@
-import 'dart:convert';
-import 'package:amset/Models/vacanyModel.dart';
+import 'package:amset/Models/vacancy_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart'; // Import shimmer package
-import 'RegisterPage.dart'; // import your register page
+import 'register_page.dart'; // import your register page
 
 class JobVacancyPage extends StatefulWidget {
   const JobVacancyPage({super.key});
@@ -44,6 +44,7 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
       setState(() {
         _isFetching = false;
       });
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
@@ -60,7 +61,7 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
         _isLoading = false;
       });
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return const RegisterPage();
+        return const Registerpage();
       }));
     });
   }
@@ -172,7 +173,7 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
                                 child: Row(
                                   children: [
                                     Container(
-                                      padding: EdgeInsets.all(7),
+                                      padding: const EdgeInsets.all(7),
                                       width: 60.h,
                                       height: 60.h,
                                       decoration: BoxDecoration(
@@ -235,7 +236,7 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
                               ),
                             ],
                           );
-                        }).toList(),
+                        }),
 
                         // Register Information Text
                         SizedBox(height: 5.h),
