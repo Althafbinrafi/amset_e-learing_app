@@ -84,7 +84,7 @@ class _ExplorePageState extends State<ExplorePage> {
         crossAxisSpacing: 10.w,
         mainAxisSpacing: 10.h,
       ),
-      itemCount: 6, // Number of shimmer placeholders
+      itemCount: 9, // Number of shimmer placeholders
       itemBuilder: (BuildContext context, int index) {
         return Shimmer.fromColors(
           baseColor: Colors.grey[300]!,

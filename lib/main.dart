@@ -2,6 +2,7 @@
 
 import 'package:amset/screens/dashboard.dart';
 import 'package:amset/screens/skip.dart';
+import 'package:amset/screens/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -86,7 +87,7 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const SkipPage(),
+          builder: (context) => const SplashScreen(),
         ),
       );
     }

@@ -1,68 +1,84 @@
-// import 'package:amset/screens/skip.dart';
-// import 'package:flutter/material.dart';
-// import 'dart:async';
+import 'package:amset/screens/skip.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-// import 'package:package_info_plus/package_info_plus.dart';
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
-// class SplashScreen extends StatefulWidget {
-//   const SplashScreen({super.key});
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
 
-//   @override
-//   _SplashScreenState createState() => _SplashScreenState();
-// }
+class _SplashScreenState extends State<SplashScreen> {
+  final String image = 'assets/images/splash.svg';
 
-// class _SplashScreenState extends State<SplashScreen> {
-//   String _version = '';
+  @override
+  void initState() {
+    super.initState();
+    // Start the timer for 2 seconds before navigating to SkipPage
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const SkipPage()),
+      );
+    });
+  }
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     _getVersion();
-//     // Set up a timer to navigate to the SkipPage after 3 seconds
-//     Timer(const Duration(seconds: 3), () {
-//       Navigator.of(context).pushReplacement(
-//         MaterialPageRoute(builder: (context) => const SkipPage()),
-//       );
-//     });
-//   }
-
-//   Future<void> _getVersion() async {
-//     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-//     setState(() {
-//       _version = 'Version ${packageInfo.version}';
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: const Color(0xFF006257),
-//       body: SafeArea(
-//         child: Center(
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             crossAxisAlignment: CrossAxisAlignment.center,
-//             children: [
-//               Image.asset(
-//                 'assets/images/logo.png',
-//                 height: 170,
-//                 width: 170,
-//                 // ),
-//                 // Padding(
-//                 //   padding: const EdgeInsets.all(8.0),
-//                 //   child: Text(
-//                 //     _version,
-//                 //     style: const TextStyle(
-//                 //       color: Colors.white,
-//                 //       fontSize: 16,
-//                 //       fontWeight: FontWeight.w500,
-//                 //     ),
-//                 //   ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          children: [
+            // This section centers the text vertically
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Your Gateway to',
+                    style: GoogleFonts.dmSans(
+                      textStyle: TextStyle(
+                        color: Colors.black,
+                        fontSize: 28.sp,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'Retail Careers',
+                    style: GoogleFonts.dmSans(
+                      textStyle: TextStyle(
+                        color: const Color.fromRGBO(117, 192, 68, 1),
+                        fontSize: 28.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  //
+                  // SizedBox(
+                  //   height: 30,
+                  //   width: 30,
+                  //   child: const CircularProgressIndicator(
+                  //     backgroundColor: Color.fromRGBO(117, 192, 68, 1),
+                  //     color: Color(0xFF006257), // Color of the indicator
+                  //   ),
+                  // ),
+                ],
+              ),
+            ),
+            // This section keeps the SVG at the bottom center
+            SvgPicture.asset(
+              image,
+              alignment: Alignment.bottomCenter,
+            ),
+            SizedBox(height: 50.h),
+          ],
+        ),
+      ),
+    );
+  }
+}

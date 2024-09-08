@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:amset/Models/vacancyModel.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,11 +14,11 @@ class ApiService {
       if (response.statusCode == 200) {
         return jobVacancyModelFromJson(response.body);
       } else {
-        print('Failed to load job vacancies');
+        log('Failed to load job vacancies');
         return null;
       }
     } catch (e) {
-      print('Error: $e');
+      log('Error: $e');
       return null;
     }
   }
