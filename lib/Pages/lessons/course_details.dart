@@ -1,16 +1,12 @@
-// ignore_for_file: unused_import, file_names, deprecated_member_use
-
 import 'package:amset/Pages/lessons/all_lessons.dart';
 import 'package:amset/Widgets/video_Player.dart';
 import 'package:flutter/material.dart';
-import 'package:amset/Models/courseFetchModel.dart';
+import 'package:amset/Models/course_fetch_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
-// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-//import 'package:amset/Pages/lessons/AllLessonsPage.dart'; // Import the AllLessonsPage
+
 
 class CourseDetailsPage extends StatefulWidget {
   final Chapter chapter;
@@ -20,11 +16,11 @@ class CourseDetailsPage extends StatefulWidget {
       {super.key, required this.chapter, required this.courseId});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _CourseDetailsPageState createState() => _CourseDetailsPageState();
+
+  CourseDetailsPageState createState() => CourseDetailsPageState();
 }
 
-class _CourseDetailsPageState extends State<CourseDetailsPage> {
+class CourseDetailsPageState extends State<CourseDetailsPage> {
   int _selectedIndex = 0;
   late Future<CourseFetchModel> futureCourse;
   ValueNotifier<bool> isFullScreen = ValueNotifier(false);

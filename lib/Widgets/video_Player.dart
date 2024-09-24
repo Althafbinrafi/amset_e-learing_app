@@ -54,17 +54,17 @@ class _CoursePlayerState extends State<CoursePlayer> {
       controller: _controller,
       showVideoProgressIndicator: true,
       progressIndicatorColor: Colors.white,
-      bottomActions: [
+      bottomActions: const [
         CurrentPosition(),
         ProgressBar(
           isExpanded: true,
-          colors: const ProgressBarColors(
+          colors: ProgressBarColors(
             handleColor: Color(0xFF006257),
             playedColor: Color(0xFF006257),
           ),
         ),
         RemainingDuration(),
-        const PlaybackSpeedButton(
+         PlaybackSpeedButton(
           icon: Icon(
             Icons.speed,
             color: Colors.white,

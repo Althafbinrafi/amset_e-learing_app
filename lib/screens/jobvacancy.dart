@@ -57,6 +57,7 @@ class _JobVacancyPageState extends State<JobVacancyPage> {
     });
 
     Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });

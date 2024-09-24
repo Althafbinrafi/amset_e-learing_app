@@ -237,6 +237,7 @@ class _SuccessAnimationPageState extends State<SuccessAnimationPage> {
 
   void _navigateToLoginAfterDelay() {
     Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );

@@ -1,8 +1,6 @@
-// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, deprecated_member_use, use_build_context_synchronously
-
 import 'dart:developer';
 
-import 'package:amset/Models/myCourseModel.dart';
+import 'package:amset/Models/my_course_model.dart';
 import 'package:amset/Pages/lessons/all_lessons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,10 +17,10 @@ class CoursePage extends StatefulWidget {
   const CoursePage({super.key});
 
   @override
-  _CoursePageState createState() => _CoursePageState();
+  CoursePageState createState() => CoursePageState();
 }
 
-class _CoursePageState extends State<CoursePage> {
+class CoursePageState extends State<CoursePage> {
   late Future<MyCourseModel> futureCourseData;
 
   @override
@@ -32,9 +30,11 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   Future<MyCourseModel> fetchCourseData() async {
+    
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
     String? userId = prefs.getString('user_id');
+    
 
     if (token == null || userId == null) {
       throw Exception('Token or User ID not found');
@@ -246,6 +246,7 @@ class _CoursePageState extends State<CoursePage> {
       onTap: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('selected_course_id', courseId);
+        
         Navigator.push(
           context,
           PageRouteBuilder(

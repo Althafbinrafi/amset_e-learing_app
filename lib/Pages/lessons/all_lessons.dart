@@ -1,7 +1,4 @@
-// ignore_for_file: unnecessary_import, depend_on_referenced_packages, use_super_parameters, library_private_types_in_public_api
-
-import 'package:amset/Models/courseFetchModel.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:amset/Models/course_fetch_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,18 +7,18 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'package:amset/Pages/lessons/CourseDetails.dart';
+import 'package:amset/Pages/lessons/course_details.dart';
 
 class AllLessonsPage extends StatefulWidget {
   final String courseId;
 
-  const AllLessonsPage({Key? key, required this.courseId}) : super(key: key);
+  const AllLessonsPage({super.key, required this.courseId});
 
   @override
-  _AllLessonsPageState createState() => _AllLessonsPageState();
+  AllLessonsPageState createState() => AllLessonsPageState();
 }
 
-class _AllLessonsPageState extends State<AllLessonsPage> {
+class AllLessonsPageState extends State<AllLessonsPage> {
   late Future<CourseFetchModel> futureCourse;
 
   @override

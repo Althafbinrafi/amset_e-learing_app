@@ -1,5 +1,4 @@
 import 'package:amset/screens/register_page.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -32,9 +31,9 @@ class _PreregistrationPageState extends State<PreregistrationPage>
       duration: const Duration(milliseconds: 800),
     );
     _fadeAnimation =
-        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+        Tween<double>(begin: 0.0, end: 4.0).animate(_animationController);
     _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
     _animationController.forward();
@@ -52,7 +51,7 @@ class _PreregistrationPageState extends State<PreregistrationPage>
       backgroundColor: Colors.white,
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 60),
+          padding: EdgeInsets.symmetric(horizontal: 60.w),
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: SlideTransition(
@@ -63,7 +62,7 @@ class _PreregistrationPageState extends State<PreregistrationPage>
                 children: [
                   // Logo at the top
                   Image.asset(
-                    image,
+                    'assets/images/logo1.png', // Replace with your image path
                     height: 37.h,
                     width: 65.w,
                     fit: BoxFit.contain,
@@ -107,12 +106,10 @@ class _PreregistrationPageState extends State<PreregistrationPage>
                     crossAxisCount: 2,
                     crossAxisSpacing: 20.w,
                     mainAxisSpacing: 20.h,
-                    shrinkWrap: true, // Make the GridView take minimal space
+                    shrinkWrap: true,
                     children: [
                       _buildSvgItem(
-                        'assets/images/select_job.svg',
-                        'Select\n  Job',
-                      ),
+                          'assets/images/select_job.svg', 'Select\n  Job'),
                       _buildSvgItem(
                           'assets/images/trainning.svg', 'Training\nProvided'),
                       _buildSvgItem(
@@ -126,7 +123,6 @@ class _PreregistrationPageState extends State<PreregistrationPage>
                   SizedBox(height: 50.h),
                   GestureDetector(
                     onTap: () {
-                      // Navigate to the next page
                       Navigator.push(
                         context,
                         PageRouteBuilder(
@@ -151,10 +147,11 @@ class _PreregistrationPageState extends State<PreregistrationPage>
                             Text(
                               'Next',
                               style: GoogleFonts.dmSans(
-                                  letterSpacing: -0.5.w,
-                                  color: Colors.white,
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.w400),
+                                letterSpacing: -0.5.w,
+                                color: Colors.white,
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
                             SizedBox(width: 6.w),
                             const Icon(
@@ -174,31 +171,31 @@ class _PreregistrationPageState extends State<PreregistrationPage>
       ),
     );
   }
+}
 
-  // Method to build SVG item for grid
-  Widget _buildSvgItem(String assetPath, String label) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SvgPicture.asset(
-          assetPath,
-          height: 40.h,
-          width: 40.w,
-          // ignore: deprecated_member_use
-          color: const Color.fromARGB(
-              255, 0, 0, 0), // Optional: apply a color to the SVG
+// Method to build SVG item for grid
+Widget _buildSvgItem(String assetPath, String label) {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      SvgPicture.asset(
+        assetPath,
+        height: 40.h,
+        width: 40.w,
+        // ignore: deprecated_member_use
+        color: const Color.fromARGB(
+            255, 0, 0, 0), // Optional: apply a color to the SVG
+      ),
+      SizedBox(height: 10.h),
+      Text(
+        label,
+        style: GoogleFonts.dmSans(
+          letterSpacing: -0.5.w,
+          color: Colors.black,
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w400,
         ),
-        SizedBox(height: 10.h),
-        Text(
-          label,
-          style: GoogleFonts.dmSans(
-            letterSpacing: -0.5.w,
-            color: Colors.black,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }

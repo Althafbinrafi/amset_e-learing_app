@@ -22,7 +22,8 @@ class _ExplorePageState extends State<ExplorePage> {
   late Timer _timer;
 
   // Initialize the Future directly here
-  final Future<JobVacancyModel?> _jobVacancyFuture = ApiService().fetchJobVacancies();
+  final Future<JobVacancyModel?> _jobVacancyFuture =
+      ApiService().fetchJobVacancies();
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class _ExplorePageState extends State<ExplorePage> {
     });
 
     Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });

@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use, prefer_const_constructors, library_private_types_in_public_api
-
 import 'dart:async';
 import 'package:amset/Models/allCoursesModel.dart';
 import 'package:amset/Pages/course_page.dart';
@@ -8,35 +6,11 @@ import 'package:amset/Pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
-//import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
-
-//import 'Models/allCoursesModel.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Amset',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const Dashboard(
-          fullName: 'User Name', avatarPath: 'assets/avatar.png'),
-    );
-  }
-}
 
 class Dashboard extends StatefulWidget {
   final String fullName;
@@ -51,22 +25,13 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   int _currentIndex = 0;
-  late AnimationController _controller;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final List<Widget> _pages = [
+    DashboardPage(fullName: 'User Name', avatarPath: 'assets/avatar.png'),
+    NotificationPage(), // Placeholder for CoursePage
+    CoursePage(), // Placeholder for Favourites (Notifications)
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -104,136 +69,167 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         } else {
           setState(() {
             _currentIndex = 0;
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const Dashboard(
-                      fullName: 'User Name', avatarPath: 'assets/avatar.png')),
-            );
           });
           return false;
         }
       },
       child: Scaffold(
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Color(0xFF006257),
+        key: _scaffoldKey,
+        backgroundColor: Colors.white,
+        appBar: _buildAppBar(),
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _pages,
+        ),
+        bottomNavigationBar: SizedBox(
+          height: 85.h,
+          child: BottomNavigationBar(
+            // elevation: 10,
+            backgroundColor: Colors.white,
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            items: [
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset('assets/images/home_icon.svg'),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset('assets/images/jobs_icon.svg'),
+                label: 'Jobs',
+              ),
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset('assets/images/course_icon.svg'),
+                label: 'Course',
+              ),
+            ],
+          ),
+        ),
+        endDrawer: _buildDrawer(),
+      ),
+    );
+  }
+
+  AppBar? _buildAppBar() {
+    return _currentIndex == 0
+        ? AppBar(
+            elevation: 0,
+            bottom: PreferredSize(
+              preferredSize: Size(MediaQuery.of(context).size.width, 1),
+              child: const Divider(
+                color: Color.fromRGBO(213, 215, 216, 1),
+              ),
+            ),
+            toolbarHeight: 85,
+            leadingWidth: 123,
+            iconTheme: const IconThemeData(color: Colors.white),
+            centerTitle: false,
+            backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+            leading: Padding(
+              padding: EdgeInsets.only(left: 21.w),
+              child: SvgPicture.asset(
+                'assets/images/Dashboard_logo.svg',
+                height: 25.h,
+                width: 117.w,
+              ),
+            ),
+            actions: [
+              Container(
+                // height: 2.h, // Increased height
+                // width: 67.w, // Increased width
+                padding: EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: const Color.fromRGBO(213, 215, 216, 1),
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(21),
+                  color: Colors.transparent,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      backgroundImage: AssetImage(widget.avatarPath),
-                      radius: 40.r,
+                    SvgPicture.asset(
+                      'assets/images/amset_coin.svg',
+                      height: 22.h, // Adjusted icon size for bigger coin
+                      width: 22.w, // Adjusted icon size for bigger coin
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(width: 8.w), // Slightly increased spacing
                     Text(
-                      widget.fullName,
+                      '126',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20.sp,
+                        fontSize: 14.sp, // Increased font size
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
                       ),
                     ),
                   ],
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Home'),
-                onTap: () {
-                  setState(() {
-                    _currentIndex = 0;
-                  });
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const Dashboard(
-                            fullName: 'User Name',
-                            avatarPath: 'assets/avatar.png')),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.menu_book_rounded),
-                title: const Text('Course'),
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CoursePage()),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.favorite_rounded),
-                title: const Text('Favourite'),
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NotificationPage()),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.account_circle),
-                title: const Text('Profile'),
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ProfilePage()),
-                  );
-                },
+              SizedBox(width: 10.w),
+              GestureDetector(
+                onTap: _openEndDrawer,
+                child: Padding(
+                  padding: EdgeInsets.only(right: 16.w),
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage(widget.avatarPath),
+                    radius: 21.r,
+                  ),
+                ),
               ),
             ],
-          ),
-        ),
-        appBar: _currentIndex == 0
-            ? AppBar(
-                iconTheme: IconThemeData(color: Colors.white),
-                centerTitle: true,
-                backgroundColor: const Color(0xFF008172),
-                title: Text(' Amset',
-                    style: GoogleFonts.roboto(
-                        fontSize: 25.sp,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600)),
-                actions: [
-                  // IconButton(
-                  //   onPressed: () {},
-                  //   icon: const Icon(
-                  //     Icons.search,
-                  //     size: 30,
-                  //     color: Colors.white,
-                  //   ),
-                  // ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.notifications,
-                      size: 30,
-                      color: Colors.white,
-                    ),
+          )
+        : null;
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Color(0xFF006257),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  backgroundImage: AssetImage(widget.avatarPath),
+                  radius: 40.r,
+                ),
+                SizedBox(height: 10.h),
+                Text(
+                  widget.fullName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.sp,
                   ),
-                ],
-              )
-            : null,
-        body: IndexedStack(
-          index: _currentIndex,
-          children: [
-            DashboardPage(
-                fullName: widget.fullName, avatarPath: widget.avatarPath),
-            Container(), // Placeholder for CoursePage, NotificationPage, and ProfilePage
-            Container(),
-            Container(),
-          ],
-        ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.account_circle),
+            title: const Text('Profile'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
+          ),
+        ],
       ),
     );
+  }
+
+  void _openEndDrawer() {
+    _scaffoldKey.currentState?.openEndDrawer();
   }
 }
 
@@ -342,64 +338,117 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             children: [
               SizedBox(height: 20.h),
+              Row(
+                children: [
+                  SizedBox(width: 16.w),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Hi, ',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.black,
+                            fontSize: 25.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'Muhammad Althaf',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.black,
+                            fontSize: 25.sp,
+                            letterSpacing: -1,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 7.h),
+              Row(
+                children: [
+                  SizedBox(width: 16.w),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Unlock your career',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.black,
+                            fontSize: 17.sp,
+                            letterSpacing: -1,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' completing your profile',
+                          style: GoogleFonts.dmSans(
+                            color: Color.fromRGBO(70, 139, 25, 1),
+                            fontSize: 17.sp,
+                            decoration: TextDecoration.underline,
+                            letterSpacing: -1,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               Container(
+                padding: EdgeInsets.only(left: 20),
                 margin: EdgeInsets.only(top: 20.h),
-                height: 120.h,
+                height: 73.h,
                 width: MediaQuery.of(context).size.width - 40.w,
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 255, 255, 255),
                   borderRadius: BorderRadius.circular(18.r),
                   boxShadow: const [
                     BoxShadow(
-                      color: Colors.black12,
-                      spreadRadius: 1,
-                      blurRadius: 10,
+                      color: Color.fromRGBO(117, 192, 68, 0.3),
+                      spreadRadius: 3,
+                      blurRadius: 107.7,
+                      offset: Offset(0, 4),
                     ),
                   ],
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18.r),
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: (int page) {
-                      setState(() {
-                        _currentPage = page;
-                      });
-                    },
-                    children: const [
-                      Image(
-                        image: AssetImage('assets/images/skip1.png'),
-                        fit: BoxFit.cover,
-                      ),
-                      Image(
-                        image: AssetImage('assets/images/skip2.png'),
-                        fit: BoxFit.cover,
-                      ),
-                      Image(
-                        image: AssetImage('assets/images/skip3.png'),
-                        fit: BoxFit.cover,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List<Widget>.generate(3, (int index) {
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: EdgeInsets.symmetric(horizontal: 2.w),
-                    width: _currentPage == index ? 17.w : 7.w,
-                    height: 7.h,
-                    decoration: BoxDecoration(
-                      color: _currentPage == index
-                          ? const Color(0xFF006257)
-                          : const Color(0xFFBDBDBD),
-                      borderRadius: BorderRadius.circular(5.r),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/images/profile_warning.svg',
+                      height: 25.h,
                     ),
-                  );
-                }),
+                    SizedBox(width: 15.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Complete your profile setup',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF2D2D2D),
+                              letterSpacing: -0.5.w,
+                            ),
+                          ),
+                          Text(
+                            'Provide Educational details for applying for job',
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              letterSpacing: -0.2.w,
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF6F6F6F),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: 30.h),
               Container(
@@ -411,13 +460,14 @@ class _DashboardPageState extends State<DashboardPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(' Recommended',
-                            style: TextStyle(
-                                color: const Color.fromARGB(255, 0, 0, 0),
-                                fontSize: 20.sp)),
-                        GestureDetector(
-                          child: const Text('See All'),
-                          onTap: () {},
+                        Text(
+                          ' Featured Jobs',
+                          style: GoogleFonts.dmSans(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 21.sp,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -0.5,
+                          ),
                         ),
                       ],
                     ),
@@ -427,7 +477,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return _buildShimmerEffect(); // Show shimmer effect while loading
+                          return _buildShimmerEffect();
                         } else if (snapshot.hasError) {
                           return const Center(
                               child: Text('Error loading courses'));
@@ -438,8 +488,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         } else {
                           final courses = snapshot.data!;
                           return SizedBox(
-                            height:
-                                224.h, // Fixed height for the horizontal list
+                            height: 224.h,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: courses.length,
@@ -461,124 +510,135 @@ class _DashboardPageState extends State<DashboardPage> {
                           );
                         }
                       },
+                    ),
+                  ],
+                ),
+              ),
+              //   SizedBox(height: 5.h),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          ' Jobs & Vacancies',
+                          //  textAlign: TextAlign.start,
+                          style: GoogleFonts.dmSans(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 21.sp,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10.h),
+                    // GridView
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.6,
+                      mainAxisSpacing: 10.h,
+                      crossAxisSpacing: 10.w,
+                      //padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      children: List.generate(4, (index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                            color: const Color.fromRGBO(117, 192, 68, 0.15),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Item ${index + 1}',
+                              style: TextStyle(
+                                color: const Color.fromARGB(255, 0, 0, 0),
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
                     ),
                     SizedBox(height: 20.h),
+
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(' Explore',
-                            style: TextStyle(
-                                color: const Color.fromARGB(255, 0, 0, 0),
-                                fontSize: 20.sp)),
-                        GestureDetector(
-                          child: const Text('See All'),
-                          onTap: () {},
+                        Text(
+                          'View More',
+                          style: GoogleFonts.dmSans(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.5),
                         ),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Icon(
+                          Icons.arrow_forward,
+                          color: Colors.green,
+                        )
                       ],
                     ),
-                    SizedBox(height: 5.h),
-                    FutureBuilder<List<Course>>(
-                      future: _futureCourses,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return _buildShimmerEffect(); // Show shimmer effect while loading
-                        } else if (snapshot.hasError) {
-                          return const Center(
-                              child: Text('Error loading courses'));
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return const Center(
-                              child: Text('No courses available'));
-                        } else {
-                          final courses = snapshot.data!;
-                          return SizedBox(
-                            height:
-                                250.h, // Fixed height for the horizontal list
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: courses.length,
-                              itemBuilder: (context, index) {
-                                final course = courses[index];
-                                return _buildCourseCard(
-                                  context,
-                                  course.imageUrl ??
-                                      'assets/images/default.png',
-                                  course.title,
-                                  '${course.chapters.length} Lessons',
-                                  course.description ??
-                                      'No description available',
-                                  'Rs. ${course.price} /-',
-                                  index,
-                                );
-                              },
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    SizedBox(height: 5.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
+                    SizedBox(height: 30.h),
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                          style: GoogleFonts.dmSans(
+                            color:
+                                Colors.black, // Set a base color for all text
+                            fontSize: 16.sp, // Set a base font size
+                          ),
                           children: [
-                            Text(' Premium',
-                                style: TextStyle(
-                                    color: const Color.fromARGB(255, 0, 0, 0),
-                                    fontSize: 20.sp)),
-                            SizedBox(width: 4.w),
-                            const Icon(Icons.workspace_premium_rounded,
-                                color: Colors.amber),
-                          ],
-                        ),
-                        GestureDetector(
-                          child: const Text('See All'),
-                          onTap: () {},
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 5.h),
-                    FutureBuilder<List<Course>>(
-                      future: _futureCourses,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return _buildShimmerEffect(); // Show shimmer effect while loading
-                        } else if (snapshot.hasError) {
-                          return const Center(
-                              child: Text('Error loading courses'));
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return const Center(
-                              child: Text('No courses available'));
-                        } else {
-                          final courses = snapshot.data!;
-                          return SizedBox(
-                            height:
-                                250.h, // Fixed height for the horizontal list
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: courses.length,
-                              itemBuilder: (context, index) {
-                                final course = courses[index];
-                                return _buildCourseCard(
-                                  context,
-                                  course.imageUrl ??
-                                      'assets/images/default.png',
-                                  course.title,
-                                  '${course.chapters.length} Lessons',
-                                  course.description ??
-                                      'No description available',
-                                  'Rs. ${course.price} /-',
-                                  index,
-                                );
-                              },
+                            TextSpan(
+                              text: 'Continue your journey\n toward a ',
+                              style: GoogleFonts.dmSans(
+                                  fontWeight: FontWeight.w400, fontSize: 25.sp),
                             ),
-                          );
-                        }
-                      },
+                            TextSpan(
+                              text: 'rewarding\n retail career.',
+                              style: GoogleFonts.dmSans(
+                                  color: Color.fromRGBO(117, 192, 68, 1),
+                                  fontSize: 25.sp,
+                                  fontWeight:
+                                      FontWeight.w400), // Make this part bold
+                            ),
+                          ]),
                     ),
+                    SizedBox(height: 20.h), // Add some bottom padding
+                    Container(
+                      width: 175.w,
+                      padding: EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                          color: Color.fromRGBO(46, 53, 58, 1),
+                          borderRadius: BorderRadius.circular(22)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Apply For Job',
+                            style: GoogleFonts.dmSans(
+                                fontSize: 16.sp,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: -0.5),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Icon(
+                            Icons.arrow_forward,
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    )
                   ],
                 ),
               ),
@@ -643,14 +703,14 @@ class _DashboardPageState extends State<DashboardPage> {
                           borderRadius: BorderRadius.circular(18.r),
                         ),
                       ),
-                      Container(
-                        width: 20.w,
-                        height: 20.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18.r),
-                        ),
-                      ),
+                      // Container(
+                      //   width: 20.w,
+                      //   height: 20.h,
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.white,
+                      //     borderRadius: BorderRadius.circular(18.r),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -805,7 +865,7 @@ Amset Academy. ''';
       onTap: () =>
           _showCourseDrawer(context, title, lessons, description, price),
       child: Container(
-        width: 180.w, // Fixed width for each course card
+        width: 190.w, // Fixed width for each course card
         margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 255, 255, 255),
@@ -844,32 +904,32 @@ Amset Academy. ''';
                       color: const Color(0xff1d1b1e),
                     ),
                   ),
-                  SizedBox(height: 5.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.label,
-                            color: Colors.grey,
-                            size: 20.sp,
-                          ),
-                          SizedBox(width: 3.w),
-                          Text(
-                            'Hypermarket',
-                            style:
-                                TextStyle(fontSize: 14.sp, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                      const Icon(
-                        Icons.favorite_outline_rounded,
-                        color: Color.fromARGB(255, 90, 89, 89),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 5.h),
+                  //SizedBox(height: 5.h),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Row(
+                  //       children: [
+                  //         Icon(
+                  //           Icons.label,
+                  //           color: Colors.grey,
+                  //           size: 20.sp,
+                  //         ),
+                  //         SizedBox(width: 3.w),
+                  //         Text(
+                  //           'Hypermarket',
+                  //           style:
+                  //               TextStyle(fontSize: 14.sp, color: Colors.grey),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     // const Icon(
+                  //     //   Icons.favorite_outline_rounded,
+                  //     //   color: Color.fromARGB(255, 90, 89, 89),
+                  //     // ),
+                  //   ],
+                  // ),
+                  // SizedBox(height: 5.h),
                 ],
               ),
             ),

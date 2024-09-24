@@ -40,7 +40,7 @@ class _SkipPageState extends State<SkipPage>
     _fadeAnimation =
         Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
     _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
     _animationController.forward();
@@ -58,6 +58,7 @@ class _SkipPageState extends State<SkipPage>
     });
 
     Future.delayed(const Duration(seconds: 1), () {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -128,7 +129,7 @@ class _SkipPageState extends State<SkipPage>
                           width: 133.w,
                           height: 45.h,
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 0, 0, 0),
+                            color: _isLoading ? Colors.grey : Colors.black,
                             borderRadius: BorderRadius.circular(40.r),
                           ),
                           child: TextButton(
@@ -138,6 +139,7 @@ class _SkipPageState extends State<SkipPage>
                                     height: 20.h,
                                     width: 20.w,
                                     child: const CircularProgressIndicator(
+                                      strokeWidth: 2,
                                       color: Colors.white,
                                     ),
                                   )
