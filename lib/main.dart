@@ -1,6 +1,5 @@
-// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
-import 'package:amset/screens/dashboard.dart';
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:amset/screens/splash.dart';
 import 'package:flutter/material.dart';
@@ -35,13 +34,12 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Skip Page',
+          title: 'Main Page',
           theme: ThemeData(
-              //primarySwatch: Colors.blue,
-              primaryColor: const Color(0xFF006257),
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color(0xFF006257),
-              )),
+            primaryColor: const Color(0xFF006257),
+            colorScheme:
+                ColorScheme.fromSeed(seedColor: const Color(0xFF006257)),
+          ),
           home: const AuthCheckPage(),
         );
       },
@@ -53,6 +51,7 @@ class AuthCheckPage extends StatefulWidget {
   const AuthCheckPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AuthCheckPageState createState() => _AuthCheckPageState();
 }
 
@@ -66,7 +65,7 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
   Future<void> _checkAuthStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
-    String? fullName = prefs.getString('full_name');
+    String? fullName = prefs.getString('email');
     String? userId = prefs.getString('user_id');
     String? avatarPath = prefs.getString('avatar_path');
 
@@ -79,11 +78,12 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              Dashboard(fullName: fullName, avatarPath: avatarPath),
+              // Dashboard(fullName: fullName, avatarPath: avatarPath),
+              const SplashScreen(),
         ),
       );
     } else {
-      // Token doesn't exist, navigate to SkipPage (or LoginPage)
+      // Token doesn't exist, navigate to LoginPage
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

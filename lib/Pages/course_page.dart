@@ -1,17 +1,14 @@
 import 'dart:developer';
-
-import 'package:amset/Models/my_course_model.dart';
-import 'package:amset/Pages/lessons/all_lessons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-
-import 'package:amset/screens/dashboard.dart';
+import 'package:amset/Models/my_course_model.dart';
+import 'package:amset/Pages/lessons/all_lessons.dart';
 
 class CoursePage extends StatefulWidget {
   const CoursePage({super.key});
@@ -30,11 +27,9 @@ class CoursePageState extends State<CoursePage> {
   }
 
   Future<MyCourseModel> fetchCourseData() async {
-    
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
     String? userId = prefs.getString('user_id');
-    
 
     if (token == null || userId == null) {
       throw Exception('Token or User ID not found');
@@ -63,101 +58,143 @@ class CoursePageState extends State<CoursePage> {
     }
   }
 
-  Future<bool> _onWillPop(BuildContext context) async {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const Dashboard(
-          fullName: 'User Name',
-          avatarPath: 'assets/avatar.png',
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 35.h),
+                child: Text(
+                  'My Courses',
+                  style: GoogleFonts.dmSans(
+                      color: Colors.black,
+                      fontSize: 27.sp,
+                      fontWeight: FontWeight.normal,
+                      letterSpacing: -1),
+                ),
+              ),
+              // Main Content
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.w),
+                child: FutureBuilder<MyCourseModel>(
+                  future: futureCourseData,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return _buildShimmerEffect();
+                    } else if (snapshot.hasError) {
+                      log('Snapshot error: ${snapshot.error}');
+                      return Center(
+                          child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/images/No connection-bro.svg',
+                            height: 200.h,
+                            width: 200.w,
+                          ),
+                          SizedBox(height: 10.h),
+                          const Text('Check Your Connection !'),
+                        ],
+                      ));
+                    } else if (!snapshot.hasData ||
+                        snapshot.data!.courseData.isEmpty) {
+                      return _buildNoCoursesUI(context);
+                    }
+
+                    final courseData = snapshot.data!.courseData;
+
+                    return ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: courseData.length,
+                      itemBuilder: (context, index) {
+                        final courseDatum = courseData[index];
+                        return Column(
+                          children: [
+                            _buildCourseContainer(
+                              context,
+                              courseDatum.course.imageUrl,
+                              courseDatum.course.title,
+                              double.parse(courseDatum.progressPercentage
+                                      .replaceAll('%', '')) /
+                                  100,
+                              courseDatum.progressPercentage,
+                              courseDatum.course.id,
+                            ),
+                            SizedBox(height: 1.h),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
-    return false;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => _onWillPop(context),
-      child: Scaffold(
-        backgroundColor: const Color(0xFF006257),
-        body: Column(
+  // Function to build the "No Courses" UI
+  Widget _buildNoCoursesUI(BuildContext context) {
+    return Center(
+      // Wrap everything in a Center widget
+      child: ConstrainedBox(
+        // Use ConstrainedBox to set a maximum width
+        constraints:
+            BoxConstraints(maxWidth: 300.w), // Adjust max width as needed
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
-              child: Container(
-                color: const Color(0xFF006257),
-                child: const Center(
-                  child: Text(
-                    'My Courses',
-                    style: TextStyle(fontSize: 28, color: Colors.white),
-                  ),
-                ),
+            SvgPicture.asset(
+              'assets/images/empty_courses.svg',
+              height: 200.h,
+              width: 200.w,
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'No courses available, please purchase one!',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.dmSans(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.black54,
               ),
             ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 40.h),
-              height: 0.7.sh, // Using 70% of the screen height
-              width: 1.sw, // Using the full screen width
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                color: Color.fromARGB(255, 255, 255, 255),
-              ),
-              child: FutureBuilder<MyCourseModel>(
-                future: futureCourseData,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return _buildShimmerEffect();
-                  } else if (snapshot.hasError) {
-                    log('Snapshot error: ${snapshot.error}');
-                    return Center(
-                        child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/images/No connection-bro.svg',
-                          height: 200.h,
-                          width: 200.w,
-                        ),
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                        const Text('Check Your Connection !'),
-                      ],
-                    ));
-                  } else if (!snapshot.hasData) {
-                    return const Center(child: Text('No data available'));
-                  }
-
-                  final courseData = snapshot.data!.courseData;
-
-                  return ListView.builder(
-                    itemCount: courseData.length,
-                    itemBuilder: (context, index) {
-                      final courseDatum = courseData[index];
-                      return Column(
-                        children: [
-                          _buildCourseContainer(
-                            context,
-                            courseDatum.course.imageUrl,
-                            courseDatum.course.title,
-                            'Lessons', // Replace with actual lessons data if available
-                            'Duration', // Replace with actual duration data if available
-                            double.parse(courseDatum.progressPercentage
-                                    .replaceAll('%', '')) /
-                                100,
-                            courseDatum.progressPercentage,
-                            const Color.fromARGB(255, 255, 255, 255),
-                            courseDatum.course.id,
-                          ),
-                          SizedBox(height: 1.h),
-                        ],
-                      );
-                    },
-                  );
+            SizedBox(height: 35.h),
+            SizedBox(
+              // Wrap button in SizedBox to control its width
+              width: double.infinity, // Make button full width of its container
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/purchasePage');
                 },
+                style: ElevatedButton.styleFrom(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 25.w, vertical: 15.h),
+                  backgroundColor: const Color.fromRGBO(117, 192, 68, 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.r),
+                  ),
+                  elevation: 0,
+                  shadowColor: Colors.black.withOpacity(0.2),
+                ),
+                child: Text(
+                  'Purchase Courses',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ],
@@ -171,6 +208,8 @@ class CoursePageState extends State<CoursePage> {
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
         itemCount: 6,
         itemBuilder: (context, index) {
           return Padding(
@@ -231,47 +270,23 @@ class CoursePageState extends State<CoursePage> {
     BuildContext context,
     String imagePath,
     String title,
-    String lessons,
-    String duration,
     double percent,
     String percentText,
-    Color backgroundColor,
     String courseId,
   ) {
-    // Convert the percentText to an integer
-    int percentValue = double.parse(percentText.replaceAll('%', '')).round();
-    String formattedPercentText = '$percentValue%';
-
     return GestureDetector(
       onTap: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('selected_course_id', courseId);
-        
+
         Navigator.push(
           context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                AllLessonsPage(courseId: courseId),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              const begin = Offset(0.0, 0.1);
-              const end = Offset.zero;
-              const curve = Curves.linear;
-
-              var tween =
-                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-              var offsetAnimation = animation.drive(tween);
-
-              return SlideTransition(
-                position: offsetAnimation,
-                child: child,
-              );
-            },
+          MaterialPageRoute(
+            builder: (context) => AllLessonsPage(courseId: courseId),
           ),
         );
       },
       child: Container(
-        padding: EdgeInsets.all(15.w),
         margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
         decoration: BoxDecoration(
           boxShadow: const [
@@ -281,65 +296,85 @@ class CoursePageState extends State<CoursePage> {
               blurRadius: 10,
             ),
           ],
-          color: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: BorderRadius.circular(18.r),
+          color: const Color.fromRGBO(117, 192, 68, 1),
+          borderRadius: BorderRadius.circular(39.r),
         ),
-        child: Row(
+        child: Column(
           children: [
+            // Image Container with Gradient Overlay
             Container(
-              padding: EdgeInsets.all(10.w),
-              height: 100.h,
-              width: 100.w,
+              height: 201.h,
+              width: 344.w,
               decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(18.r),
+                borderRadius: BorderRadius.circular(39.r),
                 image: DecorationImage(
-                  fit: BoxFit.cover,
+                  fit: BoxFit.cover, // Fills the entire container
                   image: NetworkImage(imagePath),
                 ),
               ),
-            ),
-            SizedBox(width: 15.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  Text(
-                    title,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xff1d1b1e),
-                      letterSpacing: 0.3,
-                      height: 1.4.h,
+                  // Dark Gradient Overlay
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(39.r),
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.9),
+                          Colors.transparent, // Fades to transparent
+                        ],
+                      ),
                     ),
                   ),
-                  SizedBox(height: 7.h),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 120.w,
-                        child: LinearPercentIndicator(
-                          animation: true,
-                          animationDuration: 700,
-                          lineHeight: 10.h,
-                          percent: percent,
-                          barRadius: Radius.circular(16.r),
-                          progressColor: const Color(0xFF006257),
-                          backgroundColor: const Color.fromARGB(56, 0, 98, 86),
+                  // Course Title and Play Button (Bottom-aligned inside the image)
+                  Positioned(
+                    bottom: 15.h,
+                    left: 30.w,
+                    right: 28.w,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Course Title
+                        Expanded(
+                          child: Text(
+                            title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.dmSans(
+                              fontSize: 21.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                              letterSpacing: 0.3,
+                              height: 1.4.h,
+                              shadows: [
+                                Shadow(
+                                  offset: const Offset(0, 1),
+                                  blurRadius: 5,
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 1.w),
-                      Text(formattedPercentText),
-                    ],
+                        SizedBox(width: 10.w),
+                        // Play Button Icon
+                        SvgPicture.asset(
+                          'assets/images/play_btn.svg',
+                          width: 54.w,
+                          height: 54.h,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
+            ),
+            // Progress Bar and Percentage Text
+            Padding(
+              padding: EdgeInsets.all(10.w),
+              // You can include the progress bar here if needed
             ),
           ],
         ),

@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
@@ -28,9 +29,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Widget> _pages = [
-    DashboardPage(fullName: 'User Name', avatarPath: 'assets/avatar.png'),
-    NotificationPage(), // Placeholder for CoursePage
-    CoursePage(), // Placeholder for Favourites (Notifications)
+    const DashboardPage(fullName: 'User Name', avatarPath: 'assets/avatar.png'),
+    const NotificationPage(), // Placeholder for CoursePage
+    const CoursePage(), // Placeholder for Favourites (Notifications)
   ];
 
   @override
@@ -84,7 +85,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         bottomNavigationBar: SizedBox(
           height: 85.h,
           child: BottomNavigationBar(
-            // elevation: 10,
             backgroundColor: Colors.white,
             currentIndex: _currentIndex,
             onTap: (index) {
@@ -92,17 +92,39 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 _currentIndex = index;
               });
             },
+            selectedItemColor:
+                const Color(0xFF006257), // Green color for selected item
+            unselectedItemColor: const Color.fromARGB(
+                255, 0, 0, 0), // Default color for unselected items
             items: [
               BottomNavigationBarItem(
-                icon: SvgPicture.asset('assets/images/home_icon.svg'),
+                icon: ColorFiltered(
+                  colorFilter: ColorFilter.mode(
+                    _currentIndex == 0 ? const Color(0xFF006257) : Colors.black,
+                    BlendMode.srcIn,
+                  ),
+                  child: SvgPicture.asset('assets/images/home_icon.svg'),
+                ),
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: SvgPicture.asset('assets/images/jobs_icon.svg'),
+                icon: ColorFiltered(
+                  colorFilter: ColorFilter.mode(
+                    _currentIndex == 1 ? const Color(0xFF006257) : Colors.black,
+                    BlendMode.srcIn,
+                  ),
+                  child: SvgPicture.asset('assets/images/jobs_icon.svg'),
+                ),
                 label: 'Jobs',
               ),
               BottomNavigationBarItem(
-                icon: SvgPicture.asset('assets/images/course_icon.svg'),
+                icon: ColorFiltered(
+                  colorFilter: ColorFilter.mode(
+                    _currentIndex == 2 ? const Color(0xFF006257) : Colors.black,
+                    BlendMode.srcIn,
+                  ),
+                  child: SvgPicture.asset('assets/images/course_icon.svg'),
+                ),
                 label: 'Course',
               ),
             ],
@@ -116,6 +138,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   AppBar? _buildAppBar() {
     return _currentIndex == 0
         ? AppBar(
+            surfaceTintColor: Colors.transparent,
             elevation: 0,
             bottom: PreferredSize(
               preferredSize: Size(MediaQuery.of(context).size.width, 1),
@@ -124,12 +147,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               ),
             ),
             toolbarHeight: 85,
-            leadingWidth: 123,
+            leadingWidth: 132,
             iconTheme: const IconThemeData(color: Colors.white),
             centerTitle: false,
             backgroundColor: const Color.fromARGB(255, 255, 255, 255),
             leading: Padding(
-              padding: EdgeInsets.only(left: 21.w),
+              padding: EdgeInsets.only(left: 32.w),
               child: SvgPicture.asset(
                 'assets/images/Dashboard_logo.svg',
                 height: 25.h,
@@ -137,44 +160,48 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               ),
             ),
             actions: [
-              Container(
-                // height: 2.h, // Increased height
-                // width: 67.w, // Increased width
-                padding: EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color.fromRGBO(213, 215, 216, 1),
-                    width: 1,
+              GestureDetector(
+                onTap:
+                    _showCoinDialog, // Call this function when the coin is tapped
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: const Color.fromRGBO(213, 215, 216, 1),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(21),
+                    color: Colors.transparent,
                   ),
-                  borderRadius: BorderRadius.circular(21),
-                  color: Colors.transparent,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/images/amset_coin.svg',
-                      height: 22.h, // Adjusted icon size for bigger coin
-                      width: 22.w, // Adjusted icon size for bigger coin
-                    ),
-                    SizedBox(width: 8.w), // Slightly increased spacing
-                    Text(
-                      '126',
-                      style: TextStyle(
-                        fontSize: 14.sp, // Increased font size
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/amset_coin.svg',
+                        height: 22.h, // Adjusted icon size for bigger coin
+                        width: 22.w, // Adjusted icon size for bigger coin
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 6.w), // Slightly increased spacing
+                      Text(
+                        '126',
+                        style: TextStyle(
+                          fontSize: 14.sp, // Increased font size
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(width: 10.w),
+              SizedBox(width: 14.w),
               GestureDetector(
                 onTap: _openEndDrawer,
                 child: Padding(
-                  padding: EdgeInsets.only(right: 16.w),
+                  padding: EdgeInsets.only(right: 23.w),
                   child: CircleAvatar(
                     backgroundImage: AssetImage(widget.avatarPath),
                     radius: 21.r,
@@ -184,6 +211,73 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             ],
           )
         : null;
+  }
+
+  void _showCoinDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.r),
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 30.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Coin SVG centered
+                SvgPicture.asset(
+                  'assets/images/amset_coin.svg',
+                  height: 60.h, // Bigger coin size for the dialog
+                  width: 60.w,
+                ),
+                SizedBox(height: 16.h),
+
+                // Coin count text
+                Text(
+                  '126', // The number of coins (you can make this dynamic if needed)
+                  style: TextStyle(
+                    fontSize: 32.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+
+                SizedBox(height: 8.h),
+
+                // Explanatory text
+                Text(
+                  'You can earn more coins by purchasing additional courses!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: Colors.grey[700],
+                  ),
+                ),
+
+                SizedBox(height: 20.h),
+
+                // Close button
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text(
+                    'Close',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF006257),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildDrawer() {
@@ -217,7 +311,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             leading: const Icon(Icons.account_circle),
             title: const Text('Profile'),
             onTap: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProfilePage()),
               );
@@ -250,10 +344,12 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentPage = 0;
   late Timer _timer;
   bool _hasError = false;
+  String? _fullName;
 
   @override
   void initState() {
     super.initState();
+    _loadFullName();
     _loadCourses();
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       if (_currentPage < 2) {
@@ -279,6 +375,14 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<void> _loadCourses() async {
     setState(() {
       _futureCourses = _fetchCourses();
+    });
+  }
+
+  Future<void> _loadFullName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _fullName = prefs.getString('fullName') ??
+          'Guest'; // Get the full name or default to 'Guest'
     });
   }
 
@@ -324,6 +428,17 @@ class _DashboardPageState extends State<DashboardPage> {
           SizedBox(height: 20.h),
           ElevatedButton(
             onPressed: _loadCourses,
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 15.h),
+              backgroundColor:
+                  const Color.fromRGBO(117, 192, 68, 1), // Use custom color
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.r),
+              ),
+              elevation:
+                  0, // Add some elevation to make the button more prominent
+              shadowColor: Colors.black.withOpacity(0.2), // Professional look
+            ),
             child: const Text('Retry'),
           ),
         ],
@@ -337,10 +452,10 @@ class _DashboardPageState extends State<DashboardPage> {
         SliverToBoxAdapter(
           child: Column(
             children: [
-              SizedBox(height: 20.h),
+              SizedBox(height: 23.h),
               Row(
                 children: [
-                  SizedBox(width: 16.w),
+                  SizedBox(width: 36.w),
                   RichText(
                     text: TextSpan(
                       children: [
@@ -353,7 +468,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         TextSpan(
-                          text: 'Muhammad Althaf',
+                          text: _fullName ??
+                              'Guest', // Dynamic name from shared preferences
                           style: GoogleFonts.dmSans(
                             color: Colors.black,
                             fontSize: 25.sp,
@@ -369,7 +485,7 @@ class _DashboardPageState extends State<DashboardPage> {
               SizedBox(height: 7.h),
               Row(
                 children: [
-                  SizedBox(width: 16.w),
+                  SizedBox(width: 36.w),
                   RichText(
                     text: TextSpan(
                       children: [
@@ -385,7 +501,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         TextSpan(
                           text: ' completing your profile',
                           style: GoogleFonts.dmSans(
-                            color: Color.fromRGBO(70, 139, 25, 1),
+                            color: const Color.fromRGBO(70, 139, 25, 1),
                             fontSize: 17.sp,
                             decoration: TextDecoration.underline,
                             letterSpacing: -1,
@@ -398,10 +514,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 ],
               ),
               Container(
-                padding: EdgeInsets.only(left: 20),
-                margin: EdgeInsets.only(top: 20.h),
+                padding: const EdgeInsets.only(left: 20),
+                margin: EdgeInsets.only(top: 20.h, left: 36.w, right: 36.w),
+
                 height: 73.h,
-                width: MediaQuery.of(context).size.width - 40.w,
+                // width: MediaQuery.of(context).size.width - 49.w,
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 255, 255, 255),
                   borderRadius: BorderRadius.circular(18.r),
@@ -428,7 +545,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         children: [
                           Text(
                             'Complete your profile setup',
-                            style: TextStyle(
+                            style: GoogleFonts.dmSans(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF2D2D2D),
@@ -437,7 +554,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                           Text(
                             'Provide Educational details for applying for job',
-                            style: TextStyle(
+                            style: GoogleFonts.dmSans(
                               fontSize: 10.sp,
                               letterSpacing: -0.2.w,
                               fontWeight: FontWeight.w400,
@@ -453,7 +570,7 @@ class _DashboardPageState extends State<DashboardPage> {
               SizedBox(height: 30.h),
               Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                padding: EdgeInsets.only(left: 36.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -469,54 +586,56 @@ class _DashboardPageState extends State<DashboardPage> {
                             letterSpacing: -0.5,
                           ),
                         ),
+                        SizedBox(height: 20.h),
                       ],
                     ),
-                    SizedBox(height: 5.h),
-                    FutureBuilder<List<Course>>(
-                      future: _futureCourses,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return _buildShimmerEffect();
-                        } else if (snapshot.hasError) {
-                          return const Center(
-                              child: Text('Error loading courses'));
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return const Center(
-                              child: Text('No courses available'));
-                        } else {
-                          final courses = snapshot.data!;
-                          return SizedBox(
-                            height: 224.h,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: courses.length,
-                              itemBuilder: (context, index) {
-                                final course = courses[index];
-                                return _buildCourseCard(
-                                  context,
-                                  course.imageUrl ??
-                                      'assets/images/default.png',
-                                  course.title,
-                                  '${course.chapters.length} Lessons',
-                                  course.description ??
-                                      'No description available',
-                                  'Rs. ${course.price} /-',
-                                  index,
-                                );
-                              },
-                            ),
-                          );
-                        }
-                      },
+                    Container(
+                      child: FutureBuilder<List<Course>>(
+                        future: _futureCourses,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return _buildShimmerEffect();
+                          } else if (snapshot.hasError) {
+                            return const Center(
+                                child: Text('Error loading courses'));
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return const Center(
+                                child: Text('No courses available'));
+                          } else {
+                            final courses = snapshot.data!;
+                            return SizedBox(
+                              height: 200.h,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: courses.length,
+                                itemBuilder: (context, index) {
+                                  final course = courses[index];
+                                  return _buildCourseCard(
+                                    context,
+                                    course.imageUrl ??
+                                        'assets/images/default.png',
+                                    course.title,
+                                    '${course.chapters.length} Lessons',
+                                    course.description ??
+                                        'No description available',
+                                    'Rs. ${course.price} /-',
+                                    index,
+                                  );
+                                },
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
               ),
-              //   SizedBox(height: 5.h),
+              const SizedBox(height: 20),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                padding: EdgeInsets.symmetric(horizontal: 36.w),
                 child: Column(
                   children: [
                     Row(
@@ -533,11 +652,11 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 23.h),
                     // GridView
                     GridView.count(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       crossAxisCount: 2,
                       childAspectRatio: 1.6,
                       mainAxisSpacing: 10.h,
@@ -567,17 +686,24 @@ class _DashboardPageState extends State<DashboardPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          'View More',
-                          style: GoogleFonts.dmSans(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w400,
-                              letterSpacing: -0.5),
+                        GestureDetector(
+                          child: Text(
+                            'View More',
+                            style: GoogleFonts.dmSans(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: -0.5),
+                          ),
+                          onTap: () {
+                            // Navigator.push(context, MaterialPageRoute(builder: (context){
+                            //   return NotificationPage();
+                            // }));
+                          },
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 5,
                         ),
-                        Icon(
+                        const Icon(
                           Icons.arrow_forward,
                           color: Colors.green,
                         )
@@ -601,7 +727,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             TextSpan(
                               text: 'rewarding\n retail career.',
                               style: GoogleFonts.dmSans(
-                                  color: Color.fromRGBO(117, 192, 68, 1),
+                                  color: const Color.fromRGBO(117, 192, 68, 1),
                                   fontSize: 25.sp,
                                   fontWeight:
                                       FontWeight.w400), // Make this part bold
@@ -611,9 +737,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     SizedBox(height: 20.h), // Add some bottom padding
                     Container(
                       width: 175.w,
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                          color: Color.fromRGBO(46, 53, 58, 1),
+                          color: const Color.fromRGBO(46, 53, 58, 1),
                           borderRadius: BorderRadius.circular(22)),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -626,17 +752,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                 fontWeight: FontWeight.w400,
                                 letterSpacing: -0.5),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 5,
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward,
-                            color: const Color.fromARGB(255, 255, 255, 255),
+                            color: Color.fromARGB(255, 255, 255, 255),
                           )
                         ],
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 30,
                     )
                   ],
@@ -654,64 +780,51 @@ class _DashboardPageState extends State<DashboardPage> {
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: SizedBox(
-        height: 250.h,
+        height: 189.h, // Adjusted to match the card height
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: 6,
-          itemBuilder: (_, __) => Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          itemBuilder: (_, __) => Container(
+            width: 276.w, // Match the card width
+            margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+            child: Stack(
               children: [
+                // Shimmer for the image
                 Container(
-                  width: 180.w,
-                  height: 120.h,
+                  height: 169.h, // Match the image height
+                  width: 276.w, // Match the image width
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18.r),
                   ),
                 ),
-                SizedBox(height: 8.5.h),
-                Container(
-                  width: 180.w,
-                  height: 20.h,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18.r),
-                  ),
-                ),
-                SizedBox(height: 8.5.h),
-                Container(
-                  width: 180.w,
-                  height: 20.h,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18.r),
-                  ),
-                ),
-                SizedBox(height: 8.5.h),
-                SizedBox(
-                  width: 180.w,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 100.w,
-                        height: 20.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18.r),
-                        ),
+                // Shimmer for the gradient overlay
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18.r),
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.7),
+                          Colors.transparent,
+                        ],
                       ),
-                      // Container(
-                      //   width: 20.w,
-                      //   height: 20.h,
-                      //   decoration: BoxDecoration(
-                      //     color: Colors.white,
-                      //     borderRadius: BorderRadius.circular(18.r),
-                      //   ),
-                      // ),
-                    ],
+                    ),
+                  ),
+                ),
+                // Shimmer for the title text
+                Positioned(
+                  bottom: 15.h,
+                  left: 15.w,
+                  right: 10.w,
+                  child: Container(
+                    height: 40.h, // Approximate height for two lines of text
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
                   ),
                 ),
               ],
@@ -852,7 +965,9 @@ http://amset-client.vercel.app
 Amset Academy. ''';
     final url =
         'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
+    // ignore: deprecated_member_use
     if (await canLaunch(url)) {
+      // ignore: deprecated_member_use
       await launch(url);
     } else {
       throw 'Could not launch $url';
@@ -865,72 +980,69 @@ Amset Academy. ''';
       onTap: () =>
           _showCourseDrawer(context, title, lessons, description, price),
       child: Container(
-        width: 190.w, // Fixed width for each course card
+        width: 276.w, // Set the container width to match the image width
         margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 255, 255, 255),
-          borderRadius: BorderRadius.circular(18.r),
+          borderRadius:
+              BorderRadius.circular(18.r), // Border radius for all sides
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5.r,
+              spreadRadius: 2.r,
+              offset: Offset(0, 3.h),
+            ),
+          ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Container(
-              height: 120.h, // Fixed height for the image
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(5.r)),
-                image: DecorationImage(
-                  image: imagePath.isNotEmpty
-                      ? NetworkImage(imagePath)
-                      : const AssetImage('assets/images/default.png')
-                          as ImageProvider,
-                  fit: BoxFit.cover,
+            // Full-size image with rounded corners on all sides
+            ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(18.r), // Rounded corners for all sides
+              child: Image(
+                height: 169.h, // Set the image height to 169.h
+                width: 276.w, // Set the image width to 276.w
+                image: imagePath.isNotEmpty
+                    ? NetworkImage(imagePath)
+                    : const AssetImage('assets/images/default.png')
+                        as ImageProvider,
+                fit: BoxFit.cover, // Cover to fill the container with the image
+              ),
+            ),
+            // Black gradient shade from bottom to top
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                      18.r), // Same rounded corners for the gradient
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.7),
+                      Colors.transparent,
+                    ],
+                  ),
                 ),
               ),
             ),
-            SizedBox(height: 5.h),
-            Padding(
-              padding: EdgeInsets.all(0.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w500,
-                      height: 1.2,
-                      color: const Color(0xff1d1b1e),
-                    ),
-                  ),
-                  //SizedBox(height: 5.h),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     Row(
-                  //       children: [
-                  //         Icon(
-                  //           Icons.label,
-                  //           color: Colors.grey,
-                  //           size: 20.sp,
-                  //         ),
-                  //         SizedBox(width: 3.w),
-                  //         Text(
-                  //           'Hypermarket',
-                  //           style:
-                  //               TextStyle(fontSize: 14.sp, color: Colors.grey),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     // const Icon(
-                  //     //   Icons.favorite_outline_rounded,
-                  //     //   color: Color.fromARGB(255, 90, 89, 89),
-                  //     // ),
-                  //   ],
-                  // ),
-                  // SizedBox(height: 5.h),
-                ],
+            // Title text inside the image, limited to two lines
+            Positioned(
+              bottom: 15.h,
+              left: 15.w,
+              right: 10.w, // Ensure the text stays within the bounds
+              child: Text(
+                title,
+                maxLines: 2, // Limit the title to 2 lines
+                overflow: TextOverflow
+                    .ellipsis, // Show ellipsis if the text overflows
+                style: GoogleFonts.dmSans(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                  height: 1.2, // Line height for better spacing between lines
+                ),
               ),
             ),
           ],

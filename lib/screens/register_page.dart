@@ -1,13 +1,16 @@
-import 'package:amset/Widgets/otp_page.dart';
+import 'package:amset/Api%20Services/jobvacancy_api_services.dart';
+import 'package:amset/Api%20Services/registration_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:amset/Widgets/otp_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:amset/services/api_service.dart';
 import 'login.dart';
 
 class Registerpage extends StatefulWidget {
-  const Registerpage({super.key});
+  const Registerpage({Key? key}) : super(key: key);
 
   @override
   State<Registerpage> createState() => _RegisterPageState();
@@ -16,6 +19,7 @@ class Registerpage extends StatefulWidget {
 class _RegisterPageState extends State<Registerpage>
     with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final ApiServiceReg _apiService = ApiServiceReg();
 
   // Form field controllers
   TextEditingController fullNameController = TextEditingController();
@@ -28,7 +32,8 @@ class _RegisterPageState extends State<Registerpage>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  bool _isLoading = false; // Loading state
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -61,32 +66,55 @@ class _RegisterPageState extends State<Registerpage>
     super.dispose();
   }
 
-  void _handleRegister() {
+  Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
-        _isLoading = true; // Show loading indicator
+        _isLoading = true;
+        _errorMessage = null;
       });
 
-      // Simulate a 2-second delay before navigating to the OTP page
-      Future.delayed(const Duration(seconds: 2), () {
-        if (!mounted) return;
-        setState(() {
-          _isLoading = false; // Remove loading indicator
-        });
-
-        // Navigate to OTP Verification Page
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) =>
-                OtpVerificationPage(
-              mobileNumber: mobileNumberController.text,
-            ),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
+      try {
+        final registrationModel = await _apiService.registerUser(
+          username: fullNameController.text,
+          email: emailController.text,
+          password: passwordController.text,
+          mobileNumber: mobileNumberController.text,
         );
-      });
+
+        if (registrationModel.success) {
+          // Store the user's full name in SharedPreferences after successful registration
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('fullName', fullNameController.text);
+
+          // Navigate to OTP Verification Page
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) =>
+                  OtpVerificationPage(
+                      mobileNumber: mobileNumberController.text),
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        } else {
+          // Registration failed
+          setState(() {
+            _errorMessage = registrationModel.message;
+          });
+        }
+      } catch (e) {
+        print("Error: $e");
+        setState(() {
+          _errorMessage =
+              'An error occurred. Please check your connection and try again.';
+        });
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -166,7 +194,6 @@ class _RegisterPageState extends State<Registerpage>
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Center the animated form and content
           Expanded(
             child: Center(
               child: FadeTransition(
@@ -220,6 +247,18 @@ class _RegisterPageState extends State<Registerpage>
                                 SizedBox(height: 20.h),
                                 _buildMobileNumberField(),
                                 SizedBox(height: 30.h),
+                                if (_errorMessage != null)
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 10.h),
+                                    child: Text(
+                                      _errorMessage!,
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
+                                  ),
                                 GestureDetector(
                                   onTap: _isLoading ? null : _handleRegister,
                                   child: Container(
@@ -316,7 +355,6 @@ class _RegisterPageState extends State<Registerpage>
               ),
             ),
           ),
-          // Static bottom section
           Padding(
             padding: EdgeInsets.only(bottom: 23.h),
             child: Column(

@@ -1,14 +1,15 @@
-import 'package:amset/screens/skip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:amset/screens/dashboard.dart'; // Import Dashboard
+import 'package:amset/screens/skip.dart'; // Import SkipPage or LoginPage if needed
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _SplashScreenState createState() => _SplashScreenState();
 }
 
@@ -18,18 +19,46 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Start the timer for 2 seconds before navigating to SkipPage
-    Future.delayed(const Duration(seconds: 2), () {
+    // Start the timer for 2 seconds before checking login status
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    // Simulate the splash screen delay for 2 seconds
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Check if user is logged in by retrieving the token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+    String? fullName = prefs.getString('email');
+    String? avatarPath = prefs.getString('avatar_path');
+
+    if (token != null && fullName != null && avatarPath != null) {
+      // If token exists, navigate to the Dashboard
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => const SkipPage(),
+          pageBuilder: (context, animation1, animation2) => Dashboard(
+            fullName: fullName,
+            avatarPath: avatarPath,
+          ),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
       );
-    });
+    } else {
+      // If token doesn't exist, navigate to SkipPage (or LoginPage)
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => const SkipPage(), // or LoginPage
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    }
   }
 
   @override
@@ -67,15 +96,6 @@ class _SplashScreenState extends State<SplashScreen> {
                       ),
                     ),
                   ),
-                  //
-                  // SizedBox(
-                  //   height: 30,
-                  //   width: 30,
-                  //   child: const CircularProgressIndicator(
-                  //     backgroundColor: Color.fromRGBO(117, 192, 68, 1),
-                  //     color: Color(0xFF006257), // Color of the indicator
-                  //   ),
-                  // ),
                 ],
               ),
             ),
