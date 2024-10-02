@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:amset/DrawerPages/Course/my_course_page.dart';
 import 'package:amset/Models/allCoursesModel.dart';
-import 'package:amset/Pages/course_page.dart';
-import 'package:amset/Pages/notification_page.dart';
-import 'package:amset/Pages/profile_page.dart';
+import 'package:amset/NavigationBar/CoursePages/course_page.dart';
+import 'package:amset/NavigationBar/notification_page.dart';
+import 'package:amset/NavigationBar/profile_page.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,11 +16,13 @@ import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
 
 class Dashboard extends StatefulWidget {
-  final String fullName;
-  final String avatarPath;
+  final String? fullName;
+  //final String avatarPath;
+  //final String email;
+  final String? email; // Now optional
+  final String? mobileNumber;
 
-  const Dashboard(
-      {super.key, required this.fullName, required this.avatarPath});
+  const Dashboard({super.key, this.email, this.mobileNumber, this.fullName});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -31,7 +35,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   final List<Widget> _pages = [
     const DashboardPage(fullName: 'User Name', avatarPath: 'assets/avatar.png'),
     const NotificationPage(), // Placeholder for CoursePage
-    const CoursePage(), // Placeholder for Favourites (Notifications)
+    CoursePage(), // Placeholder for Favourites (Notifications)
   ];
 
   @override
@@ -203,7 +207,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 child: Padding(
                   padding: EdgeInsets.only(right: 23.w),
                   child: CircleAvatar(
-                    backgroundImage: AssetImage(widget.avatarPath),
+                    backgroundImage: const AssetImage('assets/images/man.png'),
                     radius: 21.r,
                   ),
                 ),
@@ -237,9 +241,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 // Coin count text
                 Text(
                   '126', // The number of coins (you can make this dynamic if needed)
-                  style: TextStyle(
-                    fontSize: 32.sp,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 30.sp,
+                    fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
                 ),
@@ -250,7 +254,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 Text(
                   'You can earn more coins by purchasing additional courses!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: GoogleFonts.dmSans(
                     fontSize: 16.sp,
                     color: Colors.grey[700],
                   ),
@@ -263,12 +267,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
-                  child: Text(
-                    'Close',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF006257),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width / 2,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: const Color.fromRGBO(117, 192, 68, 1),
+                    ),
+                    child: Text(
+                      textAlign: TextAlign.center,
+                      'Close',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w500,
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                      ),
                     ),
                   ),
                 ),
@@ -290,20 +304,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               color: Color(0xFF006257),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircleAvatar(
-                  backgroundImage: AssetImage(widget.avatarPath),
+                  backgroundImage: const AssetImage('assets/images/man.png'),
                   radius: 40.r,
                 ),
                 SizedBox(height: 10.h),
-                Text(
-                  widget.fullName,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.sp,
-                  ),
-                ),
+                // Uncomment and modify this if you want to display the user's name
+                // Text(
+                //   'Your Name',
+                //   style: TextStyle(
+                //     color: Colors.white,
+                //     fontSize: 18.sp,
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -316,7 +332,57 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 MaterialPageRoute(builder: (context) => const ProfilePage()),
               );
             },
+            trailing: const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 18,
+            ),
           ),
+          ListTile(
+            leading: const Icon(Icons.school),
+            title: const Text('My Courses'),
+            onTap: () {
+              //  Navigate to My Courses page
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MyCoursePage()),
+              );
+            },
+            trailing: const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 18,
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text('History'),
+            onTap: () {
+              // Navigate to History page
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const HistoryPage()),
+              // );
+            },
+            trailing: const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 18,
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
+            onTap: () {
+              // Navigate to Settings page
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const SettingsPage()),
+              // );
+            },
+            trailing: const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 18,
+            ),
+          ),
+          // You can add more options here if needed
         ],
       ),
     );
@@ -499,15 +565,21 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         TextSpan(
-                          text: ' completing your profile',
-                          style: GoogleFonts.dmSans(
-                            color: const Color.fromRGBO(70, 139, 25, 1),
-                            fontSize: 17.sp,
-                            decoration: TextDecoration.underline,
-                            letterSpacing: -1,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                            text: ' completing your profile',
+                            style: GoogleFonts.dmSans(
+                              color: const Color.fromRGBO(70, 139, 25, 1),
+                              fontSize: 17.sp,
+                              decoration: TextDecoration.underline,
+                              letterSpacing: -1,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return const ProfilePage();
+                                }));
+                              }),
                       ],
                     ),
                   ),

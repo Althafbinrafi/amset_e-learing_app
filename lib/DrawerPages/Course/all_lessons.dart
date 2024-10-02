@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Import for SVG usage
 
-import 'package:amset/Pages/lessons/course_details.dart';
+import 'package:amset/DrawerPages/Course/course_details.dart';
 
 class AllLessonsPage extends StatefulWidget {
   final String courseId;

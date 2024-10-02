@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'package:amset/DrawerPages/Course/all_lessons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,16 +10,16 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:amset/Models/my_course_model.dart';
-import 'package:amset/Pages/lessons/all_lessons.dart';
+//import 'package:amset/Pages/lessons/all_lessons.dart';
 
-class CoursePage extends StatefulWidget {
-  const CoursePage({super.key});
+class MyCoursePage extends StatefulWidget {
+  const MyCoursePage({super.key});
 
   @override
-  CoursePageState createState() => CoursePageState();
+  MyCoursePageState createState() => MyCoursePageState();
 }
 
-class CoursePageState extends State<CoursePage> {
+class MyCoursePageState extends State<MyCoursePage> {
   late Future<MyCourseModel> futureCourseData;
 
   @override
@@ -69,13 +71,29 @@ class CoursePageState extends State<CoursePage> {
               // Header
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 35.h),
-                child: Text(
-                  'My Courses',
-                  style: GoogleFonts.dmSans(
-                      color: Colors.black,
-                      fontSize: 27.sp,
-                      fontWeight: FontWeight.normal,
-                      letterSpacing: -1),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    GestureDetector(
+                      child: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    Text(
+                      'My Courses',
+                      style: GoogleFonts.dmSans(
+                          color: Colors.black,
+                          fontSize: 27.sp,
+                          fontWeight: FontWeight.normal,
+                          letterSpacing: -1),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                  ],
                 ),
               ),
               // Main Content
@@ -171,7 +189,8 @@ class CoursePageState extends State<CoursePage> {
             SizedBox(height: 35.h),
             SizedBox(
               // Wrap button in SizedBox to control its width
-              width: double.infinity, // Make button full width of its container
+              width: MediaQuery.of(context).size.width /
+                  1.5, // Make button full width of its container
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/purchasePage');

@@ -100,8 +100,10 @@ class _LoginPageState extends State<LoginPage>
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                Dashboard(fullName: email, avatarPath: avatarPath),
+            builder: (context) => Dashboard(
+                //fullName: email,
+                //avatarPath: avatarPath
+                ),
           ),
         );
       } else {

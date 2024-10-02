@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:amset/Models/vacany_model.dart';
 import 'package:http/http.dart' as http;
 
-class ApiService {
+class ApiServiceJob {
   Future<JobVacancyModel?> fetchJobVacancies() async {
     const String apiUrl =
         'https://amset-server.vercel.app/api/vacancy'; // Replace with your actual API URL

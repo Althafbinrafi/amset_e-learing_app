@@ -1,18 +1,19 @@
 import 'dart:developer';
-import 'package:amset/screens/login.dart';
+import 'package:amset/screens/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String mobileNumber;
 
-  const OtpVerificationPage({super.key, required this.mobileNumber});
+  const OtpVerificationPage({Key? key, required this.mobileNumber})
+      : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _OtpVerificationPageState createState() => _OtpVerificationPageState();
 }
 
@@ -23,7 +24,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
   late Animation<Offset> _slideAnimation;
   final TextEditingController _otpController = TextEditingController();
   String _currentOtp = "";
-  bool _isLoading = false; // Add loading state
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -210,7 +211,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
       setState(() {
         _isLoading = false;
       });
-      // ignore: use_build_context_synchronously
+
+      // Navigate to SuccessAnimationPage
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const SuccessAnimationPage()),
       );
@@ -218,13 +221,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
   }
 }
 
-//
-
 class SuccessAnimationPage extends StatefulWidget {
-  const SuccessAnimationPage({super.key});
+  const SuccessAnimationPage({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _SuccessAnimationPageState createState() => _SuccessAnimationPageState();
 }
 
@@ -232,16 +232,28 @@ class _SuccessAnimationPageState extends State<SuccessAnimationPage> {
   @override
   void initState() {
     super.initState();
-    _navigateToLoginAfterDelay();
+    _navigateToDashboardAfterDelay();
   }
 
-  void _navigateToLoginAfterDelay() {
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    });
+  void _navigateToDashboardAfterDelay() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+
+    // Retrieve user information
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? fullName = prefs.getString('fullName');
+    String? email = prefs.getString('email');
+    String? mobileNumber = prefs.getString('mobileNumber');
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => Dashboard(
+          fullName: fullName ?? '',
+          email: email, // Now optional
+          mobileNumber: mobileNumber, // Now optional
+        ),
+      ),
+    );
   }
 
   @override

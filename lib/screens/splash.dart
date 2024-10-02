@@ -40,8 +40,8 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation1, animation2) => Dashboard(
-            fullName: fullName,
-            avatarPath: avatarPath,
+           // fullName: fullName,
+           // avatarPath: avatarPath,
           ),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,

@@ -23,7 +23,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   // Initialize the Future directly here
   final Future<JobVacancyModel?> _jobVacancyFuture =
-      ApiService().fetchJobVacancies();
+      ApiServiceJob().fetchJobVacancies();
 
   @override
   void initState() {
