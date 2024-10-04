@@ -8,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class CoursePage extends StatefulWidget {
+  const CoursePage({super.key});
+
   @override
   _CoursePageState createState() => _CoursePageState();
 }
@@ -35,41 +37,42 @@ class _CoursePageState extends State<CoursePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromARGB(0, 255, 255, 255),
+      appBar: AppBar(
+        toolbarHeight: 60,
+        // leading: GestureDetector(
+        //   child: Icon(Icons.arrow_back_ios_new_rounded),
+        //   onTap: () {
+        //     Navigator.pop(context);
+        //   },
+        // ),
+        surfaceTintColor: Colors.transparent,
+        centerTitle: true,
+        title: Text(
+          'Amset Courses',
+          style: GoogleFonts.dmSans(fontSize: 24.sp),
+        ),
+        backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.only(
-                  left: 16.w, top: 35.h, right: 16.w, bottom: 5),
-              child: Center(
-                child: Text(
-                  'Amset Courses',
-                  style: GoogleFonts.dmSans(
-                    color: Colors.black,
-                    fontSize: 27.sp,
-                    fontWeight: FontWeight.normal,
-                    letterSpacing: -1,
-                  ),
-                ),
-              ),
-            ),
             Expanded(
               child: FutureBuilder<List<Course>>(
                 future: _publishedCoursesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(
+                    return const Center(
                         child: Text('No published courses available'));
                   }
 
                   return ListView.builder(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       final course = snapshot.data![index];
@@ -88,9 +91,8 @@ class _CoursePageState extends State<CoursePage> {
 
 class CourseCard extends StatelessWidget {
   final Course course;
-  
 
-  const CourseCard({Key? key, required this.course}) : super(key: key);
+  const CourseCard({super.key, required this.course});
 
   @override
   Widget build(BuildContext context) {
@@ -167,13 +169,19 @@ class CourseCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // SizedBox(width: 10.w),
-                      // // Play Button Icon
-                      // SvgPicture.asset(
-                      //   'assets/images/play_btn.svg',
-                      //   width: 54.w,
-                      //   height: 54.h,
-                      // ),
+                      SizedBox(width: 10.w),
+                      // Play Button Icon
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.amber, width: 1),
+                            borderRadius: BorderRadius.circular(30)),
+                        child: SvgPicture.asset(
+                          'assets/images/premium.svg',
+                          width: 20.w,
+                          height: 20.h,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -182,7 +190,7 @@ class CourseCard extends StatelessWidget {
           ),
           // Additional Details
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -206,18 +214,12 @@ class CourseCard extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                CourseDetailPageHome(course: course,),
+                            builder: (context) => CourseDetailPageHome(
+                              course: course,
+                            ),
                           ),
                         );
                       },
-                      child: Text(
-                        'More Details',
-                        style: GoogleFonts.dmSans(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromARGB(255, 0, 0, 0)),
-                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         elevation: 0,
@@ -225,6 +227,13 @@ class CourseCard extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.r),
                         ),
+                      ),
+                      child: Text(
+                        'More Details',
+                        style: GoogleFonts.dmSans(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            color: const Color.fromARGB(255, 0, 0, 0)),
                       ),
                     ),
                   ],

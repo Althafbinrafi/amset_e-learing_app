@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:amset/DrawerPages/Course/all_lessons.dart';
 //import 'package:amset/Pages/lessons/all_lessons.dart';
 import 'package:amset/Widgets/video_Player.dart';
@@ -180,14 +182,15 @@ class CourseDetailsPageState extends State<CourseDetailsPage> {
                   // Full-screen back button
                   if (isFullScreen)
                     Positioned(
-                      top: 0,
-                      left: 0,
+                      top: 5.h,
+                      left: 10.w,
                       child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                            color: Color.fromARGB(0, 255, 255, 255)),
                         onPressed: () {
-                          setState(() {
-                            isFullScreen = false; // Exit full-screen
-                          });
+                          // setState(() {
+                          //   Navigator.pop(context);
+                          // });
 
                           SystemChrome.setPreferredOrientations(
                             [
@@ -310,7 +313,7 @@ class CourseDetailsPageState extends State<CourseDetailsPage> {
                     image: DecorationImage(
                       image: NetworkImage(widget.imageUrl),
                       onError: (error, stackTrace) {
-                        print('Image load error: $error');
+                        log('Image load error: $error');
                       },
                       fit: BoxFit.cover,
                     ),

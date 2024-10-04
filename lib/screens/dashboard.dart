@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:amset/DrawerPages/Course/my_course_page.dart';
 import 'package:amset/Models/allCoursesModel.dart';
 import 'package:amset/NavigationBar/CoursePages/course_page.dart';
-import 'package:amset/NavigationBar/notification_page.dart';
-import 'package:amset/NavigationBar/profile_page.dart';
+import 'package:amset/NavigationBar/JobVacancies/job_vacancy.dart';
+import 'package:amset/DrawerPages/Profile/profile_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -35,7 +35,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   final List<Widget> _pages = [
     const DashboardPage(fullName: 'User Name', avatarPath: 'assets/avatar.png'),
     const NotificationPage(), // Placeholder for CoursePage
-    CoursePage(), // Placeholder for Favourites (Notifications)
+    const CoursePage(), // Placeholder for Favourites (Notifications)
   ];
 
   @override
@@ -267,22 +267,26 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width / 2,
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(
+                        117, 192, 68, 1), // Set the background color
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: const Color.fromRGBO(117, 192, 68, 1),
+                        horizontal: 20,
+                        vertical: 10), // Padding inside the button
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(10), // Rounded corners
                     ),
-                    child: Text(
-                      textAlign: TextAlign.center,
-                      'Close',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w500,
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                      ),
+                    minimumSize: Size(MediaQuery.of(context).size.width / 2,
+                        0), // Set minimum width
+                  ),
+                  child: Text(
+                    'Close',
+                    textAlign: TextAlign.center, // Align text to the center
+                    style: GoogleFonts.dmSans(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white, // White text color
                     ),
                   ),
                 ),
@@ -410,7 +414,7 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentPage = 0;
   late Timer _timer;
   bool _hasError = false;
-  String? _fullName;
+  String? fullName;
 
   @override
   void initState() {
@@ -447,7 +451,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<void> _loadFullName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _fullName = prefs.getString('fullName') ??
+      fullName = prefs.getString('fullName') ??
           'Guest'; // Get the full name or default to 'Guest'
     });
   }
@@ -534,7 +538,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         TextSpan(
-                          text: _fullName ??
+                          text: fullName ??
                               'Guest', // Dynamic name from shared preferences
                           style: GoogleFonts.dmSans(
                             color: Colors.black,
@@ -642,7 +646,7 @@ class _DashboardPageState extends State<DashboardPage> {
               SizedBox(height: 30.h),
               Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.only(left: 36.w),
+                padding: EdgeInsets.only(left: 30.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -707,13 +711,13 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 20),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 36.w),
+                padding: EdgeInsets.symmetric(horizontal: 25.w),
                 child: Column(
                   children: [
                     Row(
                       children: [
                         Text(
-                          ' Jobs & Vacancies',
+                          '  Jobs & Vacancies',
                           //  textAlign: TextAlign.start,
                           style: GoogleFonts.dmSans(
                             color: const Color.fromARGB(255, 0, 0, 0),
@@ -730,26 +734,57 @@ class _DashboardPageState extends State<DashboardPage> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       crossAxisCount: 2,
-                      childAspectRatio: 1.6,
-                      mainAxisSpacing: 10.h,
-                      crossAxisSpacing: 10.w,
-                      //padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      childAspectRatio: 1.5,
+                      mainAxisSpacing: 14.h,
+                      crossAxisSpacing: 15.w,
                       children: List.generate(4, (index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(22),
-                            color: const Color.fromRGBO(117, 192, 68, 0.15),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Item ${index + 1}',
-                              style: TextStyle(
-                                color: const Color.fromARGB(255, 0, 0, 0),
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.normal,
+                        return Column(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(22.r),
+                                    topRight: Radius.circular(22.r),
+                                  ),
+                                  color:
+                                      const Color.fromRGBO(117, 192, 68, 0.15),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Item ${index + 1}',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(22.r),
+                                    bottomRight: Radius.circular(22.r),
+                                  ),
+                                  color: Color.fromRGBO(46, 53, 58, 1),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '110 Vacancies',
+                                    style: GoogleFonts.dmSans(
+                                      color: Color.fromRGBO(255, 255, 255, 1),
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       }),
                     ),

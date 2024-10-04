@@ -1,4 +1,4 @@
-import 'package:amset/Api%20Services/jobvacancy_api_services.dart';
+import 'dart:developer';
 import 'package:amset/Api%20Services/registration_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,11 +6,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:amset/Widgets/otp_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-//import 'package:amset/services/api_service.dart';
 import 'login.dart';
 
 class Registerpage extends StatefulWidget {
-  const Registerpage({Key? key}) : super(key: key);
+  const Registerpage({super.key});
 
   @override
   State<Registerpage> createState() => _RegisterPageState();
@@ -82,13 +81,15 @@ class _RegisterPageState extends State<Registerpage>
         );
 
         if (registrationModel.success) {
-          // Store the user's full name in SharedPreferences after successful registration
+          // Store the user's login state and information
           SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('isLoggedIn', true);
           await prefs.setString('fullName', fullNameController.text);
+          await prefs.setString('email', emailController.text);
 
           // Navigate to OTP Verification Page
           if (!mounted) return;
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             PageRouteBuilder(
               pageBuilder: (context, animation1, animation2) =>
@@ -105,7 +106,7 @@ class _RegisterPageState extends State<Registerpage>
           });
         }
       } catch (e) {
-        print("Error: $e");
+        log("Error: $e");
         setState(() {
           _errorMessage =
               'An error occurred. Please check your connection and try again.';
@@ -388,7 +389,7 @@ class _RegisterPageState extends State<Registerpage>
                           context,
                           PageRouteBuilder(
                             pageBuilder: (context, animation1, animation2) =>
-                                const LoginPage(),
+                                const LoginPage(fullName: '',),
                             transitionDuration: Duration.zero,
                             reverseTransitionDuration: Duration.zero,
                           ),

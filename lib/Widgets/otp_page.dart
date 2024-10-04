@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:amset/screens/dashboard.dart';
+import 'package:amset/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -247,11 +248,11 @@ class _SuccessAnimationPageState extends State<SuccessAnimationPage> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => Dashboard(
-          fullName: fullName ?? '',
-          email: email, // Now optional
-          mobileNumber: mobileNumber, // Now optional
-        ),
+        builder: (context) => LoginPage(
+            fullName: fullName ?? '',
+            // email: email, // Now optional
+            // mobileNumber: mobileNumber, // Now optional
+            ),
       ),
     );
   }

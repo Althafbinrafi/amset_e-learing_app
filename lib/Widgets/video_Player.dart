@@ -64,7 +64,7 @@ class _CoursePlayerState extends State<CoursePlayer> {
           ),
         ),
         RemainingDuration(),
-         PlaybackSpeedButton(
+        PlaybackSpeedButton(
           icon: Icon(
             Icons.speed,
             color: Colors.white,

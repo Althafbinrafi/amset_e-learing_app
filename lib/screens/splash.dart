@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => Dashboard(
+          pageBuilder: (context, animation1, animation2) => const Dashboard(
            // fullName: fullName,
            // avatarPath: avatarPath,
           ),

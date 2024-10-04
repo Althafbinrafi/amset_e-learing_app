@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:amset/DrawerPages/Course/all_lessons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -64,38 +63,39 @@ class MyCoursePageState extends State<MyCoursePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        toolbarHeight: 60.h, // Adjust height if needed
+        leadingWidth: 60.w, // Adjust the width for the back button area
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        leading: Padding(
+          padding: EdgeInsets.only(left: 20.w), // Adjust padding if needed
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.black, // Change icon color if needed
+            ),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+        title: Text(
+          'My Courses',
+          style: GoogleFonts.dmSans(
+            color: Colors.black,
+            fontSize: 24.sp,
+            fontWeight: FontWeight.normal,
+            letterSpacing: -1,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Header
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 35.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    GestureDetector(
-                      child: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    Text(
-                      'My Courses',
-                      style: GoogleFonts.dmSans(
-                          color: Colors.black,
-                          fontSize: 27.sp,
-                          fontWeight: FontWeight.normal,
-                          letterSpacing: -1),
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                  ],
-                ),
-              ),
               // Main Content
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 25.w),
@@ -105,20 +105,20 @@ class MyCoursePageState extends State<MyCoursePage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return _buildShimmerEffect();
                     } else if (snapshot.hasError) {
-                      log('Snapshot error: ${snapshot.error}');
                       return Center(
-                          child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/images/No connection-bro.svg',
-                            height: 200.h,
-                            width: 200.w,
-                          ),
-                          SizedBox(height: 10.h),
-                          const Text('Check Your Connection !'),
-                        ],
-                      ));
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/images/No connection-bro.svg',
+                              height: 200.h,
+                              width: 200.w,
+                            ),
+                            SizedBox(height: 10.h),
+                            const Text('Check Your Connection!'),
+                          ],
+                        ),
+                      );
                     } else if (!snapshot.hasData ||
                         snapshot.data!.courseData.isEmpty) {
                       return _buildNoCoursesUI(context);
@@ -229,52 +229,101 @@ class MyCoursePageState extends State<MyCoursePage> {
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: 6,
+        itemCount: 3, // Adjust the number of shimmer items as needed
         itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 10.h),
-            child: Row(
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(39.r),
+              color: Colors.white,
+            ),
+            child: Column(
               children: [
+                // Shimmer for the image container
                 Container(
-                  width: 100.w,
-                  height: 100.h,
+                  height: 201.h,
+                  width: 344.w,
                   decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(39.r),
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                SizedBox(width: 15.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Stack(
                     children: [
-                      Container(
-                        width: double.infinity,
-                        height: 20.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
+                      // Shimmer for the gradient overlay
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height:
+                            100.h, // Adjust the height of the gradient shimmer
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(39.r),
+                              bottomRight: Radius.circular(39.r),
+                            ),
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                Colors.white,
+                                Colors.white.withOpacity(0.1),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 10.h),
-                      Container(
-                        width: double.infinity,
-                        height: 20.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      Container(
-                        width: 100.w,
-                        height: 20.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
+                      // Shimmer for the title and play button
+                      Positioned(
+                        bottom: 15.h,
+                        left: 30.w,
+                        right: 28.w,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    height: 20.h,
+                                    width: 200.w,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(height: 5.h),
+                                  Container(
+                                    height: 20.h,
+                                    width: 150.w,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 10.w),
+                            Container(
+                              width: 54.w,
+                              height: 54.h,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
+                  ),
+                ),
+                // Shimmer for the progress bar (if needed)
+                Padding(
+                  padding: EdgeInsets.all(10.w),
+                  child: Container(
+                    height: 10.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5.r),
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],

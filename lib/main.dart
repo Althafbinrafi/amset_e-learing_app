@@ -1,4 +1,3 @@
-
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:amset/screens/splash.dart';
@@ -11,12 +10,10 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-    statusBarColor: Colors.transparent, // Set status bar color
-    statusBarIconBrightness:
-        Brightness.light, // Set status bar icons to dark color
-    systemNavigationBarColor: Colors.black, // Set system navigation bar color
-    systemNavigationBarIconBrightness:
-        Brightness.dark, // Set system navigation bar icons to dark color
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    systemNavigationBarColor: Colors.black,
+    systemNavigationBarIconBrightness: Brightness.dark,
   ));
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
@@ -51,7 +48,6 @@ class AuthCheckPage extends StatefulWidget {
   const AuthCheckPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _AuthCheckPageState createState() => _AuthCheckPageState();
 }
 
@@ -64,26 +60,20 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
 
   Future<void> _checkAuthStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('auth_token');
-    String? fullName = prefs.getString('email');
-    String? userId = prefs.getString('user_id');
-    String? avatarPath = prefs.getString('avatar_path');
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    String? fullName = prefs.getString('fullName');
+    String? email = prefs.getString('email');
 
-    if (token != null &&
-        fullName != null &&
-        userId != null &&
-        avatarPath != null) {
-      // Token exists, navigate to Dashboard
+    if (isLoggedIn && fullName != null && email != null) {
+      // User is logged in, navigate to Dashboard or Home
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              // Dashboard(fullName: fullName, avatarPath: avatarPath),
-              const SplashScreen(),
+          builder: (context) => const SplashScreen(),
         ),
       );
     } else {
-      // Token doesn't exist, navigate to LoginPage
+      // User is not logged in, navigate to LoginPage
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
