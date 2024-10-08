@@ -50,28 +50,39 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             context: context,
             builder: (context) => AlertDialog(
               backgroundColor: Colors.white,
-              title: const Text('Exit App'),
-              content: const Text(
+              title: Text(
+                'Exit App',
+                style: GoogleFonts.dmSans(
+                    fontSize: 14.sp, fontWeight: FontWeight.bold),
+              ),
+              content: Text(
                 'Are you sure you want to exit the app?',
-                style: TextStyle(),
+                style: GoogleFonts.dmSans(
+                  fontSize: 14.sp,
+                ),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text(
+                  child: Text(
                     'No',
-                    style: TextStyle(
-                      color: Color(0xFF006257),
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14.sp,
+                      color: const Color(0xFF006257),
                     ),
                   ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text(
+                  child: Text(
                     'Yes',
-                    style: TextStyle(
-                      color: Color(0xFF006257),
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14.sp,
+                      color: const Color(0xFF006257),
                     ),
+                    // style: TextStyle(
+                    //   color: Color(0xFF006257),
+                    // ),
                   ),
                 ),
               ],
@@ -376,14 +387,21 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               style: GoogleFonts.dmSans(),
             ),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const ProfilePage(
-                          fullName: '',
-                          mobileNumber: '',
-                        )),
-              );
+              Future.delayed(const Duration(milliseconds: 300), () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) =>
+                        const ProfilePage(
+                      fullName: '',
+                      mobileNumber: '',
+                    ),
+                    transitionDuration: Duration.zero, // No animation
+                    reverseTransitionDuration:
+                        Duration.zero, // No animation on pop
+                  ),
+                );
+              });
             },
             trailing: const Icon(
               Icons.arrow_forward_ios_rounded,
@@ -397,11 +415,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               style: GoogleFonts.dmSans(),
             ),
             onTap: () {
-              //  Navigate to My Courses page
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const MyCoursePage()),
-              );
+              Future.delayed(const Duration(milliseconds: 300), () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) =>
+                        const MyCoursePage(),
+                    transitionDuration: Duration.zero, // No animation
+                    reverseTransitionDuration:
+                        Duration.zero, // No animation on pop
+                  ),
+                );
+              });
             },
             trailing: const Icon(
               Icons.arrow_forward_ios_rounded,
@@ -467,10 +492,10 @@ class DashboardPage extends StatefulWidget {
       this.mobileNumber});
 
   @override
-  _DashboardPageState createState() => _DashboardPageState();
+  DashboardPageState createState() => DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class DashboardPageState extends State<DashboardPage> {
   late Future<List<Course>> _futureCourses;
   final PageController _pageController = PageController(initialPage: 0);
   int _currentPage = 0;
@@ -554,9 +579,9 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline,
-              color: const Color.fromARGB(255, 114, 113, 113), size: 100.r),
-          SizedBox(height: 20.h),
+          // Icon(Icons.error_outline,
+          //     color: const Color.fromARGB(255, 114, 113, 113), size: 50.r),
+          // SizedBox(height: 20.h),
           Text('Check Your Connection',
               style: GoogleFonts.dmSans(
                 fontSize: 18.sp,
@@ -566,20 +591,19 @@ class _DashboardPageState extends State<DashboardPage> {
           ElevatedButton(
             onPressed: _loadCourses,
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 15.h),
+              padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 8.h),
               backgroundColor:
                   const Color.fromRGBO(117, 192, 68, 1), // Use custom color
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.r),
               ),
-              elevation:
-                  0, // Add some elevation to make the button more prominent
-              shadowColor: Colors.black.withOpacity(0.2), // Professional look
+              elevation: 0,
+              shadowColor: Colors.black.withOpacity(0.2),
             ),
             child: Text(
               'Retry',
               style: GoogleFonts.dmSans(
-                  letterSpacing: -0.5.w, color: Colors.white),
+                  fontSize: 17, letterSpacing: -0.5.w, color: Colors.white),
             ),
           ),
         ],
@@ -741,46 +765,54 @@ class _DashboardPageState extends State<DashboardPage> {
                       ],
                     ),
                     SizedBox(height: 10.h),
-                    Container(
-                      child: FutureBuilder<List<Course>>(
-                        future: _futureCourses,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return _buildShimmerEffect();
-                          } else if (snapshot.hasError) {
-                            return const Center(
-                                child: Text('Error loading courses'));
-                          } else if (!snapshot.hasData ||
-                              snapshot.data!.isEmpty) {
-                            return const Center(
-                                child: Text('No courses available'));
-                          } else {
-                            final courses = snapshot.data!;
-                            return SizedBox(
-                              height: 200.h,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: courses.length,
-                                itemBuilder: (context, index) {
-                                  final course = courses[index];
-                                  return _buildCourseCard(
-                                    context,
-                                    course.imageUrl ??
-                                        'assets/images/default.png',
-                                    course.title,
-                                    '${course.chapters.length} Lessons',
-                                    course.description ??
-                                        'No description available',
-                                    'Rs. ${course.price} /-',
-                                    index,
-                                  );
-                                },
-                              ),
-                            );
-                          }
-                        },
-                      ),
+                    FutureBuilder<List<Course>>(
+                      future: _futureCourses,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _buildShimmerEffect();
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text(
+                            'Error loading courses',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 14.sp,
+                            ),
+                          ));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(
+                              child: Text(
+                            'No courses available',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 14.sp,
+                            ),
+                          ));
+                        } else {
+                          final courses = snapshot.data!;
+                          return SizedBox(
+                            height: 200.h,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: courses.length,
+                              itemBuilder: (context, index) {
+                                final course = courses[index];
+                                return _buildCourseCard(
+                                  context,
+                                  course.imageUrl ??
+                                      'assets/images/not_found.jpg',
+                                  course.title,
+                                  '${course.chapters.length} Lessons',
+                                  course.description ??
+                                      'No description available',
+                                  'Rs. ${course.price} /-',
+                                  index,
+                                );
+                              },
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -1106,7 +1138,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           letterSpacing: -0.5.w,
                         ),
                       ),
-                      SizedBox(height: 10.h),
+                      SizedBox(height: 70.h),
                       // Text(
                       //   '''
                       //   Course Details:
@@ -1136,19 +1168,19 @@ class _DashboardPageState extends State<DashboardPage> {
                       Text(
                         'Are You Interested?',
                         style: GoogleFonts.dmSans(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: -0.5.w,
-                          color: const Color(0xFF006257),
+                          color: const Color.fromARGB(255, 0, 0, 0),
                           fontSize: 18.sp,
                         ),
                       ),
                       SizedBox(width: 10.w),
                       Container(
                         width: MediaQuery.of(context).size.width / 3,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF006257),
-                          borderRadius: BorderRadius.circular(20.r),
-                        ),
+                        decoration: const BoxDecoration(
+                            color: Color.fromRGBO(117, 192, 68, 1),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
                         child: TextButton(
                           onPressed: () => _launchWhatsApp(title),
                           child: Row(
@@ -1156,7 +1188,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             children: [
                               SvgPicture.asset(
                                 'assets/images/whatsapp.svg',
-                                color: Colors.white,
+                               colorFilter: const ColorFilter.mode(  Colors.white, BlendMode.srcIn),
                                 height: 20.0,
                                 width: 20.0,
                                 allowDrawingOutsideViewBox: true,
@@ -1164,7 +1196,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               SizedBox(width: 5.w),
                               Text(
                                 'Contact',
-                                style: TextStyle(
+                                style: GoogleFonts.dmSans(
                                   color: Colors.white,
                                   fontSize: 18.sp,
                                 ),
@@ -1205,37 +1237,40 @@ Amset Academy. ''';
   Widget _buildCourseCard(BuildContext context, String imagePath, String title,
       String lessons, String description, String price, int index) {
     return Container(
-      width: 276.w, // Set the container width to match the image width
+      width: 276.w,
       margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
       decoration: BoxDecoration(
-        borderRadius:
-            BorderRadius.circular(18.r), // Border radius for all sides
+        borderRadius: BorderRadius.circular(18.r),
       ),
       child: Stack(
         children: [
-          // Full-size image with rounded corners on all sides
           ClipRRect(
-            borderRadius:
-                BorderRadius.circular(18.r), // Rounded corners for all sides
+            borderRadius: BorderRadius.circular(18.r),
             child: Image(
-              height: 180.h, // Set the image height to 169.h
-              width: 276.w, // Set the image width to 276.w
+              height: 180.h,
+              width: 276.w,
               image: imagePath.isNotEmpty
                   ? NetworkImage(imagePath)
-                  : const AssetImage('assets/images/default.png')
+                  : const AssetImage('assets/images/not_found.png')
                       as ImageProvider,
-              fit: BoxFit.cover, // Cover to fill the container with the image
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/images/not_found.jpg',
+                  height: 180.h,
+                  width: 276.w,
+                  fit: BoxFit.cover,
+                );
+              },
             ),
           ),
-          // Black gradient shade from bottom to top
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
                 border: Border.all(
                   color: const Color.fromRGBO(213, 215, 216, 1),
                 ),
-                borderRadius: BorderRadius.circular(
-                    18.r), // Same rounded corners for the gradient
+                borderRadius: BorderRadius.circular(18.r),
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
@@ -1247,38 +1282,33 @@ Amset Academy. ''';
               ),
             ),
           ),
-          // Title and "View Details" button inside the image in a column layout
           Positioned(
             bottom: 15.h,
             left: 15.w,
-            right: 10.w, // Ensure the text stays within the bounds
+            right: 10.w,
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start, // Align items to the left
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title text with two lines
                 Text(
                   title,
-                  maxLines: 2, // Limit the title to 2 lines
-                  overflow: TextOverflow.ellipsis, // Ellipsis if text overflows
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.dmSans(
-                    fontSize: 18.sp,
+                    fontSize: 19.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
                     height: 1.2,
                   ),
                 ),
-                SizedBox(height: 8.h), // Spacing between title and button
-                // View Details button
+                SizedBox(height: 8.h),
                 GestureDetector(
                   onTap: () {
-                    // Perform action on View Details button tap
                     _showCourseDrawer(
                         context, title, lessons, description, price);
                   },
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.white),
@@ -1288,9 +1318,7 @@ Amset Academy. ''';
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w400,
                         letterSpacing: -0.5,
-                        color: const Color.fromARGB(
-                            255, 0, 0, 0), // Set color to blue for link-style
-                        // decoration: TextDecoration.underline, // Underline text
+                        color: const Color.fromARGB(255, 0, 0, 0),
                       ),
                     ),
                   ),

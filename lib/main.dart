@@ -48,10 +48,10 @@ class AuthCheckPage extends StatefulWidget {
   const AuthCheckPage({super.key});
 
   @override
-  _AuthCheckPageState createState() => _AuthCheckPageState();
+  AuthCheckPageState createState() => AuthCheckPageState();
 }
 
-class _AuthCheckPageState extends State<AuthCheckPage> {
+class AuthCheckPageState extends State<AuthCheckPage> {
   @override
   void initState() {
     super.initState();

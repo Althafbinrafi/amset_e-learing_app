@@ -150,7 +150,7 @@ class MyCoursePageState extends State<MyCoursePage>
                                   width: 200.w,
                                 ),
                                 SizedBox(height: 10.h),
-                                const Text('Check Your Connection!'),
+                                 Text('Check Your Connection!',style: GoogleFonts.dmSans(color: Colors.black),),
                               ],
                             ),
                           );
@@ -371,11 +371,17 @@ class MyCoursePageState extends State<MyCoursePage>
   ) {
     return GestureDetector(
       onTap: () async {
+        // Store the context before the async gap
+        final BuildContext currentContext = context;
+
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('selected_course_id', courseId);
 
+        // Check if the widget is still in the tree after the async operation
+        if (!currentContext.mounted) return;
+
         Navigator.push(
-          context,
+          currentContext,
           MaterialPageRoute(
             builder: (context) => AllLessonsPage(courseId: courseId),
           ),

@@ -67,26 +67,30 @@ class AllLessonsPageState extends State<AllLessonsPage> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return _buildShimmerEffect();
               } else if (snapshot.hasError) {
-                return const Center(
+                return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons
                             .signal_wifi_statusbar_connected_no_internet_4_rounded,
                         size: 40,
                         color: Colors.black,
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
                         'Check Your Connection !',
-                        style: TextStyle(color: Colors.black),
+                        style: GoogleFonts.dmSans(color: Colors.black),
                       ),
                     ],
                   ),
                 );
               } else if (!snapshot.hasData) {
-                return const Center(child: Text('No course data found'));
+                return Center(
+                    child: Text(
+                  'No course data found',
+                  style: GoogleFonts.dmSans(color: Colors.black),
+                ));
               } else {
                 final courseData = snapshot.data!;
                 return Column(
@@ -369,7 +373,10 @@ class AllLessonsPageState extends State<AllLessonsPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text('Part ${chapter.position}'),
+                          Text(
+                            'Part ${chapter.position}',
+                            style: GoogleFonts.dmSans(color: Colors.black),
+                          ),
                           SizedBox(
                             width: 9.w,
                           ),

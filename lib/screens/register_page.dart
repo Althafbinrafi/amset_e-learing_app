@@ -401,17 +401,20 @@ class _RegisterPageState extends State<Registerpage>
                         ),
                       ),
                       onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (context, animation1, animation2) =>
-                                const LoginPage(
-                              fullName: '',
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          Navigator.pushReplacement(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation1, animation2) =>
+                                  const LoginPage(
+                                fullName: '',
+                              ),
+                              transitionDuration: Duration.zero, // No animation
+                              reverseTransitionDuration:
+                                  Duration.zero, // No animation on pop
                             ),
-                            transitionDuration: Duration.zero,
-                            reverseTransitionDuration: Duration.zero,
-                          ),
-                        );
+                          );
+                        });
                       },
                     ),
                   ],

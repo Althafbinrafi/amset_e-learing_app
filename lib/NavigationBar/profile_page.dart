@@ -12,10 +12,10 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, this.onNameChanged});
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  ProfilePageState createState() => ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class ProfilePageState extends State<ProfilePage> {
   String _fullName = 'Your Name';
   String _email = 'example@gmail.com';
   String _phone = '';
@@ -276,10 +276,10 @@ class EditProfilePage extends StatefulWidget {
   });
 
   @override
-  _EditProfilePageState createState() => _EditProfilePageState();
+  EditProfilePageState createState() => EditProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;

@@ -6,16 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shimmer/shimmer.dart';
 
 class CoursePage extends StatefulWidget {
   const CoursePage({super.key});
 
   @override
-  _CoursePageState createState() => _CoursePageState();
+  CoursePageState createState() => CoursePageState();
 }
 
-class _CoursePageState extends State<CoursePage> {
+class CoursePageState extends State<CoursePage> {
   late Future<List<Course>> _publishedCoursesFuture;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -34,6 +36,17 @@ class _CoursePageState extends State<CoursePage> {
     }
   }
 
+  void _retryFetch() {
+    setState(() {
+      _isLoading = true;
+      _publishedCoursesFuture = fetchPublishedCourses().whenComplete(() {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,28 +54,20 @@ class _CoursePageState extends State<CoursePage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0), // Adjust height as needed
-
+          preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: Colors.grey[300], // Set desired line color
-
+            color: Colors.grey[300],
             height: 1.0,
           ),
         ),
         toolbarHeight: 70,
-        // leading: GestureDetector(
-        //   child: Icon(Icons.arrow_back_ios_new_rounded),
-        //   onTap: () {
-        //     Navigator.pop(context);
-        //   },
-        // ),
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
         title: Text(
           'Amset Courses',
           style: GoogleFonts.dmSans(
             fontSize: 24.sp,
-            letterSpacing: -1,
+            letterSpacing: -0.5,
           ),
         ),
         backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
@@ -76,12 +81,57 @@ class _CoursePageState extends State<CoursePage> {
                 future: _publishedCoursesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    // Display Shimmer effect while loading
+                    return _buildShimmerEffect();
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Check your connection',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 18.sp,
+                                letterSpacing: -0.5.w,
+                              )),
+                          SizedBox(height: 20.h),
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _retryFetch,
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 25.w, vertical: 8.h),
+                              backgroundColor:
+                                  const Color.fromRGBO(117, 192, 68, 1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.r),
+                              ),
+                              elevation: 0,
+                              shadowColor: Colors.black.withOpacity(0.2),
+                            ),
+                            child: _isLoading
+                                ? SizedBox(
+                                    width: 20.w,
+                                    height: 20.h,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).primaryColor,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    'Retry',
+                                    style: GoogleFonts.dmSans(
+                                        fontSize: 17,
+                                        letterSpacing: -0.5.w,
+                                        color: Colors.white),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
-                        child: Text('No published courses available'));
+                    return  Center(
+                        child: Text('No published courses available',style: GoogleFonts.dmSans(color: Colors.black),));
                   }
 
                   return ListView.builder(
@@ -98,6 +148,28 @@ class _CoursePageState extends State<CoursePage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildShimmerEffect() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: 5, // Display a fixed number of shimmer items
+      itemBuilder: (context, index) {
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            height: 170.h,
+            width: 344.w,
+          ),
+        );
+      },
     );
   }
 }
@@ -133,7 +205,7 @@ class CourseCard extends StatelessWidget {
               image: DecorationImage(
                 fit: BoxFit.cover,
                 image: NetworkImage(
-                    course.imageUrl ?? 'https://placeholder.com/344x201'),
+                    course.imageUrl ?? 'assets/images/not_found.jpg'),
               ),
             ),
             child: Stack(
@@ -146,7 +218,7 @@ class CourseCard extends StatelessWidget {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Color.fromARGB(255, 0, 0, 0).withOpacity(0.9),
+                        const Color.fromARGB(255, 0, 0, 0).withOpacity(0.9),
                         Colors.transparent,
                       ],
                     ),
@@ -225,14 +297,20 @@ class CourseCard extends StatelessWidget {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CourseDetailPageHome(
-                              course: course,
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation1, animation2) =>
+                                  CourseDetailPageHome(
+                                course: course,
+                              ),
+                              transitionDuration: Duration.zero, // No animation
+                              reverseTransitionDuration:
+                                  Duration.zero, // No animation on pop
                             ),
-                          ),
-                        );
+                          );
+                        });
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,

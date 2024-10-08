@@ -7,10 +7,10 @@ class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
 
   @override
-  _NotificationPageState createState() => _NotificationPageState();
+  NotificationPageState createState() => NotificationPageState();
 }
 
-class _NotificationPageState extends State<NotificationPage> {
+class NotificationPageState extends State<NotificationPage> {
   bool _isExpanded = false; // To track whether the grid is expanded or not
 
   @override

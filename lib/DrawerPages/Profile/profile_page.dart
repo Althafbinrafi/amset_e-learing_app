@@ -1,4 +1,4 @@
-import 'package:amset/screens/skip.dart';
+import 'package:amset/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,17 +12,17 @@ class ProfilePage extends StatefulWidget {
   final String mobileNumber;
 
   const ProfilePage(
-      {Key? key,
+      {super.key,
       this.onNameChanged,
       required this.fullName,
-      required this.mobileNumber})
-      : super(key: key);
+      required this.mobileNumber});
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  ProfilePageState createState() => ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
+class ProfilePageState extends State<ProfilePage>
+    with SingleTickerProviderStateMixin {
   late String fullName;
   String _email = 'example@gmail.com';
   String mobileNumber = '';
@@ -70,8 +70,10 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   }
 
   Future<void> _editProfile() async {
-    final result = await Navigator.push(
-      context,
+    // Capture the necessary context information before the async gap
+    final navigator = Navigator.of(context);
+
+    final result = await navigator.push(
       MaterialPageRoute(
         builder: (context) => EditProfilePage(
           currentName: fullName,
@@ -82,6 +84,8 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       ),
     );
 
+    // No need for mounted check here as we're not using BuildContext anymore
+
     if (result != null) {
       setState(() {
         fullName = result['fullName'];
@@ -89,13 +93,14 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
         mobileNumber = result['phone'];
         _avatarPath = result['avatar_path'];
       });
-      _saveProfile();
+      await _saveProfile();
 
       if (widget.onNameChanged != null) {
         widget.onNameChanged!(fullName);
       }
 
-      Navigator.pop(context, {
+      // Use the captured navigator instead of BuildContext
+      navigator.pop({
         'fullName': fullName,
         'avatar_path': _avatarPath,
       });
@@ -111,6 +116,9 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   }
 
   Future<void> _logout() async {
+    // Capture the navigator before the async operations
+    final navigator = Navigator.of(context);
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
     await prefs.remove('fullName');
@@ -118,9 +126,12 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     await prefs.remove('phone');
     await prefs.remove('avatar_path');
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const SkipPage()),
+    // Use the captured navigator instead of BuildContext
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute(
+          builder: (context) => const LoginPage(
+                fullName: '',
+              )),
       (Route<dynamic> route) => false,
     );
   }
@@ -130,17 +141,38 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Logout'),
-          content: const Text('Are you sure you want to log out?'),
+          title: Text(
+            'Confirm Logout',
+            style: GoogleFonts.dmSans(
+                fontSize: 14.sp, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Are you sure you want to log out?',
+            style: GoogleFonts.dmSans(
+              fontSize: 14.sp,
+            ),
+          ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.dmSans(
+                  fontSize: 14.sp,
+                  color: const Color(0xFF006257),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Logout'),
+              child: Text(
+                'Logout',
+                style: GoogleFonts.dmSans(
+                  fontSize: 14.sp,
+                  color: const Color(0xFF006257),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
                 _logout();
@@ -165,7 +197,8 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 35.h, horizontal: 30.w),
+                  padding:
+                      EdgeInsets.symmetric(vertical: 35.h, horizontal: 30.w),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -303,10 +336,11 @@ class EditProfilePage extends StatefulWidget {
   });
 
   @override
-  _EditProfilePageState createState() => _EditProfilePageState();
+  EditProfilePageState createState() => EditProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProviderStateMixin {
+class EditProfilePageState extends State<EditProfilePage>
+    with SingleTickerProviderStateMixin {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
@@ -323,7 +357,7 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
     _emailController = TextEditingController(text: widget.currentEmail);
     _phoneController = TextEditingController(text: widget.currentPhone);
     _avatarPath = widget.currentAvatar;
-    
+
     _setupAnimations();
   }
 
@@ -358,6 +392,9 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
   }
 
   Future<void> _saveProfile() async {
+    // Capture the navigator before the async operations
+    final navigator = Navigator.of(context);
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('fullName', _nameController.text);
     await prefs.setString('email', _emailController.text);
@@ -366,7 +403,8 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
       await prefs.setString('avatar_path', _avatarPath!);
     }
 
-    Navigator.pop(context, {
+    // Use the captured navigator instead of BuildContext
+    navigator.pop({
       'fullName': _nameController.text,
       'email': _emailController.text,
       'phone': _phoneController.text,
@@ -473,7 +511,8 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
                           onPressed: _saveProfile,
                           child: Text(
                             'Save',
-                            style: TextStyle(color: Colors.white, fontSize: 20.sp),
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 20.sp),
                           ),
                         ),
                       ),
@@ -488,4 +527,3 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
     );
   }
 }
-

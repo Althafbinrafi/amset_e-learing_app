@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:amset/screens/dashboard.dart';
 import 'package:amset/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,14 +10,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class OtpVerificationPage extends StatefulWidget {
   final String mobileNumber;
 
-  const OtpVerificationPage({Key? key, required this.mobileNumber})
-      : super(key: key);
+  const OtpVerificationPage({super.key, required this.mobileNumber});
 
   @override
-  _OtpVerificationPageState createState() => _OtpVerificationPageState();
+  OtpVerificationPageState createState() => OtpVerificationPageState();
 }
 
-class _OtpVerificationPageState extends State<OtpVerificationPage>
+class OtpVerificationPageState extends State<OtpVerificationPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -223,38 +221,38 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
 }
 
 class SuccessAnimationPage extends StatefulWidget {
-  const SuccessAnimationPage({Key? key}) : super(key: key);
+  const SuccessAnimationPage({super.key});
 
   @override
-  _SuccessAnimationPageState createState() => _SuccessAnimationPageState();
+  SuccessAnimationPageState createState() => SuccessAnimationPageState();
 }
 
-class _SuccessAnimationPageState extends State<SuccessAnimationPage> {
+class SuccessAnimationPageState extends State<SuccessAnimationPage> {
   @override
   void initState() {
     super.initState();
     _navigateToDashboardAfterDelay();
   }
 
-  void _navigateToDashboardAfterDelay() async {
-    await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
+  void _navigateToDashboardAfterDelay() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
 
-    // Retrieve user information
+      String fullName = await _getUserFullName();
+      if (!mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => LoginPage(fullName: fullName),
+        ),
+      );
+    });
+  }
+
+  Future<String> _getUserFullName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? fullName = prefs.getString('fullName');
-    String? email = prefs.getString('email');
-    String? mobileNumber = prefs.getString('mobileNumber');
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => LoginPage(
-            fullName: fullName ?? '',
-            // email: email, // Now optional
-            // mobileNumber: mobileNumber, // Now optional
-            ),
-      ),
-    );
+    return prefs.getString('fullName') ?? '';
   }
 
   @override

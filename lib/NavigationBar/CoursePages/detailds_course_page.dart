@@ -9,14 +9,13 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 class CourseDetailPageHome extends StatefulWidget {
   final Course course;
 
-  const CourseDetailPageHome({Key? key, required this.course})
-      : super(key: key);
+  const CourseDetailPageHome({super.key, required this.course});
 
   @override
-  _CourseDetailPageHomeState createState() => _CourseDetailPageHomeState();
+  CourseDetailPageHomeState createState() => CourseDetailPageHomeState();
 }
 
-class _CourseDetailPageHomeState extends State<CourseDetailPageHome>
+class CourseDetailPageHomeState extends State<CourseDetailPageHome>
     with SingleTickerProviderStateMixin {
   late Razorpay _razorpay;
   late AnimationController _animationController;
@@ -174,7 +173,7 @@ class _CourseDetailPageHomeState extends State<CourseDetailPageHome>
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
         title: Text(
-          'Amset Courses',
+          'Courses Details',
           style: GoogleFonts.dmSans(
             fontSize: 24.sp,
             letterSpacing: -0.5,
@@ -275,7 +274,7 @@ class _CourseDetailPageHomeState extends State<CourseDetailPageHome>
                             leading: CircleAvatar(
                               backgroundColor:
                                   const Color.fromRGBO(117, 192, 68, 1),
-                              child: Text('${index + 1}'),
+                              child: Text('${index + 1}',style: GoogleFonts.dmSans(color: Colors.black),),
                             ),
                           );
                         },
@@ -289,7 +288,7 @@ class _CourseDetailPageHomeState extends State<CourseDetailPageHome>
           ),
         ),
       ),
-      floatingActionButton: Container(
+      floatingActionButton: SizedBox(
         width: MediaQuery.of(context).size.width / 1.1,
         child: FloatingActionButton(
           backgroundColor: const Color.fromRGBO(255, 204, 0, 1),

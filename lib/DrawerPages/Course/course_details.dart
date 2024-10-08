@@ -154,17 +154,20 @@ class CourseDetailsPageState extends State<CourseDetailsPage> {
                                                 ),
                                               );
                                             } else if (snapshot.hasError) {
-                                              return const Center(
+                                              return Center(
                                                 child: Text(
                                                   'Failed to load course data',
-                                                  style: TextStyle(
+                                                  style: GoogleFonts.dmSans(
                                                       color: Colors.black),
                                                 ),
                                               );
                                             } else if (!snapshot.hasData) {
-                                              return const Center(
+                                              return Center(
                                                   child: Text(
-                                                      'No course data found'));
+                                                'No course data found',
+                                                style: GoogleFonts.dmSans(
+                                                    color: Colors.black),
+                                              ));
                                             } else {
                                               return _buildLessonsList(
                                                   snapshot.data!);
@@ -262,7 +265,11 @@ class CourseDetailsPageState extends State<CourseDetailsPage> {
   Widget _buildLessonsList(CourseFetchModel course) {
     final lessons = course.chapters;
     if (lessons.isEmpty) {
-      return const Center(child: Text('No lessons available'));
+      return Center(
+          child: Text(
+        'No lessons available',
+        style: GoogleFonts.dmSans(color: Colors.black),
+      ));
     }
     return ListView.builder(
       itemCount: lessons.length,
@@ -405,7 +412,7 @@ class CourseDetailsPageState extends State<CourseDetailsPage> {
       child: SingleChildScrollView(
         child: Text(
           widget.chapter.description,
-          style: TextStyle(fontSize: 16.sp),
+          style: GoogleFonts.dmSans(fontSize: 16.sp),
         ),
       ),
     );

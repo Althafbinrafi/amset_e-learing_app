@@ -9,9 +9,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
-   final String fullName;
-   const LoginPage({super.key, required this.fullName});
- 
+  final String fullName;
+  const LoginPage({super.key, required this.fullName});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -63,70 +62,71 @@ class _LoginPageState extends State<LoginPage>
     _animationController.forward();
   }
 
- Future<void> _login() async {
-  final email = _emailController.text;
-  final password = _passwordController.text;
+  Future<void> _login() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
 
-  setState(() {
-    _isLoading = true;
-  });
-
-  try {
-    final response = await http.post(
-      Uri.parse('https://amset-server.vercel.app/api/user/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'email': email,
-        'password': password,
-      }),
-    );
-
-    final Map<String, dynamic> responseBody = json.decode(response.body);
-
-    if (response.statusCode == 200 && responseBody['success']) {
-      final String token = responseBody['token'];
-      final String userId = responseBody['user']['_id'];
-      final String avatarPath =
-          responseBody['user']['avatarPath'] ?? 'assets/images/man.png';
-      final String email = responseBody['user']['email'];
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
-      await prefs.setString('user_id', userId);
-      await prefs.setString('email', email);
-      await prefs.setString('avatar_path', avatarPath);
-
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Dashboard(
-            fullName: widget.fullName,
-            //avatarPath: avatarPath,
-          ),
-        ),
-      );
-    } else {
-      // Error handling code remains the same
-      if (responseBody.containsKey('message') &&
-          responseBody['message'] == 'Invalid username or password') {
-        _showError('Invalid username or password. Please try again.');
-      } else {
-        _showError(
-          responseBody['message'] ?? 'Failed to login. Please try again.',
-        );
-      }
-    }
-  } catch (e) {
-    _showError('An error occurred. Please try again.');
-  } finally {
     setState(() {
-      _isLoading = false;
+      _isLoading = true;
     });
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://amset-server.vercel.app/api/user/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      final Map<String, dynamic> responseBody = json.decode(response.body);
+
+      if (response.statusCode == 200 && responseBody['success']) {
+        final String token = responseBody['token'];
+        final String userId = responseBody['user']['_id'];
+        final String avatarPath =
+            responseBody['user']['avatarPath'] ?? 'assets/images/man.png';
+        final String email = responseBody['user']['email'];
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+        await prefs.setString('user_id', userId);
+        await prefs.setString('email', email);
+        await prefs.setString('avatar_path', avatarPath);
+
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Dashboard(
+              fullName: widget.fullName,
+              //avatarPath: avatarPath,
+            ),
+          ),
+        );
+      } else {
+        // Error handling code remains the same
+        if (responseBody.containsKey('message') &&
+            responseBody['message'] == 'Invalid username or password') {
+          _showError('Invalid username or password. Please try again.');
+        } else {
+          _showError(
+            responseBody['message'] ?? 'Failed to login. Please try again.',
+          );
+        }
+      }
+    } catch (e) {
+      _showError('An error occurred. Please try again.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
-}
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -393,16 +393,21 @@ class _LoginPageState extends State<LoginPage>
                             ),
                           ),
                           onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation1, animation2) =>
-                                        const Registerpage(),
-                                transitionDuration: Duration.zero,
-                                reverseTransitionDuration: Duration.zero,
-                              ),
-                            );
+                            Future.delayed(const Duration(milliseconds: 300),
+                                () {
+                              Navigator.pushReplacement(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder:
+                                      (context, animation1, animation2) =>
+                                          const Registerpage(),
+                                  transitionDuration:
+                                      Duration.zero, // No animation
+                                  reverseTransitionDuration:
+                                      Duration.zero, // No animation on pop
+                                ),
+                              );
+                            });
                           },
                         ),
                       ],
