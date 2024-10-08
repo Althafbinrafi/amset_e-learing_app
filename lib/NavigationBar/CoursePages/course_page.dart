@@ -39,7 +39,17 @@ class _CoursePageState extends State<CoursePage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(0, 255, 255, 255),
       appBar: AppBar(
-        toolbarHeight: 60,
+        automaticallyImplyLeading: false,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0), // Adjust height as needed
+
+          child: Container(
+            color: Colors.grey[300], // Set desired line color
+
+            height: 1.0,
+          ),
+        ),
+        toolbarHeight: 70,
         // leading: GestureDetector(
         //   child: Icon(Icons.arrow_back_ios_new_rounded),
         //   onTap: () {
@@ -50,7 +60,10 @@ class _CoursePageState extends State<CoursePage> {
         centerTitle: true,
         title: Text(
           'Amset Courses',
-          style: GoogleFonts.dmSans(fontSize: 24.sp),
+          style: GoogleFonts.dmSans(
+            fontSize: 24.sp,
+            letterSpacing: -1,
+          ),
         ),
         backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
@@ -133,7 +146,7 @@ class CourseCard extends StatelessWidget {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(0.9),
+                        Color.fromARGB(255, 0, 0, 0).withOpacity(0.9),
                         Colors.transparent,
                       ],
                     ),
@@ -157,7 +170,7 @@ class CourseCard extends StatelessWidget {
                             fontSize: 21.sp,
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
-                            letterSpacing: 0.3,
+                            letterSpacing: -1,
                             height: 1.4,
                             shadows: [
                               Shadow(
@@ -206,6 +219,7 @@ class CourseCard extends StatelessWidget {
                       'Price: \$${course.price}',
                       style: GoogleFonts.dmSans(
                           fontSize: 16.sp,
+                          letterSpacing: -1,
                           fontWeight: FontWeight.w500,
                           color: Colors.white),
                     ),
@@ -231,6 +245,7 @@ class CourseCard extends StatelessWidget {
                       child: Text(
                         'More Details',
                         style: GoogleFonts.dmSans(
+                            letterSpacing: -1,
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w500,
                             color: const Color.fromARGB(255, 0, 0, 0)),

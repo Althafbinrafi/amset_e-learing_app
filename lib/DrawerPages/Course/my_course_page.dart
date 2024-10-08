@@ -18,13 +18,37 @@ class MyCoursePage extends StatefulWidget {
   MyCoursePageState createState() => MyCoursePageState();
 }
 
-class MyCoursePageState extends State<MyCoursePage> {
+class MyCoursePageState extends State<MyCoursePage>
+    with SingleTickerProviderStateMixin {
   late Future<MyCourseModel> futureCourseData;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     futureCourseData = fetchCourseData();
+    _setupAnimations();
+  }
+
+  void _setupAnimations() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _animationController.forward();
   }
 
   Future<MyCourseModel> fetchCourseData() async {
@@ -60,22 +84,29 @@ class MyCoursePageState extends State<MyCoursePage> {
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        toolbarHeight: 60.h, // Adjust height if needed
-        leadingWidth: 60.w, // Adjust the width for the back button area
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: 70.h,
+        leadingWidth: 60.w,
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         leading: Padding(
-          padding: EdgeInsets.only(left: 20.w), // Adjust padding if needed
+          padding: EdgeInsets.only(left: 20.w),
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             child: const Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Colors.black, // Change icon color if needed
+              color: Colors.black,
             ),
             onTap: () {
               Navigator.pop(context);
@@ -93,66 +124,72 @@ class MyCoursePageState extends State<MyCoursePage> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Main Content
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25.w),
-                child: FutureBuilder<MyCourseModel>(
-                  future: futureCourseData,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return _buildShimmerEffect();
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              'assets/images/No connection-bro.svg',
-                              height: 200.h,
-                              width: 200.w,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 25.w),
+                    child: FutureBuilder<MyCourseModel>(
+                      future: futureCourseData,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _buildShimmerEffect();
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/images/No connection-bro.svg',
+                                  height: 200.h,
+                                  width: 200.w,
+                                ),
+                                SizedBox(height: 10.h),
+                                const Text('Check Your Connection!'),
+                              ],
                             ),
-                            SizedBox(height: 10.h),
-                            const Text('Check Your Connection!'),
-                          ],
-                        ),
-                      );
-                    } else if (!snapshot.hasData ||
-                        snapshot.data!.courseData.isEmpty) {
-                      return _buildNoCoursesUI(context);
-                    }
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.courseData.isEmpty) {
+                          return _buildNoCoursesUI(context);
+                        }
 
-                    final courseData = snapshot.data!.courseData;
+                        final courseData = snapshot.data!.courseData;
 
-                    return ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: courseData.length,
-                      itemBuilder: (context, index) {
-                        final courseDatum = courseData[index];
-                        return Column(
-                          children: [
-                            _buildCourseContainer(
-                              context,
-                              courseDatum.course.imageUrl,
-                              courseDatum.course.title,
-                              double.parse(courseDatum.progressPercentage
-                                      .replaceAll('%', '')) /
-                                  100,
-                              courseDatum.progressPercentage,
-                              courseDatum.course.id,
-                            ),
-                            SizedBox(height: 1.h),
-                          ],
+                        return ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: courseData.length,
+                          itemBuilder: (context, index) {
+                            final courseDatum = courseData[index];
+                            return Column(
+                              children: [
+                                _buildCourseContainer(
+                                  context,
+                                  courseDatum.course.imageUrl,
+                                  courseDatum.course.title,
+                                  double.parse(courseDatum.progressPercentage
+                                          .replaceAll('%', '')) /
+                                      100,
+                                  courseDatum.progressPercentage,
+                                  courseDatum.course.id,
+                                ),
+                                SizedBox(height: 1.h),
+                              ],
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -162,11 +199,8 @@ class MyCoursePageState extends State<MyCoursePage> {
   // Function to build the "No Courses" UI
   Widget _buildNoCoursesUI(BuildContext context) {
     return Center(
-      // Wrap everything in a Center widget
       child: ConstrainedBox(
-        // Use ConstrainedBox to set a maximum width
-        constraints:
-            BoxConstraints(maxWidth: 300.w), // Adjust max width as needed
+        constraints: BoxConstraints(maxWidth: 300.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -188,9 +222,7 @@ class MyCoursePageState extends State<MyCoursePage> {
             ),
             SizedBox(height: 35.h),
             SizedBox(
-              // Wrap button in SizedBox to control its width
-              width: MediaQuery.of(context).size.width /
-                  1.5, // Make button full width of its container
+              width: MediaQuery.of(context).size.width / 1.5,
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/purchasePage');
@@ -229,7 +261,7 @@ class MyCoursePageState extends State<MyCoursePage> {
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: 3, // Adjust the number of shimmer items as needed
+        itemCount: 3,
         itemBuilder: (context, index) {
           return Container(
             margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
@@ -239,7 +271,6 @@ class MyCoursePageState extends State<MyCoursePage> {
             ),
             child: Column(
               children: [
-                // Shimmer for the image container
                 Container(
                   height: 201.h,
                   width: 344.w,
@@ -249,13 +280,11 @@ class MyCoursePageState extends State<MyCoursePage> {
                   ),
                   child: Stack(
                     children: [
-                      // Shimmer for the gradient overlay
                       Positioned(
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        height:
-                            100.h, // Adjust the height of the gradient shimmer
+                        height: 100.h,
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
@@ -273,7 +302,6 @@ class MyCoursePageState extends State<MyCoursePage> {
                           ),
                         ),
                       ),
-                      // Shimmer for the title and play button
                       Positioned(
                         bottom: 15.h,
                         left: 30.w,
@@ -314,7 +342,6 @@ class MyCoursePageState extends State<MyCoursePage> {
                     ],
                   ),
                 ),
-                // Shimmer for the progress bar (if needed)
                 Padding(
                   padding: EdgeInsets.all(10.w),
                   child: Container(
@@ -369,20 +396,18 @@ class MyCoursePageState extends State<MyCoursePage> {
         ),
         child: Column(
           children: [
-            // Image Container with Gradient Overlay
             Container(
               height: 201.h,
               width: 344.w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(39.r),
                 image: DecorationImage(
-                  fit: BoxFit.cover, // Fills the entire container
+                  fit: BoxFit.cover,
                   image: NetworkImage(imagePath),
                 ),
               ),
               child: Stack(
                 children: [
-                  // Dark Gradient Overlay
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(39.r),
@@ -391,12 +416,11 @@ class MyCoursePageState extends State<MyCoursePage> {
                         end: Alignment.topCenter,
                         colors: [
                           Colors.black.withOpacity(0.9),
-                          Colors.transparent, // Fades to transparent
+                          Colors.transparent,
                         ],
                       ),
                     ),
                   ),
-                  // Course Title and Play Button (Bottom-aligned inside the image)
                   Positioned(
                     bottom: 15.h,
                     left: 30.w,
@@ -404,7 +428,6 @@ class MyCoursePageState extends State<MyCoursePage> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Course Title
                         Expanded(
                           child: Text(
                             title,
@@ -427,7 +450,6 @@ class MyCoursePageState extends State<MyCoursePage> {
                           ),
                         ),
                         SizedBox(width: 10.w),
-                        // Play Button Icon
                         SvgPicture.asset(
                           'assets/images/play_btn.svg',
                           width: 54.w,
@@ -439,10 +461,8 @@ class MyCoursePageState extends State<MyCoursePage> {
                 ],
               ),
             ),
-            // Progress Bar and Percentage Text
             Padding(
               padding: EdgeInsets.all(10.w),
-              // You can include the progress bar here if needed
             ),
           ],
         ),

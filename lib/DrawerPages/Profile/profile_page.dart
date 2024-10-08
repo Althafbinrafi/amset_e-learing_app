@@ -8,33 +8,65 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfilePage extends StatefulWidget {
   final Function(String)? onNameChanged;
+  final String fullName;
+  final String mobileNumber;
 
-  const ProfilePage({super.key, this.onNameChanged});
+  const ProfilePage(
+      {Key? key,
+      this.onNameChanged,
+      required this.fullName,
+      required this.mobileNumber})
+      : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  String _fullName = 'Your Name';
+class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
+  late String fullName;
   String _email = 'example@gmail.com';
-  String _phone = '';
+  String mobileNumber = '';
   String _avatarPath = 'assets/images/man.png';
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
+    fullName = widget.fullName;
     _loadProfile();
+    _setupAnimations();
   }
 
   Future<void> _loadProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _fullName = prefs.getString('full_name') ?? _fullName;
+      fullName = prefs.getString('fullName') ?? fullName;
       _email = prefs.getString('email') ?? _email;
-      _phone = prefs.getString('phone') ?? _phone;
+      mobileNumber = prefs.getString('phone') ?? mobileNumber;
       _avatarPath = prefs.getString('avatar_path') ?? _avatarPath;
     });
+  }
+
+  void _setupAnimations() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _animationController.forward();
   }
 
   Future<void> _editProfile() async {
@@ -42,9 +74,9 @@ class _ProfilePageState extends State<ProfilePage> {
       context,
       MaterialPageRoute(
         builder: (context) => EditProfilePage(
-          currentName: _fullName,
+          currentName: fullName,
           currentEmail: _email,
-          currentPhone: _phone,
+          currentPhone: mobileNumber,
           currentAvatar: _avatarPath,
         ),
       ),
@@ -52,16 +84,19 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (result != null) {
       setState(() {
-        _fullName = result['full_name'];
+        fullName = result['fullName'];
         _email = result['email'];
-        _phone = result['phone'];
+        mobileNumber = result['phone'];
         _avatarPath = result['avatar_path'];
       });
       _saveProfile();
 
-      // Return the updated data to the Dashboard
+      if (widget.onNameChanged != null) {
+        widget.onNameChanged!(fullName);
+      }
+
       Navigator.pop(context, {
-        'full_name': _fullName,
+        'fullName': fullName,
         'avatar_path': _avatarPath,
       });
     }
@@ -69,16 +104,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _saveProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('full_name', _fullName);
+    await prefs.setString('fullName', fullName);
     await prefs.setString('email', _email);
-    await prefs.setString('phone', _phone);
+    await prefs.setString('phone', mobileNumber);
     await prefs.setString('avatar_path', _avatarPath);
   }
 
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
-    await prefs.remove('full_name');
+    await prefs.remove('fullName');
     await prefs.remove('email');
     await prefs.remove('phone');
     await prefs.remove('avatar_path');
@@ -122,141 +157,133 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 35.h, horizontal: 30.w),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 25,
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Text(
-                    'User Profile',
-                    style: GoogleFonts.dmSans(
-                        color: Colors.black,
-                        fontSize: 27.sp,
-                        fontWeight: FontWeight.normal,
-                        letterSpacing: -1),
-                  ),
-                  const SizedBox(
-                    width: 1,
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  maxRadius: 90.r,
-                  backgroundColor: Colors.transparent,
-                  child: SizedBox(
-                    height: 170.h,
-                    width: 170.w,
-                    child: ClipOval(
-                      child: _avatarPath.isNotEmpty &&
-                              _avatarPath != 'assets/images/man.png'
-                          ? Image.file(
-                              File(_avatarPath),
-                              fit: BoxFit.cover,
-                            )
-                          : Image.asset('assets/images/man.png'),
-                    ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 35.h, horizontal: 30.w),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 25,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      Text(
+                        'User Profile',
+                        style: GoogleFonts.dmSans(
+                            color: Colors.black,
+                            fontSize: 27.sp,
+                            fontWeight: FontWeight.normal,
+                            letterSpacing: -1),
+                      ),
+                      const SizedBox(
+                        width: 1,
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 5.h),
-                Text(
-                  _fullName,
-                  style: TextStyle(fontSize: 22.sp),
-                ),
-                SizedBox(height: 20.h),
-                Text(
-                  _email,
-                  style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                ),
-                SizedBox(height: 10.h),
-                Text(
-                  _phone,
-                  style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                ),
-                SizedBox(height: 50.h),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 150.w,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF006257),
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            bottomLeft: Radius.circular(20)),
+                    CircleAvatar(
+                      maxRadius: 90.r,
+                      backgroundColor: Colors.transparent,
+                      child: SizedBox(
+                        height: 170.h,
+                        width: 170.w,
+                        child: ClipOval(
+                          child: _avatarPath.isNotEmpty &&
+                                  _avatarPath != 'assets/images/man.png'
+                              ? Image.file(
+                                  File(_avatarPath),
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.asset('assets/images/man.png'),
+                        ),
                       ),
-                      child: TextButton(
-                        onPressed: _confirmLogout,
-                        child: Center(
-                          child: Text(
-                            'Log Out',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.sp,
+                    ),
+                    SizedBox(height: 5.h),
+                    Text(
+                      fullName,
+                      style: TextStyle(fontSize: 22.sp),
+                    ),
+                    SizedBox(height: 20.h),
+                    Text(
+                      _email,
+                      style: TextStyle(fontSize: 20.sp, color: Colors.grey),
+                    ),
+                    SizedBox(height: 10.h),
+                    Text(
+                      mobileNumber,
+                      style: TextStyle(fontSize: 20.sp, color: Colors.grey),
+                    ),
+                    SizedBox(height: 50.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 150.w,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF006257),
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                bottomLeft: Radius.circular(20)),
+                          ),
+                          child: TextButton(
+                            onPressed: _confirmLogout,
+                            child: Center(
+                              child: Text(
+                                'Log Out',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18.sp,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 7,
-                    ),
-                    GestureDetector(
-                      onTap: _editProfile,
-                      child: Container(
-                        padding: EdgeInsets.all(5.w),
-                        height: 41.h,
-                        width: 50.w,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(20),
-                              bottomRight: Radius.circular(20)),
-                          color: Color(0xFF006257),
+                        const SizedBox(
+                          width: 7,
                         ),
-                        child: const Icon(
-                          Icons.edit,
-                          size: 30,
-                          color: Colors.white,
+                        GestureDetector(
+                          onTap: _editProfile,
+                          child: Container(
+                            padding: EdgeInsets.all(5.w),
+                            height: 41.h,
+                            width: 50.w,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(20),
+                                  bottomRight: Radius.circular(20)),
+                              color: Color(0xFF006257),
+                            ),
+                            child: const Icon(
+                              Icons.edit,
+                              size: 30,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.pop(context);
-      //   },
-      //   child: Icon(
-      //     Icons.arrow_back_ios_new_rounded,
-      //     color: const Color.fromARGB(255, 0, 0, 0),
-      //   ),
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      //   focusElevation: 0,
-      //   hoverColor: Colors.transparent,
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
     );
   }
 }
@@ -279,11 +306,15 @@ class EditProfilePage extends StatefulWidget {
   _EditProfilePageState createState() => _EditProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProviderStateMixin {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
   String? _avatarPath;
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
@@ -292,6 +323,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _emailController = TextEditingController(text: widget.currentEmail);
     _phoneController = TextEditingController(text: widget.currentPhone);
     _avatarPath = widget.currentAvatar;
+    
+    _setupAnimations();
+  }
+
+  void _setupAnimations() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _animationController.forward();
   }
 
   Future<void> _pickImage() async {
@@ -307,7 +359,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _saveProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('full_name', _nameController.text);
+    await prefs.setString('fullName', _nameController.text);
     await prefs.setString('email', _emailController.text);
     await prefs.setString('phone', _phoneController.text);
     if (_avatarPath != null) {
@@ -315,7 +367,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
 
     Navigator.pop(context, {
-      'full_name': _nameController.text,
+      'fullName': _nameController.text,
       'email': _emailController.text,
       'phone': _phoneController.text,
       'avatar_path': _avatarPath
@@ -327,102 +379,108 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 35.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 35.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        size: 25,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          child: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            size: 25,
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        Text(
+                          'Edit Profile',
+                          style: GoogleFonts.dmSans(
+                              color: Colors.black,
+                              fontSize: 27.sp,
+                              fontWeight: FontWeight.normal,
+                              letterSpacing: -1),
+                        ),
+                        const SizedBox(
+                          width: 1,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30.h),
+                    Center(
+                      child: GestureDetector(
+                        onTap: _pickImage,
+                        child: CircleAvatar(
+                          radius: 60.r,
+                          backgroundImage: _avatarPath != null
+                              ? FileImage(File(_avatarPath!))
+                              : const AssetImage('assets/images/man.png')
+                                  as ImageProvider,
+                        ),
                       ),
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
                     ),
-                    Text(
-                      'Edit Profile',
-                      style: GoogleFonts.dmSans(
-                          color: Colors.black,
-                          fontSize: 27.sp,
-                          fontWeight: FontWeight.normal,
-                          letterSpacing: -1),
+                    const Text('Add Photo'),
+                    SizedBox(height: 30.h),
+                    TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Full Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                        ),
+                      ),
                     ),
-                    const SizedBox(
-                      width: 1,
+                    SizedBox(height: 20.h),
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+                    TextField(
+                      controller: _phoneController,
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 30.h),
+                    Center(
+                      child: SizedBox(
+                        height: 50.h,
+                        width: 0.5.sw,
+                        child: ElevatedButton(
+                          style: TextButton.styleFrom(
+                            backgroundColor: const Color(0xFF006257),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.r),
+                            ),
+                          ),
+                          onPressed: _saveProfile,
+                          child: Text(
+                            'Save',
+                            style: TextStyle(color: Colors.white, fontSize: 20.sp),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(height: 30.h),
-                Center(
-                  child: GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 60.r,
-                      backgroundImage: _avatarPath != null
-                          ? FileImage(File(_avatarPath!))
-                          : const AssetImage('assets/images/man.png')
-                              as ImageProvider,
-                    ),
-                  ),
-                ),
-                const Text('Add Photo'),
-                SizedBox(height: 30.h),
-                TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Full Name',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20.h),
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20.h),
-                TextField(
-                  controller: _phoneController,
-                  decoration: InputDecoration(
-                    labelText: 'Phone Number',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 30.h),
-                Center(
-                  child: SizedBox(
-                    height: 50.h,
-                    width: 0.5.sw,
-                    child: ElevatedButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: const Color(0xFF006257),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.r),
-                        ),
-                      ),
-                      onPressed: _saveProfile,
-                      child: Text(
-                        'Save',
-                        style: TextStyle(color: Colors.white, fontSize: 20.sp),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -430,3 +488,4 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 }
+

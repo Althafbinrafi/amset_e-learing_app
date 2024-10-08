@@ -33,7 +33,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Widget> _pages = [
-    const DashboardPage(fullName: 'User Name', avatarPath: 'assets/avatar.png'),
+    const DashboardPage(
+      fullName: 'User Name',
+      avatarPath: 'assets/avatar.png',
+    ),
     const NotificationPage(), // Placeholder for CoursePage
     const CoursePage(), // Placeholder for Favourites (Notifications)
   ];
@@ -48,7 +51,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             builder: (context) => AlertDialog(
               backgroundColor: Colors.white,
               title: const Text('Exit App'),
-              content: const Text('Are you sure you want to exit the app?'),
+              content: const Text(
+                'Are you sure you want to exit the app?',
+                style: TextStyle(),
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
@@ -89,6 +95,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         bottomNavigationBar: SizedBox(
           height: 85.h,
           child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
             backgroundColor: Colors.white,
             currentIndex: _currentIndex,
             onTap: (index) {
@@ -151,7 +158,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               ),
             ),
             toolbarHeight: 85,
-            leadingWidth: 132,
+            leadingWidth: 154,
             iconTheme: const IconThemeData(color: Colors.white),
             centerTitle: false,
             backgroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -160,7 +167,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               child: SvgPicture.asset(
                 'assets/images/Dashboard_logo.svg',
                 height: 25.h,
-                width: 117.w,
+                width: 140.w,
               ),
             ),
             actions: [
@@ -190,10 +197,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       SizedBox(width: 6.w), // Slightly increased spacing
                       Text(
                         '126',
-                        style: TextStyle(
+                        style: GoogleFonts.dmSans(
                           fontSize: 14.sp, // Increased font size
                           fontWeight: FontWeight.w400,
                           color: Colors.black,
+                          letterSpacing: -0.5.w,
                         ),
                       ),
                       SizedBox(width: 6.w),
@@ -208,7 +216,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   padding: EdgeInsets.only(right: 23.w),
                   child: CircleAvatar(
                     backgroundImage: const AssetImage('assets/images/man.png'),
-                    radius: 21.r,
+                    radius: 19.r,
                   ),
                 ),
               ),
@@ -243,6 +251,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   '126', // The number of coins (you can make this dynamic if needed)
                   style: GoogleFonts.dmSans(
                     fontSize: 30.sp,
+                    letterSpacing: -0.5.w,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
@@ -255,6 +264,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   'You can earn more coins by purchasing additional courses!',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.dmSans(
+                    letterSpacing: -0.5.w,
                     fontSize: 16.sp,
                     color: Colors.grey[700],
                   ),
@@ -284,6 +294,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     'Close',
                     textAlign: TextAlign.center, // Align text to the center
                     style: GoogleFonts.dmSans(
+                      letterSpacing: -0.5.w,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.white, // White text color
@@ -300,40 +311,78 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   Widget _buildDrawer() {
     return Drawer(
+      backgroundColor: Colors.white,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Color(0xFF006257),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  backgroundImage: const AssetImage('assets/images/man.png'),
-                  radius: 40.r,
+          SizedBox(
+              height: 170,
+              child: DrawerHeader(
+                padding: EdgeInsets.only(left: 15.w),
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(153, 233, 233, 233),
                 ),
-                SizedBox(height: 10.h),
-                // Uncomment and modify this if you want to display the user's name
-                // Text(
-                //   'Your Name',
-                //   style: TextStyle(
-                //     color: Colors.white,
-                //     fontSize: 18.sp,
-                //   ),
-                // ),
-              ],
-            ),
-          ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage:
+                              const AssetImage('assets/images/man.png'),
+                          radius: 30.r,
+                        ),
+                        SizedBox(width: 10.w),
+                        Expanded(
+                          // Ensures the text column takes up the available space
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.fullName.toString(),
+                                style: GoogleFonts.dmSans(
+                                  color: const Color.fromARGB(255, 31, 31, 31),
+                                  fontSize: 15.sp,
+                                  letterSpacing: -0.5,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow
+                                    .fade, // Handles overflow with ellipsis
+                              ),
+                              Text(
+                                widget.mobileNumber.toString(),
+                                style: GoogleFonts.dmSans(
+                                  color: const Color.fromARGB(255, 49, 48, 48),
+                                  fontSize: 14.sp,
+                                  letterSpacing: -0.5,
+                                ),
+                                maxLines: 1, // Limits to a single line
+                                overflow: TextOverflow
+                                    .ellipsis, // Handles overflow with ellipsis
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              )),
           ListTile(
             leading: const Icon(Icons.account_circle),
-            title: const Text('Profile'),
+            title: Text(
+              'Profile',
+              style: GoogleFonts.dmSans(),
+            ),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
+                MaterialPageRoute(
+                    builder: (context) => const ProfilePage(
+                          fullName: '',
+                          mobileNumber: '',
+                        )),
               );
             },
             trailing: const Icon(
@@ -343,7 +392,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           ),
           ListTile(
             leading: const Icon(Icons.school),
-            title: const Text('My Courses'),
+            title: Text(
+              'My Courses',
+              style: GoogleFonts.dmSans(),
+            ),
             onTap: () {
               //  Navigate to My Courses page
               Navigator.push(
@@ -358,7 +410,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           ),
           ListTile(
             leading: const Icon(Icons.history),
-            title: const Text('History'),
+            title: Text(
+              'History',
+              style: GoogleFonts.dmSans(),
+            ),
             onTap: () {
               // Navigate to History page
               // Navigator.push(
@@ -373,7 +428,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
+            title: Text(
+              'Settings',
+              style: GoogleFonts.dmSans(),
+            ),
             onTap: () {
               // Navigate to Settings page
               // Navigator.push(
@@ -400,9 +458,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 class DashboardPage extends StatefulWidget {
   final String fullName;
   final String avatarPath;
+  final String? mobileNumber;
 
   const DashboardPage(
-      {super.key, required this.fullName, required this.avatarPath});
+      {super.key,
+      required this.fullName,
+      required this.avatarPath,
+      this.mobileNumber});
 
   @override
   _DashboardPageState createState() => _DashboardPageState();
@@ -415,6 +477,7 @@ class _DashboardPageState extends State<DashboardPage> {
   late Timer _timer;
   bool _hasError = false;
   String? fullName;
+  String? mobileNumber;
 
   @override
   void initState() {
@@ -494,7 +557,11 @@ class _DashboardPageState extends State<DashboardPage> {
           Icon(Icons.error_outline,
               color: const Color.fromARGB(255, 114, 113, 113), size: 100.r),
           SizedBox(height: 20.h),
-          Text('Check Your Connection', style: TextStyle(fontSize: 18.sp)),
+          Text('Check Your Connection',
+              style: GoogleFonts.dmSans(
+                fontSize: 18.sp,
+                letterSpacing: -0.5.w,
+              )),
           SizedBox(height: 20.h),
           ElevatedButton(
             onPressed: _loadCourses,
@@ -509,7 +576,11 @@ class _DashboardPageState extends State<DashboardPage> {
                   0, // Add some elevation to make the button more prominent
               shadowColor: Colors.black.withOpacity(0.2), // Professional look
             ),
-            child: const Text('Retry'),
+            child: Text(
+              'Retry',
+              style: GoogleFonts.dmSans(
+                  letterSpacing: -0.5.w, color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -534,6 +605,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           style: GoogleFonts.dmSans(
                             color: Colors.black,
                             fontSize: 25.sp,
+                            letterSpacing: -0.5.w,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -581,7 +653,10 @@ class _DashboardPageState extends State<DashboardPage> {
                               ..onTap = () {
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (context) {
-                                  return const ProfilePage();
+                                  return const ProfilePage(
+                                    fullName: '',
+                                    mobileNumber: '',
+                                  );
                                 }));
                               }),
                       ],
@@ -591,7 +666,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               Container(
                 padding: const EdgeInsets.only(left: 20),
-                margin: EdgeInsets.only(top: 20.h, left: 36.w, right: 36.w),
+                margin: EdgeInsets.only(top: 20.h, left: 33.w, right: 33.w),
 
                 height: 73.h,
                 // width: MediaQuery.of(context).size.width - 49.w,
@@ -622,16 +697,16 @@ class _DashboardPageState extends State<DashboardPage> {
                           Text(
                             'Complete your profile setup',
                             style: GoogleFonts.dmSans(
-                              fontSize: 16.sp,
+                              fontSize: 17.sp,
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF2D2D2D),
                               letterSpacing: -0.5.w,
                             ),
                           ),
                           Text(
-                            'Provide Educational details for applying for job',
+                            'Provide your details for applying for job',
                             style: GoogleFonts.dmSans(
-                              fontSize: 10.sp,
+                              fontSize: 13.sp,
                               letterSpacing: -0.2.w,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF6F6F6F),
@@ -646,7 +721,7 @@ class _DashboardPageState extends State<DashboardPage> {
               SizedBox(height: 30.h),
               Container(
                 width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.only(left: 30.w),
+                padding: EdgeInsets.only(left: 25.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -654,7 +729,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          ' Featured Jobs',
+                          '  Featured Jobs',
                           style: GoogleFonts.dmSans(
                             color: const Color.fromARGB(255, 0, 0, 0),
                             fontSize: 21.sp,
@@ -662,9 +737,10 @@ class _DashboardPageState extends State<DashboardPage> {
                             letterSpacing: -0.5,
                           ),
                         ),
-                        SizedBox(height: 20.h),
+                        // SizedBox(height: 25.h),
                       ],
                     ),
+                    SizedBox(height: 10.h),
                     Container(
                       child: FutureBuilder<List<Course>>(
                         future: _futureCourses,
@@ -730,6 +806,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                     SizedBox(height: 23.h),
                     // GridView
+
                     GridView.count(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -738,11 +815,26 @@ class _DashboardPageState extends State<DashboardPage> {
                       mainAxisSpacing: 14.h,
                       crossAxisSpacing: 15.w,
                       children: List.generate(4, (index) {
+                        // List of job titles
+                        final jobTitles = [
+                          'Office\n Clerk',
+                          'Senior\n Accountant',
+                          'System\n Admin',
+                          'Cashier'
+                        ];
+                        final jobSvg = [
+                          'assets/images/job_sector.svg',
+                          'assets/images/job_sector1.svg',
+                          'assets/images/job_sector2.svg',
+                          'assets/images/job_sector3.svg',
+                        ];
+
                         return Column(
                           children: [
                             Expanded(
                               flex: 2,
                               child: Container(
+                                padding: const EdgeInsets.only(left: 23),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(22.r),
@@ -752,13 +844,28 @@ class _DashboardPageState extends State<DashboardPage> {
                                       const Color.fromRGBO(117, 192, 68, 0.15),
                                 ),
                                 child: Center(
-                                  child: Text(
-                                    'Item ${index + 1}',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.normal,
-                                    ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      SvgPicture.asset(
+                                        jobSvg[index],
+                                        height: 35.h,
+                                        width: 35.w,
+                                      ),
+                                      SizedBox(
+                                          width: 10
+                                              .w), // Add spacing between icon and text
+                                      Text(
+                                        jobTitles[
+                                            index], // Replace with job title
+                                        style: GoogleFonts.dmSans(
+                                          letterSpacing: -0.5.w,
+                                          color: Colors.black,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -771,13 +878,15 @@ class _DashboardPageState extends State<DashboardPage> {
                                     bottomLeft: Radius.circular(22.r),
                                     bottomRight: Radius.circular(22.r),
                                   ),
-                                  color: Color.fromRGBO(46, 53, 58, 1),
+                                  color: const Color.fromRGBO(46, 53, 58, 1),
                                 ),
                                 child: Center(
                                   child: Text(
                                     '110 Vacancies',
                                     style: GoogleFonts.dmSans(
-                                      color: Color.fromRGBO(255, 255, 255, 1),
+                                      letterSpacing: -0.5.w,
+                                      color: const Color.fromRGBO(
+                                          255, 255, 255, 1),
                                       fontSize: 14.sp,
                                     ),
                                   ),
@@ -788,6 +897,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         );
                       }),
                     ),
+
                     SizedBox(height: 20.h),
 
                     Row(
@@ -812,6 +922,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         const Icon(
                           Icons.arrow_forward,
+                          size: 18,
                           color: Colors.green,
                         )
                       ],
@@ -829,13 +940,16 @@ class _DashboardPageState extends State<DashboardPage> {
                             TextSpan(
                               text: 'Continue your journey\n toward a ',
                               style: GoogleFonts.dmSans(
-                                  fontWeight: FontWeight.w400, fontSize: 25.sp),
+                                  letterSpacing: -0.5.w,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 26.sp),
                             ),
                             TextSpan(
                               text: 'rewarding\n retail career.',
                               style: GoogleFonts.dmSans(
+                                  letterSpacing: -0.5.w,
                                   color: const Color.fromRGBO(117, 192, 68, 1),
-                                  fontSize: 25.sp,
+                                  fontSize: 26.sp,
                                   fontWeight:
                                       FontWeight.w400), // Make this part bold
                             ),
@@ -864,6 +978,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                           const Icon(
                             Icons.arrow_forward,
+                            size: 18,
                             color: Color.fromARGB(255, 255, 255, 255),
                           )
                         ],
@@ -968,15 +1083,17 @@ class _DashboardPageState extends State<DashboardPage> {
                       SizedBox(height: 10.h),
                       Text(
                         title,
-                        style: TextStyle(
+                        style: GoogleFonts.dmSans(
+                          letterSpacing: -0.5.w,
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(height: 10.h),
                       Text(
-                        'Course Description:',
-                        style: TextStyle(
+                        'Details:',
+                        style: GoogleFonts.dmSans(
+                          letterSpacing: -0.5.w,
                           fontWeight: FontWeight.bold,
                           fontSize: 20.sp,
                         ),
@@ -984,21 +1101,24 @@ class _DashboardPageState extends State<DashboardPage> {
                       SizedBox(height: 5.h),
                       Text(
                         description,
-                        style: TextStyle(fontSize: 16.sp),
-                      ),
-                      SizedBox(height: 10.h),
-                      Text(
-                        '''
-                        Course Details:
-                        $lessons
-                        Fee: $price 
-                        ''',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.dmSans(
                           fontSize: 16.sp,
+                          letterSpacing: -0.5.w,
                         ),
                       ),
-                      SizedBox(height: 80.h),
+                      SizedBox(height: 10.h),
+                      // Text(
+                      //   '''
+                      //   Course Details:
+                      //   $lessons
+                      //   Fee: $price
+                      //   ''',
+                      //   style: TextStyle(
+                      //     fontWeight: FontWeight.bold,
+                      //     fontSize: 16.sp,
+                      //   ),
+                      // ),
+                      // SizedBox(height: 80.h),
                     ],
                   ),
                 ),
@@ -1015,8 +1135,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     children: [
                       Text(
                         'Are You Interested?',
-                        style: TextStyle(
+                        style: GoogleFonts.dmSans(
                           fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5.w,
                           color: const Color(0xFF006257),
                           fontSize: 18.sp,
                         ),
@@ -1083,77 +1204,101 @@ Amset Academy. ''';
 
   Widget _buildCourseCard(BuildContext context, String imagePath, String title,
       String lessons, String description, String price, int index) {
-    return GestureDetector(
-      onTap: () =>
-          _showCourseDrawer(context, title, lessons, description, price),
-      child: Container(
-        width: 276.w, // Set the container width to match the image width
-        margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
-        decoration: BoxDecoration(
-          borderRadius:
-              BorderRadius.circular(18.r), // Border radius for all sides
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 5.r,
-              spreadRadius: 2.r,
-              offset: Offset(0, 3.h),
+    return Container(
+      width: 276.w, // Set the container width to match the image width
+      margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        borderRadius:
+            BorderRadius.circular(18.r), // Border radius for all sides
+      ),
+      child: Stack(
+        children: [
+          // Full-size image with rounded corners on all sides
+          ClipRRect(
+            borderRadius:
+                BorderRadius.circular(18.r), // Rounded corners for all sides
+            child: Image(
+              height: 180.h, // Set the image height to 169.h
+              width: 276.w, // Set the image width to 276.w
+              image: imagePath.isNotEmpty
+                  ? NetworkImage(imagePath)
+                  : const AssetImage('assets/images/default.png')
+                      as ImageProvider,
+              fit: BoxFit.cover, // Cover to fill the container with the image
             ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Full-size image with rounded corners on all sides
-            ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(18.r), // Rounded corners for all sides
-              child: Image(
-                height: 169.h, // Set the image height to 169.h
-                width: 276.w, // Set the image width to 276.w
-                image: imagePath.isNotEmpty
-                    ? NetworkImage(imagePath)
-                    : const AssetImage('assets/images/default.png')
-                        as ImageProvider,
-                fit: BoxFit.cover, // Cover to fill the container with the image
+          ),
+          // Black gradient shade from bottom to top
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: const Color.fromRGBO(213, 215, 216, 1),
+                ),
+                borderRadius: BorderRadius.circular(
+                    18.r), // Same rounded corners for the gradient
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.7),
+                    Colors.transparent,
+                  ],
+                ),
               ),
             ),
-            // Black gradient shade from bottom to top
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                      18.r), // Same rounded corners for the gradient
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.7),
-                      Colors.transparent,
-                    ],
+          ),
+          // Title and "View Details" button inside the image in a column layout
+          Positioned(
+            bottom: 15.h,
+            left: 15.w,
+            right: 10.w, // Ensure the text stays within the bounds
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start, // Align items to the left
+              children: [
+                // Title text with two lines
+                Text(
+                  title,
+                  maxLines: 2, // Limit the title to 2 lines
+                  overflow: TextOverflow.ellipsis, // Ellipsis if text overflows
+                  style: GoogleFonts.dmSans(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                    height: 1.2,
                   ),
                 ),
-              ),
-            ),
-            // Title text inside the image, limited to two lines
-            Positioned(
-              bottom: 15.h,
-              left: 15.w,
-              right: 10.w, // Ensure the text stays within the bounds
-              child: Text(
-                title,
-                maxLines: 2, // Limit the title to 2 lines
-                overflow: TextOverflow
-                    .ellipsis, // Show ellipsis if the text overflows
-                style: GoogleFonts.dmSans(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                  height: 1.2, // Line height for better spacing between lines
+                SizedBox(height: 8.h), // Spacing between title and button
+                // View Details button
+                GestureDetector(
+                  onTap: () {
+                    // Perform action on View Details button tap
+                    _showCourseDrawer(
+                        context, title, lessons, description, price);
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white),
+                    child: Text(
+                      'View Details',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: -0.5,
+                        color: const Color.fromARGB(
+                            255, 0, 0, 0), // Set color to blue for link-style
+                        // decoration: TextDecoration.underline, // Underline text
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

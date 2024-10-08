@@ -387,6 +387,7 @@ class _LoginPageState extends State<LoginPage>
                             "Register Here",
                             style: GoogleFonts.dmSans(
                               color: Colors.green,
+                              letterSpacing: -0.5.w,
                               fontWeight: FontWeight.w500,
                               fontSize: 14.sp,
                             ),

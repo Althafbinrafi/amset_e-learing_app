@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -17,7 +18,8 @@ class _NotificationPageState extends State<NotificationPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        toolbarHeight: 60,
+        automaticallyImplyLeading: false,
+        toolbarHeight: 70,
         // leading: GestureDetector(
         //   child: Icon(Icons.arrow_back_ios_new_rounded),
         //   onTap: () {
@@ -28,9 +30,21 @@ class _NotificationPageState extends State<NotificationPage> {
         centerTitle: true,
         title: Text(
           'Jobs & Vacancies',
-          style: GoogleFonts.dmSans(fontSize: 24.sp),
+          style: GoogleFonts.dmSans(
+            fontSize: 24.sp,
+            letterSpacing: -0.5.w,
+          ),
         ),
         backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0), // Adjust height as needed
+
+          child: Container(
+            color: Colors.grey[300], // Set desired line color
+            height: 1.0,
+          ),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -60,27 +74,28 @@ class _NotificationPageState extends State<NotificationPage> {
                           horizontal: 26.w, vertical: 17.h),
                       hintText: 'Search for jobs',
                       hintStyle: GoogleFonts.dmSans(
+                        letterSpacing: -0.5.w,
                         fontSize: 16,
                         fontWeight: FontWeight.normal,
                       ),
                       filled: true,
                       fillColor: Colors.white, // Fill color of the TextField
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: BorderRadius.circular(17.r),
                         borderSide: BorderSide(
                           color: Colors.grey.withOpacity(0.5),
                           width: 1,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: BorderRadius.circular(17.r),
                         borderSide: BorderSide(
                           color: Colors.grey.withOpacity(0.5),
                           width: 1,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: BorderRadius.circular(17.r),
                         borderSide: BorderSide(
                           color: Colors.grey.withOpacity(0.5),
                           width: 1,
@@ -95,7 +110,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
               // Scrollable main content
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30.w),
+                padding: EdgeInsets.symmetric(horizontal: 25.w),
                 child: GridView.count(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
@@ -105,14 +120,44 @@ class _NotificationPageState extends State<NotificationPage> {
                   crossAxisSpacing: 15.w,
                   children: List.generate(
                     _isExpanded
-                        ? 12
+                        ? 10
                         : 6, // Show 6 or 12 items based on the toggle
                     (index) {
+                      // List of job titles and SVGs
+                      final jobTitles = [
+                        'Office\nClerk',
+                        'Senior\nAccountant',
+                        'System\nAdmin',
+                        'Cashier',
+                        'HR\nManager',
+                        'Software\nEngineer',
+                        'Data\nAnalyst',
+                        'Marketing\nSpecialist',
+                        'Customer\nService',
+                        'Project\nManager',
+                        'Graphic\nDesigner',
+                      ];
+                      final jobSvg = [
+                        'assets/images/job_sector.svg',
+                        'assets/images/job_sector1.svg',
+                        'assets/images/job_sector2.svg',
+                        'assets/images/job_sector3.svg',
+                        'assets/images/job_sector2.svg',
+                        'assets/images/job_sector.svg',
+                        'assets/images/job_sector1.svg',
+                        'assets/images/job_sector2.svg',
+                        'assets/images/job_sector3.svg',
+                        'assets/images/job_sector2.svg',
+                        'assets/images/job_sector.svg',
+                        'assets/images/job_sector1.svg',
+                      ];
+
                       return Column(
                         children: [
                           Expanded(
                             flex: 2,
                             child: Container(
+                              padding: EdgeInsets.only(left: 23.w),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(22.r),
@@ -121,13 +166,27 @@ class _NotificationPageState extends State<NotificationPage> {
                                 color: const Color.fromRGBO(117, 192, 68, 0.15),
                               ),
                               child: Center(
-                                child: Text(
-                                  'Item ${index + 1}',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 18.sp,
-                                    fontWeight: FontWeight.normal,
-                                  ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SvgPicture.asset(
+                                      jobSvg[index % jobSvg.length],
+                                      height: 35.h,
+                                      width: 35.w,
+                                    ),
+                                    SizedBox(width: 10.w),
+                                    Expanded(
+                                      child: Text(
+                                        jobTitles[index % jobTitles.length],
+                                        style: GoogleFonts.dmSans(
+                                          color: Colors.black,
+                                          letterSpacing: -0.5,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -140,13 +199,15 @@ class _NotificationPageState extends State<NotificationPage> {
                                   bottomLeft: Radius.circular(22.r),
                                   bottomRight: Radius.circular(22.r),
                                 ),
-                                color: Color.fromRGBO(46, 53, 58, 1),
+                                color: const Color.fromRGBO(46, 53, 58, 1),
                               ),
                               child: Center(
                                 child: Text(
                                   '110 Vacancies',
                                   style: GoogleFonts.dmSans(
-                                    color: Color.fromRGBO(255, 255, 255, 1),
+                                    letterSpacing: -0.5,
+                                    color:
+                                        const Color.fromRGBO(255, 255, 255, 1),
                                     fontSize: 14.sp,
                                   ),
                                 ),
@@ -181,6 +242,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   const SizedBox(width: 5),
                   Icon(
                     _isExpanded ? Icons.arrow_upward : Icons.arrow_downward,
+                    size: 19,
                     color: Colors.green,
                   ),
                 ],

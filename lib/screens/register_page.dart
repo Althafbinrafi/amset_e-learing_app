@@ -86,6 +86,7 @@ class _RegisterPageState extends State<Registerpage>
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('fullName', fullNameController.text);
           await prefs.setString('email', emailController.text);
+          await prefs.setString('phone', mobileNumberController.text);
 
           // Navigate to OTP Verification Page
           if (!mounted) return;
@@ -106,10 +107,25 @@ class _RegisterPageState extends State<Registerpage>
           });
         }
       } catch (e) {
-        log("Error: $e");
+        log(" $e");
+
+        // Display the error message in a SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: const TextStyle(
+                  color: Colors.white), // Make text white for better contrast
+            ),
+            backgroundColor: Colors.red, // Error message with red background
+            behavior:
+                SnackBarBehavior.floating, // Floating style for the SnackBar
+          ),
+        );
+
+        // Set a generic error message in case we want to display it elsewhere as well
         setState(() {
-          _errorMessage =
-              'An error occurred. Please check your connection and try again.';
+          _errorMessage = '';
         });
       } finally {
         setState(() {
@@ -389,7 +405,9 @@ class _RegisterPageState extends State<Registerpage>
                           context,
                           PageRouteBuilder(
                             pageBuilder: (context, animation1, animation2) =>
-                                const LoginPage(fullName: '',),
+                                const LoginPage(
+                              fullName: '',
+                            ),
                             transitionDuration: Duration.zero,
                             reverseTransitionDuration: Duration.zero,
                           ),
