@@ -1,7 +1,5 @@
 import 'dart:developer';
-
 import 'package:amset/DrawerPages/Course/all_lessons.dart';
-//import 'package:amset/Pages/lessons/all_lessons.dart';
 import 'package:amset/Widgets/video_Player.dart';
 import 'package:flutter/material.dart';
 import 'package:amset/Models/course_fetch_model.dart';

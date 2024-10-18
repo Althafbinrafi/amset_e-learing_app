@@ -84,6 +84,7 @@ class ProfilePageState extends State<ProfilePage> {
     await prefs.remove('avatar_path');
 
     Navigator.pushAndRemoveUntil(
+      // ignore: use_build_context_synchronously
       context,
       MaterialPageRoute(builder: (context) => const SkipPage()),
       (Route<dynamic> route) => false,
@@ -314,6 +315,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       await prefs.setString('avatar_path', _avatarPath!);
     }
 
+    // ignore: use_build_context_synchronously
     Navigator.pop(context, {
       'full_name': _nameController.text,
       'email': _emailController.text,

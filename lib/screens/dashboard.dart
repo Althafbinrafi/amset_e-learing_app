@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:amset/DrawerPages/Course/my_course_page.dart';
 import 'package:amset/Models/allCoursesModel.dart';
+import 'package:amset/Models/login_model.dart';
 import 'package:amset/NavigationBar/CoursePages/course_page.dart';
 import 'package:amset/NavigationBar/JobVacancies/job_vacancy.dart';
 import 'package:amset/DrawerPages/Profile/profile_page.dart';
@@ -14,15 +15,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
+import 'dart:developer';
 
 class Dashboard extends StatefulWidget {
-  final String? fullName;
-  //final String avatarPath;
-  //final String email;
-  final String? email; // Now optional
-  final String? mobileNumber;
+  // final String? fullName;
+  // final String? email;
+  // final String? mobileNumber;
+  // final String? userId;
 
-  const Dashboard({super.key, this.email, this.mobileNumber, this.fullName});
+  const Dashboard({
+    super.key,
+    // this.email,
+    // this.mobileNumber,
+    // this.fullName,
+    // this.userId,
+  });
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -31,15 +38,69 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String _username = 'User Name';
+  String _mobile = 'Mobile number';
 
   final List<Widget> _pages = [
-    const DashboardPage(
-      fullName: 'User Name',
-      avatarPath: 'assets/avatar.png',
-    ),
-    const NotificationPage(), // Placeholder for CoursePage
-    const CoursePage(), // Placeholder for Favourites (Notifications)
+    DashboardPage(
+        // username: _username, avatarPath: '',
+
+        ),
+    const NotificationPage(),
+    const CoursePage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (token == null) {
+      log('Token is null.');
+      // You might want to navigate to a login screen or show an error message
+      return;
+    }
+
+    final url = Uri.parse('https://amset-server.vercel.app/api/user/profile');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      log('Token: $token');
+      log('Response status code: ${response.statusCode}');
+      log('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final profileData = profileModelFromJson(response.body);
+        setState(() {
+          _username =
+              profileData.username ?? 'Unknown User'; // Provide fallback value
+          _mobile = profileData.mobileNumber ??
+              'No mobile number'; // Provide fallback value  _username = profileData.username;
+          // _mobile = profileData.mobileNumber!;
+          // You can set other profile data here as needed
+        });
+      } else if (response.statusCode == 404) {
+        log('User profile not found.');
+        // You might want to show an error message to the user or handle this case appropriately
+      } else {
+        log('Failed to load profile data: ${response.statusCode}');
+        // You might want to show an error message to the user
+      }
+    } catch (e) {
+      log('Error fetching profile data: $e');
+      // You might want to show an error message to the user
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +141,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       fontSize: 14.sp,
                       color: const Color(0xFF006257),
                     ),
-                    // style: TextStyle(
-                    //   color: Color(0xFF006257),
-                    // ),
                   ),
                 ),
               ],
@@ -103,55 +161,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           index: _currentIndex,
           children: _pages,
         ),
-        bottomNavigationBar: SizedBox(
-          height: 85.h,
-          child: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.white,
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            selectedItemColor:
-                const Color(0xFF006257), // Green color for selected item
-            unselectedItemColor: const Color.fromARGB(
-                255, 0, 0, 0), // Default color for unselected items
-            items: [
-              BottomNavigationBarItem(
-                icon: ColorFiltered(
-                  colorFilter: ColorFilter.mode(
-                    _currentIndex == 0 ? const Color(0xFF006257) : Colors.black,
-                    BlendMode.srcIn,
-                  ),
-                  child: SvgPicture.asset('assets/images/home_icon.svg'),
-                ),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: ColorFiltered(
-                  colorFilter: ColorFilter.mode(
-                    _currentIndex == 1 ? const Color(0xFF006257) : Colors.black,
-                    BlendMode.srcIn,
-                  ),
-                  child: SvgPicture.asset('assets/images/jobs_icon.svg'),
-                ),
-                label: 'Jobs',
-              ),
-              BottomNavigationBarItem(
-                icon: ColorFiltered(
-                  colorFilter: ColorFilter.mode(
-                    _currentIndex == 2 ? const Color(0xFF006257) : Colors.black,
-                    BlendMode.srcIn,
-                  ),
-                  child: SvgPicture.asset('assets/images/course_icon.svg'),
-                ),
-                label: 'Course',
-              ),
-            ],
-          ),
-        ),
+        bottomNavigationBar: _buildBottomNavigationBar(),
         endDrawer: _buildDrawer(),
       ),
     );
@@ -183,8 +193,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             ),
             actions: [
               GestureDetector(
-                onTap:
-                    _showCoinDialog, // Call this function when the coin is tapped
+                onTap: _showCoinDialog,
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
@@ -202,14 +211,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     children: [
                       SvgPicture.asset(
                         'assets/images/amset_coin.svg',
-                        height: 22.h, // Adjusted icon size for bigger coin
-                        width: 22.w, // Adjusted icon size for bigger coin
+                        height: 22.h,
+                        width: 22.w,
                       ),
-                      SizedBox(width: 6.w), // Slightly increased spacing
+                      SizedBox(width: 6.w),
                       Text(
                         '126',
                         style: GoogleFonts.dmSans(
-                          fontSize: 14.sp, // Increased font size
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w400,
                           color: Colors.black,
                           letterSpacing: -0.5.w,
@@ -236,87 +245,53 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         : null;
   }
 
-  void _showCoinDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.r),
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 30.h),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Coin SVG centered
-                SvgPicture.asset(
-                  'assets/images/amset_coin.svg',
-                  height: 60.h, // Bigger coin size for the dialog
-                  width: 60.w,
-                ),
-                SizedBox(height: 16.h),
-
-                // Coin count text
-                Text(
-                  '126', // The number of coins (you can make this dynamic if needed)
-                  style: GoogleFonts.dmSans(
-                    fontSize: 30.sp,
-                    letterSpacing: -0.5.w,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-
-                SizedBox(height: 8.h),
-
-                // Explanatory text
-                Text(
-                  'You can earn more coins by purchasing additional courses!',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.dmSans(
-                    letterSpacing: -0.5.w,
-                    fontSize: 16.sp,
-                    color: Colors.grey[700],
-                  ),
-                ),
-
-                SizedBox(height: 20.h),
-
-                // Close button
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(
-                        117, 192, 68, 1), // Set the background color
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10), // Padding inside the button
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(10), // Rounded corners
-                    ),
-                    minimumSize: Size(MediaQuery.of(context).size.width / 2,
-                        0), // Set minimum width
-                  ),
-                  child: Text(
-                    'Close',
-                    textAlign: TextAlign.center, // Align text to the center
-                    style: GoogleFonts.dmSans(
-                      letterSpacing: -0.5.w,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white, // White text color
-                    ),
-                  ),
-                ),
-              ],
+  Widget _buildBottomNavigationBar() {
+    return SizedBox(
+      height: 85.h,
+      child: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        selectedItemColor: const Color(0xFF006257),
+        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+        items: [
+          BottomNavigationBarItem(
+            icon: ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                _currentIndex == 0 ? const Color(0xFF006257) : Colors.black,
+                BlendMode.srcIn,
+              ),
+              child: SvgPicture.asset('assets/images/home_icon.svg'),
             ),
+            label: 'Home',
           ),
-        );
-      },
+          BottomNavigationBarItem(
+            icon: ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                _currentIndex == 1 ? const Color(0xFF006257) : Colors.black,
+                BlendMode.srcIn,
+              ),
+              child: SvgPicture.asset('assets/images/jobs_icon.svg'),
+            ),
+            label: 'Jobs',
+          ),
+          BottomNavigationBarItem(
+            icon: ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                _currentIndex == 2 ? const Color(0xFF006257) : Colors.black,
+                BlendMode.srcIn,
+              ),
+              child: SvgPicture.asset('assets/images/course_icon.svg'),
+            ),
+            label: 'Course',
+          ),
+        ],
+      ),
     );
   }
 
@@ -327,59 +302,57 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         padding: EdgeInsets.zero,
         children: [
           SizedBox(
-              height: 170,
-              child: DrawerHeader(
-                padding: EdgeInsets.only(left: 15.w),
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(153, 233, 233, 233),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundImage:
-                              const AssetImage('assets/images/man.png'),
-                          radius: 30.r,
-                        ),
-                        SizedBox(width: 10.w),
-                        Expanded(
-                          // Ensures the text column takes up the available space
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.fullName.toString(),
-                                style: GoogleFonts.dmSans(
-                                  color: const Color.fromARGB(255, 31, 31, 31),
-                                  fontSize: 15.sp,
-                                  letterSpacing: -0.5,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow
-                                    .fade, // Handles overflow with ellipsis
+            height: 170,
+            child: DrawerHeader(
+              padding: EdgeInsets.only(left: 15.w),
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(153, 233, 233, 233),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage:
+                            const AssetImage('assets/images/man.png'),
+                        radius: 30.r,
+                      ),
+                      SizedBox(width: 10.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _username,
+                              style: GoogleFonts.dmSans(
+                                color: const Color.fromARGB(255, 31, 31, 31),
+                                fontSize: 15.sp,
+                                letterSpacing: -0.5,
                               ),
-                              Text(
-                                widget.mobileNumber.toString(),
-                                style: GoogleFonts.dmSans(
-                                  color: const Color.fromARGB(255, 49, 48, 48),
-                                  fontSize: 14.sp,
-                                  letterSpacing: -0.5,
-                                ),
-                                maxLines: 1, // Limits to a single line
-                                overflow: TextOverflow
-                                    .ellipsis, // Handles overflow with ellipsis
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                            ),
+                            Text(
+                              _mobile,
+                              style: GoogleFonts.dmSans(
+                                color: const Color.fromARGB(255, 49, 48, 48),
+                                fontSize: 14.sp,
+                                letterSpacing: -0.5,
                               ),
-                            ],
-                          ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              )),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
           ListTile(
             leading: const Icon(Icons.account_circle),
             title: Text(
@@ -396,9 +369,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       fullName: '',
                       mobileNumber: '',
                     ),
-                    transitionDuration: Duration.zero, // No animation
-                    reverseTransitionDuration:
-                        Duration.zero, // No animation on pop
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
                   ),
                 );
               });
@@ -421,9 +393,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) =>
                         const MyCoursePage(),
-                    transitionDuration: Duration.zero, // No animation
-                    reverseTransitionDuration:
-                        Duration.zero, // No animation on pop
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
                   ),
                 );
               });
@@ -441,10 +412,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             ),
             onTap: () {
               // Navigate to History page
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const HistoryPage()),
-              // );
             },
             trailing: const Icon(
               Icons.arrow_forward_ios_rounded,
@@ -459,19 +426,85 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             ),
             onTap: () {
               // Navigate to Settings page
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const SettingsPage()),
-              // );
             },
             trailing: const Icon(
               Icons.arrow_forward_ios_rounded,
               size: 18,
             ),
           ),
-          // You can add more options here if needed
         ],
       ),
+    );
+  }
+
+  void _showCoinDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.r),
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 30.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  'assets/images/amset_coin.svg',
+                  height: 60.h,
+                  width: 60.w,
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  '126',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 30.sp,
+                    letterSpacing: -0.5.w,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'You can earn more coins by purchasing additional courses!',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.dmSans(
+                    letterSpacing: -0.5.w,
+                    fontSize: 16.sp,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(117, 192, 68, 1),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    minimumSize: Size(MediaQuery.of(context).size.width / 2, 0),
+                  ),
+                  child: Text(
+                    'Close',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.dmSans(
+                      letterSpacing: -0.5.w,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -481,50 +514,63 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 }
 
 class DashboardPage extends StatefulWidget {
-  final String fullName;
-  final String avatarPath;
-  final String? mobileNumber;
+  // final String username;
+  // final String avatarPath;
+  // final String? mobileNumber;
 
-  const DashboardPage(
-      {super.key,
-      required this.fullName,
-      required this.avatarPath,
-      this.mobileNumber});
+  const DashboardPage({
+    super.key,
+    // required this.username,
+    // required this.avatarPath,
+    // this.mobileNumber,
+  });
 
   @override
   DashboardPageState createState() => DashboardPageState();
 }
 
 class DashboardPageState extends State<DashboardPage> {
+  late ScrollController _scrollController;
   late Future<List<Course>> _futureCourses;
-  final PageController _pageController = PageController(initialPage: 0);
+  late PageController _pageController;
   int _currentPage = 0;
   late Timer _timer;
   bool _hasError = false;
-  String? fullName;
-  String? mobileNumber;
 
   @override
   void initState() {
     super.initState();
-    _loadFullName();
+    _scrollController = ScrollController();
+    _pageController = PageController(initialPage: 0);
+
     _loadCourses();
+
+    // Use a post-frame callback to ensure the widget is fully built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startAutoPageChange();
+    });
+  }
+
+  void _startAutoPageChange() {
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       if (_currentPage < 2) {
         _currentPage++;
       } else {
         _currentPage = 0;
       }
-      _pageController.animateToPage(
-        _currentPage,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeIn,
-      );
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeIn,
+        );
+      }
     });
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _pageController.dispose();
     _timer.cancel();
     super.dispose();
@@ -533,14 +579,6 @@ class DashboardPageState extends State<DashboardPage> {
   Future<void> _loadCourses() async {
     setState(() {
       _futureCourses = _fetchCourses();
-    });
-  }
-
-  Future<void> _loadFullName() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      fullName = prefs.getString('fullName') ??
-          'Guest'; // Get the full name or default to 'Guest'
     });
   }
 
@@ -634,8 +672,7 @@ class DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         TextSpan(
-                          text: fullName ??
-                              'Guest', // Dynamic name from shared preferences
+                          text: 'Guest', // Dynamic name from shared preferences
                           style: GoogleFonts.dmSans(
                             color: Colors.black,
                             fontSize: 25.sp,
@@ -1188,7 +1225,8 @@ class DashboardPageState extends State<DashboardPage> {
                             children: [
                               SvgPicture.asset(
                                 'assets/images/whatsapp.svg',
-                               colorFilter: const ColorFilter.mode(  Colors.white, BlendMode.srcIn),
+                                colorFilter: const ColorFilter.mode(
+                                    Colors.white, BlendMode.srcIn),
                                 height: 20.0,
                                 width: 20.0,
                                 allowDrawingOutsideViewBox: true,

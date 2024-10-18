@@ -85,38 +85,41 @@ class _LoginPageState extends State<LoginPage>
       final Map<String, dynamic> responseBody = json.decode(response.body);
 
       if (response.statusCode == 200 && responseBody['success']) {
-        final String token = responseBody['token'];
-        final String userId = responseBody['user']['_id'];
-        final String avatarPath =
-            responseBody['user']['avatarPath'] ?? 'assets/images/man.png';
-        final String email = responseBody['user']['email'];
+  // Extract the necessary data from response
+  final String token = responseBody['token'];
+  final String userId = responseBody['user']['_id']; // Get userId
+  final String avatarPath =
+      responseBody['user']['avatarPath'] ?? 'assets/images/man.png';
+  final String email = responseBody['user']['email'];
+  final String username = responseBody['user']['username'];
+  final String mobileNumber = responseBody['user']['mobileNumber'];
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', token);
-        await prefs.setString('user_id', userId);
-        await prefs.setString('email', email);
-        await prefs.setString('avatar_path', avatarPath);
+  // Store user data in SharedPreferences
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('auth_token', token);
+  await prefs.setString('user_id', userId);
+  await prefs.setString('email', email);
+  await prefs.setString('avatar_path', avatarPath);
+  await prefs.setString('username', username);
+  await prefs.setString('mobileNumber', mobileNumber);
 
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Dashboard(
-              fullName: widget.fullName,
-              //avatarPath: avatarPath,
-            ),
-          ),
-        );
+  if (!mounted) return;
+
+  // Navigate to dashboard and pass userId
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Dashboard(
+        // fullName: widget.fullName,
+        // userId: userId, // Pass userId here
+      ),
+    ),
+  );
+
       } else {
-        // Error handling code remains the same
-        if (responseBody.containsKey('message') &&
-            responseBody['message'] == 'Invalid username or password') {
-          _showError('Invalid username or password. Please try again.');
-        } else {
-          _showError(
-            responseBody['message'] ?? 'Failed to login. Please try again.',
-          );
-        }
+        // Handle errors appropriately
+        _showError(
+            responseBody['message'] ?? 'Failed to login. Please try again.');
       }
     } catch (e) {
       _showError('An error occurred. Please try again.');

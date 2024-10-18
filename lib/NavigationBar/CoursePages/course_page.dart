@@ -130,8 +130,11 @@ class CoursePageState extends State<CoursePage> {
                       ),
                     );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return  Center(
-                        child: Text('No published courses available',style: GoogleFonts.dmSans(color: Colors.black),));
+                    return Center(
+                        child: Text(
+                      'No published courses available',
+                      style: GoogleFonts.dmSans(color: Colors.black),
+                    ));
                   }
 
                   return ListView.builder(
@@ -297,25 +300,32 @@ class CourseCard extends StatelessWidget {
                     ),
                     ElevatedButton(
                       onPressed: () {
+                        // Capture the current context
+                        final currentContext = context;
+
                         Future.delayed(const Duration(milliseconds: 300), () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation1, animation2) =>
-                                  CourseDetailPageHome(
-                                course: course,
+                          // Check if the widget is still mounted before using the context
+                          if (currentContext.mounted) {
+                            Navigator.push(
+                              currentContext,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation1, animation2) =>
+                                        CourseDetailPageHome(
+                                  course: course,
+                                ),
+                                transitionDuration:
+                                    Duration.zero, // No animation
+                                reverseTransitionDuration:
+                                    Duration.zero, // No animation on pop
                               ),
-                              transitionDuration: Duration.zero, // No animation
-                              reverseTransitionDuration:
-                                  Duration.zero, // No animation on pop
-                            ),
-                          );
+                            );
+                          }
                         });
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         elevation: 0,
-                        //iconColor: Color.fromRGBO(117, 192, 68, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.r),
                         ),
@@ -323,10 +333,11 @@ class CourseCard extends StatelessWidget {
                       child: Text(
                         'More Details',
                         style: GoogleFonts.dmSans(
-                            letterSpacing: -1,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromARGB(255, 0, 0, 0)),
+                          letterSpacing: -1,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w500,
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                        ),
                       ),
                     ),
                   ],

@@ -40,9 +40,9 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation1, animation2) => const Dashboard(
-           // fullName: fullName,
-           // avatarPath: avatarPath,
-          ),
+              // fullName: fullName,
+              // avatarPath: avatarPath,
+              ),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
@@ -53,7 +53,8 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => const SkipPage(), // or LoginPage
+          pageBuilder: (context, animation1, animation2) =>
+              const SkipPage(), // or LoginPage
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
         ),
