@@ -1,5 +1,7 @@
+import 'package:amset/NavigationBar/user_details_page.dart';
 import 'package:amset/screens/login.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,14 +10,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfilePage extends StatefulWidget {
   final Function(String)? onNameChanged;
-  //final String fullName;
   final String mobile;
   final String username;
 
   const ProfilePage(
       {super.key,
       this.onNameChanged,
-      //required this.fullName,
       required this.mobile,
       required this.username});
 
@@ -29,7 +29,6 @@ class ProfilePageState extends State<ProfilePage>
   late String username;
   late String mobile;
   String _email = 'example@gmail.com';
-  //String mobileNumber = '';
   String _avatarPath = 'assets/images/man.png';
 
   late AnimationController _animationController;
@@ -39,7 +38,6 @@ class ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
-    //fullName = widget.fullName;
     username = widget.username;
     mobile = widget.mobile;
     _loadProfile();
@@ -76,7 +74,6 @@ class ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> _editProfile() async {
-    // Capture the necessary context information before the async gap
     final navigator = Navigator.of(context);
 
     final result = await navigator.push(
@@ -89,8 +86,6 @@ class ProfilePageState extends State<ProfilePage>
         ),
       ),
     );
-
-    // No need for mounted check here as we're not using BuildContext anymore
 
     if (result != null) {
       setState(() {
@@ -105,7 +100,6 @@ class ProfilePageState extends State<ProfilePage>
         widget.onNameChanged!(username);
       }
 
-      // Use the captured navigator instead of BuildContext
       navigator.pop({
         'username': username,
         'avatar_path': _avatarPath,
@@ -122,7 +116,6 @@ class ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> _logout() async {
-    // Capture the navigator before the async operations
     final navigator = Navigator.of(context);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -132,7 +125,6 @@ class ProfilePageState extends State<ProfilePage>
     await prefs.remove('mobileNumber');
     await prefs.remove('avatar_path');
 
-    // Use the captured navigator instead of BuildContext
     navigator.pushAndRemoveUntil(
       MaterialPageRoute(
           builder: (context) => const LoginPage(
@@ -176,7 +168,7 @@ class ProfilePageState extends State<ProfilePage>
                 'Logout',
                 style: GoogleFonts.dmSans(
                   fontSize: 14.sp,
-                  color: const Color(0xFF006257),
+                  color: const Color.fromARGB(255, 231, 15, 15),
                 ),
               ),
               onPressed: () {
@@ -199,126 +191,349 @@ class ProfilePageState extends State<ProfilePage>
           opacity: _fadeAnimation,
           child: SlideTransition(
             position: _slideAnimation,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 35.h, horizontal: 30.w),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        child: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          size: 25,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      Text(
-                        'User Profile',
-                        style: GoogleFonts.dmSans(
-                            color: Colors.black,
-                            fontSize: 27.sp,
-                            fontWeight: FontWeight.normal,
-                            letterSpacing: -1),
-                      ),
-                      const SizedBox(
-                        width: 1,
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 25.0),
+              child: SingleChildScrollView(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      maxRadius: 90.r,
-                      backgroundColor: Colors.transparent,
-                      child: SizedBox(
-                        height: 170.h,
-                        width: 170.w,
-                        child: ClipOval(
-                          child: _avatarPath.isNotEmpty &&
-                                  _avatarPath != 'assets/images/man.png'
-                              ? Image.file(
-                                  File(_avatarPath),
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.asset('assets/images/man.png'),
-                        ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          vertical: 20.h, horizontal: 30.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(
+                                    color: const Color(0xFF75C044),
+                                    width: 2,
+                                  ),
+                                  color: const Color(0x1A75C044),
+                                ),
+                                child: GestureDetector(
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(4.0),
+                                    child: Icon(
+                                      Icons.arrow_back_ios_new_rounded,
+                                      color: Color(0xFF75C044),
+                                      size: 20,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                width: 13.w,
+                              ),
+                              Text(
+                                'My Profile',
+                                style: GoogleFonts.dmSans(
+                                    color: Colors.black,
+                                    fontSize: 20.sp,
+                                    fontWeight: FontWeight.normal,
+                                    letterSpacing: -1),
+                              ),
+                            ],
+                          ),
+                          GestureDetector(
+                            child: SvgPicture.asset(
+                              'assets/images/settings_profile.svg',
+                              height: 20.h,
+                              width: 20.w,
+                            ),
+                            onTap: () {
+                              // Add settings functionality
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 5.h),
-                    Text(
-                      username,
-                      style: TextStyle(fontSize: 22.sp),
-                    ),
-                    SizedBox(height: 15.h),
-                    Text(
-                      _email,
-                      style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                    ),
-                    SizedBox(height: 5.h),
-                    Text(
-                      mobile,
-                      style: TextStyle(fontSize: 20.sp, color: Colors.grey),
-                    ),
-                    SizedBox(height: 50.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 150.w,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF006257),
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                bottomLeft: Radius.circular(20)),
-                          ),
-                          child: TextButton(
-                            onPressed: _confirmLogout,
-                            child: Center(
-                              child: Text(
-                                'Log Out',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.sp,
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 24.w),
+                      //width: 300.w,
+                      //height: 423.h,
+                      padding: EdgeInsets.only(
+                          right: 23.w, top: 20.h, left: 23.w, bottom: 50.h),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(32.r),
+                        border: Border.all(
+                          color: const Color(0x212E353A),
+                          width: 1,
+                        ),
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0x1A75C044),
+                            Color(0x1AFFFFFF),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment(
+                              0.0, 0.5), // End the gradient at the center
+                        ),
+                      ),
+                      child: Column(
+                        //mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                //margin: const EdgeInsets.only(right: 23),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 5),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color:
+                                        const Color.fromRGBO(213, 215, 216, 1),
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(21),
+                                  color:
+                                      const Color.fromARGB(255, 255, 255, 255),
                                 ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(),
+                                    SvgPicture.asset(
+                                      'assets/images/amset_coin.svg',
+                                      height: 22.h,
+                                      width: 22.w,
+                                    ),
+                                    SizedBox(width: 6.w),
+                                    Text(
+                                      '126',
+                                      style: GoogleFonts.dmSans(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.black,
+                                        letterSpacing: -0.5.w,
+                                      ),
+                                    ),
+                                    SizedBox(width: 6.w),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          CircleAvatar(
+                            maxRadius: 60.r,
+                            backgroundColor: Colors.transparent,
+                            child: SizedBox(
+                              height: 75.h,
+                              width: 75.w,
+                              child: ClipOval(
+                                child: _avatarPath.isNotEmpty &&
+                                        _avatarPath != 'assets/images/man.png'
+                                    ? Image.file(
+                                        File(_avatarPath),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset('assets/images/man.png'),
                               ),
                             ),
                           ),
+                          //    const SizedBox(height: ),
+                          Text(
+                            username,
+                            style: GoogleFonts.dmSans(
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.normal,
+                                letterSpacing: -0.3),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _email,
+                            style: GoogleFonts.dmSans(
+                              fontSize: 16.sp,
+                              letterSpacing: -0.3,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 11),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 6.29.w, vertical: 3.29.h),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: const Color(0x1A75C044),
+                                ),
+                                child: Text(
+                                  'Cashier',
+                                  style: GoogleFonts.dmSans(
+                                      fontSize: 14.sp,
+                                      letterSpacing: -0.3,
+                                      color: const Color(0xFF75C044)),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 7.w,
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 6.29.w, vertical: 3.29.h),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: const Color(0x1AFFCC00),
+                                ),
+                                child: Text(
+                                  'Accountant',
+                                  style: GoogleFonts.dmSans(
+                                      fontSize: 14.sp,
+                                      letterSpacing: -0.3,
+                                      color: const Color(0xFFFFCC00)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 14.h),
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 27.w),
+                            child: Text(
+                              '''Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.''',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.dmSans(
+                                fontSize: 14.sp,
+                                letterSpacing: -0.3,
+                                color: const Color(0xCC2E353A),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 16.h,
+                    ),
+                    GridView.count(
+                      shrinkWrap:
+                          true, // Important to prevent infinite height error
+                      physics:
+                          const NeverScrollableScrollPhysics(), // Disable grid scrolling
+                      crossAxisCount: 3, // Display 3 items per row
+                      mainAxisSpacing: 14.h, // Vertical spacing
+                      crossAxisSpacing: 12.w, // Horizontal spacing
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 19.w), // Add padding if needed
+                      children: [
+                        // User Details
+                        GestureDetector(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: const Color(0x212E353A), width: 1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                    'assets/images/avatar_profile.svg'),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  'User\nDetails',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.dmSans(
+                                    color: const Color(0xFF006257),
+                                    fontSize: 14.sp,
+                                    letterSpacing: -0.3,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          onTap: () {
+                            Future.delayed(const Duration(milliseconds: 300),
+                                () {
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder:
+                                      (context, animation1, animation2) =>
+                                          UserDetailsPage(),
+                                  transitionDuration: Duration.zero,
+                                  reverseTransitionDuration: Duration.zero,
+                                ),
+                              );
+                            });
+                          },
                         ),
-                        const SizedBox(
-                          width: 7,
-                        ),
+
+                        // Edit Profile
                         GestureDetector(
                           onTap: _editProfile,
                           child: Container(
-                            padding: EdgeInsets.all(5.w),
-                            height: 41.h,
-                            width: 50.w,
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(20),
-                                  bottomRight: Radius.circular(20)),
-                              color: Color(0xFF006257),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: const Color(0x212E353A), width: 1),
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Icon(
-                              Icons.edit,
-                              size: 30,
-                              color: Colors.white,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                    'assets/images/edit_profile.svg'),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  '  Edit\nDetails',
+                                  style: GoogleFonts.dmSans(
+                                    color: const Color(0xFF006257),
+                                    fontSize: 14.sp,
+                                    letterSpacing: -0.3,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Logout
+                        GestureDetector(
+                          onTap: _confirmLogout,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: const Color(0x212E353A), width: 1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                    'assets/images/logout_profile.svg'),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  '   User\nSign Out',
+                                  style: GoogleFonts.dmSans(
+                                    color: const Color(0xFF006257),
+                                    fontSize: 14.sp,
+                                    letterSpacing: -0.3,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ],
-                    ),
+                    )
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

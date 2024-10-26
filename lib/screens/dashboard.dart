@@ -11,6 +11,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
@@ -63,8 +64,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       if (response.statusCode == 200) {
         final profileData = profileModelFromJson(response.body);
         setState(() {
-          _username =
-              profileData.username ?? 'Unknown User'; // Provide fallback
+          _username = profileData.username ?? 'Unknown User';
           _mobile = profileData.mobileNumber ?? 'No mobile number';
 
           // Pass username to DashboardPage
@@ -90,70 +90,77 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        if (_currentIndex == 0) {
-          return await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              backgroundColor: Colors.white,
-              title: Text(
-                'Exit App',
-                style: GoogleFonts.dmSans(
-                    fontSize: 14.sp, fontWeight: FontWeight.bold),
-              ),
-              content: Text(
-                'Are you sure you want to exit the app?',
-                style: GoogleFonts.dmSans(
-                  fontSize: 14.sp,
+        onWillPop: () async {
+          if (_currentIndex == 0) {
+            return await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                backgroundColor: Colors.white,
+                title: Text(
+                  'Exit App',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 14.sp, fontWeight: FontWeight.bold),
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(
-                    'No',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14.sp,
-                      color: const Color(0xFF006257),
-                    ),
+                content: Text(
+                  'Are you sure you want to exit the app?',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 14.sp,
                   ),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(
-                    'Yes',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14.sp,
-                      color: const Color(0xFF006257),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(
+                      'No',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 14.sp,
+                        color: const Color(0xFF006257),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        } else {
-          setState(() {
-            _currentIndex = 0;
-          });
-          return false;
-        }
-      },
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: Colors.white,
-        appBar: _buildAppBar(),
-        body: IndexedStack(
-          index: _currentIndex,
-          children: _pages.isNotEmpty
-              ? _pages
-              : [
-                  const Center(child: CircularProgressIndicator())
-                ], // Ensure pages aren't empty
-        ),
-        bottomNavigationBar: _buildBottomNavigationBar(),
-        endDrawer: _buildDrawer(),
-      ),
-    );
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text(
+                      'Yes',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 14.sp,
+                        color: const Color(0xFF006257),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            setState(() {
+              _currentIndex = 0;
+            });
+            return false;
+          }
+        },
+        child: Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: Colors.white,
+          appBar: _buildAppBar(),
+          body: IndexedStack(
+            index: _currentIndex,
+            children: _pages.isNotEmpty
+                ? _pages
+                : [
+                    Center(
+                      child: Lottie.asset(
+                        'assets/images/loading.json', // Path to your Lottie animation file
+                        width: 250, // Adjust the width as needed
+                        height: 250, // Adjust the height as needed
+                        fit: BoxFit
+                            .contain, // Adjust to how you want the animation to fit
+                      ),
+                    ),
+                  ],
+          ),
+          bottomNavigationBar: _buildBottomNavigationBar(),
+          endDrawer: _buildDrawer(),
+        ));
   }
 
   AppBar? _buildAppBar() {
@@ -355,7 +362,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) =>
                         ProfilePage(
-                    //  fullName: '', // Add fullName or get it dynamically
+                      //  fullName: '', // Add fullName or get it dynamically
 
                       username: _username, // Pass the username dynamically
                       mobile: _mobile,
@@ -707,7 +714,7 @@ class DashboardPageState extends State<DashboardPage> {
                                       pageBuilder:
                                           (context, animation1, animation2) =>
                                               ProfilePage(
-                                       // fullName:
+                                        // fullName:
                                         //    '', // Add fullName or get it dynamically
 
                                         username: widget
@@ -1201,7 +1208,7 @@ class DashboardPageState extends State<DashboardPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Are You Interested?',
+                        'Want to Know more?',
                         style: GoogleFonts.dmSans(
                           fontWeight: FontWeight.w600,
                           letterSpacing: -0.5.w,
