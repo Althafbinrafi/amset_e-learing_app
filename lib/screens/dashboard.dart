@@ -18,18 +18,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 class Dashboard extends StatefulWidget {
-  // final String? fullName;
-  // final String? email;
-  // final String? mobileNumber;
-  // final String? userId;
-
-  const Dashboard({
-    super.key,
-    // this.email,
-    // this.mobileNumber,
-    // this.fullName,
-    // this.userId,
-  });
+  const Dashboard({super.key});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -38,17 +27,10 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _username = 'User Name';
-  String _mobile = 'Mobile number';
+  String _username = 'User Name'; // Placeholder for username
+  String _mobile = 'Mobile number'; // Placeholder for mobile number
 
-  final List<Widget> _pages = [
-    DashboardPage(
-        // username: _username, avatarPath: '',
-
-        ),
-    const NotificationPage(),
-    const CoursePage(),
-  ];
+  List<Widget> _pages = [];
 
   @override
   void initState() {
@@ -62,7 +44,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
     if (token == null) {
       log('Token is null.');
-      // You might want to navigate to a login screen or show an error message
       return;
     }
 
@@ -83,22 +64,26 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         final profileData = profileModelFromJson(response.body);
         setState(() {
           _username =
-              profileData.username ?? 'Unknown User'; // Provide fallback value
-          _mobile = profileData.mobileNumber ??
-              'No mobile number'; // Provide fallback value  _username = profileData.username;
-          // _mobile = profileData.mobileNumber!;
-          // You can set other profile data here as needed
+              profileData.username ?? 'Unknown User'; // Provide fallback
+          _mobile = profileData.mobileNumber ?? 'No mobile number';
+
+          // Pass username to DashboardPage
+          _pages = [
+            DashboardPage(
+              username: _username,
+              mobile: _mobile,
+            ), // Pass username here
+            const NotificationPage(),
+            const CoursePage(),
+          ];
         });
       } else if (response.statusCode == 404) {
         log('User profile not found.');
-        // You might want to show an error message to the user or handle this case appropriately
       } else {
         log('Failed to load profile data: ${response.statusCode}');
-        // You might want to show an error message to the user
       }
     } catch (e) {
       log('Error fetching profile data: $e');
-      // You might want to show an error message to the user
     }
   }
 
@@ -159,7 +144,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         appBar: _buildAppBar(),
         body: IndexedStack(
           index: _currentIndex,
-          children: _pages,
+          children: _pages.isNotEmpty
+              ? _pages
+              : [
+                  const Center(child: CircularProgressIndicator())
+                ], // Ensure pages aren't empty
         ),
         bottomNavigationBar: _buildBottomNavigationBar(),
         endDrawer: _buildDrawer(),
@@ -365,9 +354,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) =>
-                        const ProfilePage(
-                      fullName: '',
-                      mobileNumber: '',
+                        ProfilePage(
+                    //  fullName: '', // Add fullName or get it dynamically
+
+                      username: _username, // Pass the username dynamically
+                      mobile: _mobile,
                     ),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
@@ -481,7 +472,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     Navigator.of(context).pop();
                   },
                   style: TextButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(117, 192, 68, 1),
+                    backgroundColor: const Color(0xFF75C044),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 10),
                     shape: RoundedRectangleBorder(
@@ -514,15 +505,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 }
 
 class DashboardPage extends StatefulWidget {
-  // final String username;
-  // final String avatarPath;
-  // final String? mobileNumber;
+  final String username;
+  final String mobile;
 
   const DashboardPage({
     super.key,
-    // required this.username,
-    // required this.avatarPath,
-    // this.mobileNumber,
+    required this.username,
+    required this.mobile,
   });
 
   @override
@@ -672,7 +661,7 @@ class DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         TextSpan(
-                          text: 'Guest', // Dynamic name from shared preferences
+                          text: widget.username, // Display username dynamically
                           style: GoogleFonts.dmSans(
                             color: Colors.black,
                             fontSize: 25.sp,
@@ -712,13 +701,22 @@ class DashboardPageState extends State<DashboardPage> {
                             ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return const ProfilePage(
-                                    fullName: '',
-                                    mobileNumber: '',
-                                  );
-                                }));
+                                Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder:
+                                          (context, animation1, animation2) =>
+                                              ProfilePage(
+                                       // fullName:
+                                        //    '', // Add fullName or get it dynamically
+
+                                        username: widget
+                                            .username, // Pass the username dynamically
+                                        mobile: widget.mobile,
+                                      ),
+                                      transitionDuration: Duration.zero,
+                                      reverseTransitionDuration: Duration.zero,
+                                    ));
                               }),
                       ],
                     ),

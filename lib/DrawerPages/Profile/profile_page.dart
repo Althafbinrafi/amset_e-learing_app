@@ -8,14 +8,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfilePage extends StatefulWidget {
   final Function(String)? onNameChanged;
-  final String fullName;
-  final String mobileNumber;
+  //final String fullName;
+  final String mobile;
+  final String username;
 
   const ProfilePage(
       {super.key,
       this.onNameChanged,
-      required this.fullName,
-      required this.mobileNumber});
+      //required this.fullName,
+      required this.mobile,
+      required this.username});
 
   @override
   ProfilePageState createState() => ProfilePageState();
@@ -24,8 +26,10 @@ class ProfilePage extends StatefulWidget {
 class ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
   late String fullName;
+  late String username;
+  late String mobile;
   String _email = 'example@gmail.com';
-  String mobileNumber = '';
+  //String mobileNumber = '';
   String _avatarPath = 'assets/images/man.png';
 
   late AnimationController _animationController;
@@ -35,7 +39,9 @@ class ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
-    fullName = widget.fullName;
+    //fullName = widget.fullName;
+    username = widget.username;
+    mobile = widget.mobile;
     _loadProfile();
     _setupAnimations();
   }
@@ -43,9 +49,9 @@ class ProfilePageState extends State<ProfilePage>
   Future<void> _loadProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      fullName = prefs.getString('fullName') ?? fullName;
+      username = prefs.getString('username') ?? username;
       _email = prefs.getString('email') ?? _email;
-      mobileNumber = prefs.getString('phone') ?? mobileNumber;
+      mobile = prefs.getString('mobileNumber') ?? mobile;
       _avatarPath = prefs.getString('avatar_path') ?? _avatarPath;
     });
   }
@@ -76,9 +82,9 @@ class ProfilePageState extends State<ProfilePage>
     final result = await navigator.push(
       MaterialPageRoute(
         builder: (context) => EditProfilePage(
-          currentName: fullName,
+          currentName: username,
           currentEmail: _email,
-          currentPhone: mobileNumber,
+          currentPhone: mobile,
           currentAvatar: _avatarPath,
         ),
       ),
@@ -88,20 +94,20 @@ class ProfilePageState extends State<ProfilePage>
 
     if (result != null) {
       setState(() {
-        fullName = result['fullName'];
+        fullName = result['username'];
         _email = result['email'];
-        mobileNumber = result['phone'];
+        mobile = result['mobileNumber'];
         _avatarPath = result['avatar_path'];
       });
       await _saveProfile();
 
       if (widget.onNameChanged != null) {
-        widget.onNameChanged!(fullName);
+        widget.onNameChanged!(username);
       }
 
       // Use the captured navigator instead of BuildContext
       navigator.pop({
-        'fullName': fullName,
+        'username': username,
         'avatar_path': _avatarPath,
       });
     }
@@ -109,9 +115,9 @@ class ProfilePageState extends State<ProfilePage>
 
   Future<void> _saveProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('fullName', fullName);
+    await prefs.setString('username', username);
     await prefs.setString('email', _email);
-    await prefs.setString('phone', mobileNumber);
+    await prefs.setString('mobileNumber', mobile);
     await prefs.setString('avatar_path', _avatarPath);
   }
 
@@ -121,9 +127,9 @@ class ProfilePageState extends State<ProfilePage>
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
-    await prefs.remove('fullName');
+    await prefs.remove('username');
     await prefs.remove('email');
-    await prefs.remove('phone');
+    await prefs.remove('mobileNumber');
     await prefs.remove('avatar_path');
 
     // Use the captured navigator instead of BuildContext
@@ -248,17 +254,17 @@ class ProfilePageState extends State<ProfilePage>
                     ),
                     SizedBox(height: 5.h),
                     Text(
-                      fullName,
+                      username,
                       style: TextStyle(fontSize: 22.sp),
                     ),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 15.h),
                     Text(
                       _email,
                       style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 5.h),
                     Text(
-                      mobileNumber,
+                      mobile,
                       style: TextStyle(fontSize: 20.sp, color: Colors.grey),
                     ),
                     SizedBox(height: 50.h),
@@ -396,18 +402,18 @@ class EditProfilePageState extends State<EditProfilePage>
     final navigator = Navigator.of(context);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('fullName', _nameController.text);
+    await prefs.setString('username', _nameController.text);
     await prefs.setString('email', _emailController.text);
-    await prefs.setString('phone', _phoneController.text);
+    await prefs.setString('mobileNumber', _phoneController.text);
     if (_avatarPath != null) {
       await prefs.setString('avatar_path', _avatarPath!);
     }
 
     // Use the captured navigator instead of BuildContext
     navigator.pop({
-      'fullName': _nameController.text,
+      'username': _nameController.text,
       'email': _emailController.text,
-      'phone': _phoneController.text,
+      'mobileNumber': _phoneController.text,
       'avatar_path': _avatarPath
     });
   }
