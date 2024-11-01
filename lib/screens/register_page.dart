@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:amset/Api%20Services/registration_service.dart';
 import 'package:flutter/material.dart';
@@ -22,10 +23,14 @@ class _RegisterPageState extends State<Registerpage>
 
   // Form field controllers
   TextEditingController fullNameController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController mobileNumberController = TextEditingController();
+
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -58,6 +63,7 @@ class _RegisterPageState extends State<Registerpage>
   void dispose() {
     _animationController.dispose();
     fullNameController.dispose();
+    usernameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -74,17 +80,18 @@ class _RegisterPageState extends State<Registerpage>
 
       try {
         final registrationModel = await _apiService.registerUser(
-          username: fullNameController.text,
+          fullName: fullNameController.text,
+          username: usernameController.text,
           email: emailController.text,
           password: passwordController.text,
           mobileNumber: mobileNumberController.text,
         );
 
         if (registrationModel.success) {
-          // Store the user's login state and information
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('fullName', fullNameController.text);
+          await prefs.setString('username', usernameController.text);
           await prefs.setString('email', emailController.text);
           await prefs.setString('phone', mobileNumberController.text);
 
@@ -100,39 +107,93 @@ class _RegisterPageState extends State<Registerpage>
               reverseTransitionDuration: Duration.zero,
             ),
           );
+          // Success code remains the same...
         } else {
-          // Registration failed
-          setState(() {
-            _errorMessage = registrationModel.message;
-          });
+          _showErrorSnackBar(registrationModel.message);
         }
       } catch (e) {
-        log(" $e");
-
-        // Display the error message in a SnackBar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: const TextStyle(
-                  color: Colors.white), // Make text white for better contrast
-            ),
-            backgroundColor: Colors.red, // Error message with red background
-            behavior:
-                SnackBarBehavior.floating, // Floating style for the SnackBar
-          ),
-        );
-
-        // Set a generic error message in case we want to display it elsewhere as well
-        setState(() {
-          _errorMessage = '';
-        });
+        log("Registration error: $e");
+        String errorMessage = _extractErrorMessage(e.toString());
+        _showErrorSnackBar(errorMessage);
       } finally {
         setState(() {
           _isLoading = false;
         });
       }
     }
+  }
+
+  String _extractErrorMessage(String errorString) {
+    try {
+      // First, find the JSON part of the error string
+      final pattern = r'{"error":"(.*?)"}';
+      final regexp = RegExp(pattern);
+      final match = regexp.firstMatch(errorString);
+
+      if (match != null && match.groupCount >= 1) {
+        String errorMessage = match.group(1) ?? '';
+
+        // Check for specific error messages
+        if (errorMessage.toLowerCase().contains('email') &&
+            errorMessage.toLowerCase().contains('registered')) {
+          return 'This email is already registered';
+        }
+        if (errorMessage.toLowerCase().contains('username') &&
+            errorMessage.toLowerCase().contains('exists')) {
+          return 'This username is already taken';
+        }
+        if (errorMessage.toLowerCase().contains('phone') ||
+            errorMessage.toLowerCase().contains('mobile')) {
+          return 'This phone number is already registered';
+        }
+
+        return errorMessage;
+      }
+
+      // Fallback for other error formats
+      if (errorString.contains('{') && errorString.contains('}')) {
+        final start = errorString.lastIndexOf('{');
+        final end = errorString.lastIndexOf('}') + 1;
+        final jsonStr = errorString.substring(start, end);
+
+        final errorJson = json.decode(jsonStr);
+        if (errorJson.containsKey('error')) {
+          return errorJson['error'];
+        }
+        if (errorJson.containsKey('message')) {
+          return errorJson['message'];
+        }
+      }
+
+      return 'An error occurred during registration';
+    } catch (e) {
+      log("Error parsing error message: $e");
+      return 'An error occurred during registration';
+    }
+  }
+
+// Helper method to show error SnackBar
+  void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: 'Dismiss',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
   }
 
   OutlineInputBorder _buildInputBorder(Color borderColor) {
@@ -176,12 +237,45 @@ class _RegisterPageState extends State<Registerpage>
   Widget _buildTextFormField(
     TextEditingController controller,
     String labelText, {
-    bool obscureText = false,
+    bool isPasswordField = false,
   }) {
     return TextFormField(
       controller: controller,
-      obscureText: obscureText,
-      decoration: _buildInputDecoration(labelText),
+      obscureText: isPasswordField
+          ? (labelText == 'Password'
+              ? _obscurePassword
+              : _obscureConfirmPassword)
+          : false,
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+        enabledBorder: _buildInputBorder(Colors.grey.shade300),
+        focusedBorder: _buildInputBorder(const Color(0xFF006257)),
+        errorBorder: _buildInputBorder(Colors.red),
+        focusedErrorBorder: _buildInputBorder(Colors.red),
+        suffixIcon: isPasswordField
+            ? IconButton(
+                icon: Icon(
+                  (labelText == 'Password'
+                          ? _obscurePassword
+                          : _obscureConfirmPassword)
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                  color: Colors.grey,
+                ),
+                onPressed: () {
+                  setState(() {
+                    if (labelText == 'Password') {
+                      _obscurePassword = !_obscurePassword;
+                    } else {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    }
+                  });
+                },
+              )
+            : null,
+      ),
       validator: (value) {
         if (value!.isEmpty) return 'Please enter your $labelText';
         if (labelText == 'Email' &&
@@ -252,15 +346,18 @@ class _RegisterPageState extends State<Registerpage>
                                 _buildTextFormField(
                                     fullNameController, 'Full Name'),
                                 SizedBox(height: 20.h),
+                                _buildTextFormField(
+                                    usernameController, 'Username'),
+                                SizedBox(height: 20.h),
                                 _buildTextFormField(emailController, 'Email'),
                                 SizedBox(height: 20.h),
                                 _buildTextFormField(
                                     passwordController, 'Password',
-                                    obscureText: true),
+                                    isPasswordField: true),
                                 SizedBox(height: 20.h),
                                 _buildTextFormField(confirmPasswordController,
                                     'Confirm Password',
-                                    obscureText: true),
+                                    isPasswordField: true),
                                 SizedBox(height: 20.h),
                                 _buildMobileNumberField(),
                                 SizedBox(height: 30.h),
@@ -305,7 +402,7 @@ class _RegisterPageState extends State<Registerpage>
                                                   MainAxisAlignment.center,
                                               children: [
                                                 Text(
-                                                  'Register',
+                                                  'Sent OTP',
                                                   style: GoogleFonts.dmSans(
                                                     color: Colors.white,
                                                     letterSpacing: -0.5.w,

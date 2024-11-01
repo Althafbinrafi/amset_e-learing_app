@@ -26,6 +26,8 @@ class CoursePageState extends State<CoursePage> {
   }
 
   Future<List<Course>> fetchPublishedCourses() async {
+
+    
     final response =
         await http.get(Uri.parse('https://amset-server.vercel.app/api/course'));
     if (response.statusCode == 200) {

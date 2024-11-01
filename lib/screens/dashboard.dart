@@ -5,6 +5,7 @@ import 'package:amset/Models/login_model.dart';
 import 'package:amset/NavigationBar/CoursePages/course_page.dart';
 import 'package:amset/NavigationBar/JobVacancies/job_vacancy.dart';
 import 'package:amset/DrawerPages/Profile/profile_page.dart';
+import 'package:amset/screens/apply_job.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -30,6 +31,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _username = 'User Name'; // Placeholder for username
   String _mobile = 'Mobile number'; // Placeholder for mobile number
+  String _fullName = 'Full Name';
+  String? _userId; // Nullable userId field
 
   List<Widget> _pages = [];
 
@@ -42,6 +45,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   Future<void> _fetchProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
+    _userId =
+        prefs.getString('user_id'); // Retrieve userId from SharedPreferences
+
+    if (_userId != null) {
+      log("User ID from SharedPreferences: $_userId"); // Log userId
+    } else {
+      log("No User ID found in SharedPreferences.");
+    }
 
     if (token == null) {
       log('Token is null.');
@@ -66,13 +77,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         setState(() {
           _username = profileData.username ?? 'Unknown User';
           _mobile = profileData.mobileNumber ?? 'No mobile number';
+          _fullName = profileData.fullName ?? 'Unknown User';
 
-          // Pass username to DashboardPage
+          // Initialize pages with the loaded profile data
           _pages = [
             DashboardPage(
               username: _username,
               mobile: _mobile,
-            ), // Pass username here
+              fullName: _fullName,
+              userId:
+                  _userId ?? 'Unknown User ID', // Pass _userId here if not null
+            ),
             const NotificationPage(),
             const CoursePage(),
           ];
@@ -86,6 +101,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       log('Error fetching profile data: $e');
     }
   }
+
+  // Rest of your widget code
 
   @override
   Widget build(BuildContext context) {
@@ -321,7 +338,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _username,
+                              _fullName,
                               style: GoogleFonts.dmSans(
                                 color: const Color.fromARGB(255, 31, 31, 31),
                                 fontSize: 15.sp,
@@ -366,6 +383,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
                       username: _username, // Pass the username dynamically
                       mobile: _mobile,
+                      fullName: _fullName,
                     ),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
@@ -514,11 +532,15 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 class DashboardPage extends StatefulWidget {
   final String username;
   final String mobile;
+  final String fullName;
+  final String? userId;
 
   const DashboardPage({
     super.key,
     required this.username,
     required this.mobile,
+    required this.fullName,
+    this.userId,
   });
 
   @override
@@ -540,6 +562,7 @@ class DashboardPageState extends State<DashboardPage> {
     _pageController = PageController(initialPage: 0);
 
     _loadCourses();
+    log("User ID: ${widget.userId}");
 
     // Use a post-frame callback to ensure the widget is fully built
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -668,7 +691,7 @@ class DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                         TextSpan(
-                          text: widget.username, // Display username dynamically
+                          text: widget.fullName, // Display username dynamically
                           style: GoogleFonts.dmSans(
                             color: Colors.black,
                             fontSize: 25.sp,
@@ -720,6 +743,8 @@ class DashboardPageState extends State<DashboardPage> {
                                         username: widget
                                             .username, // Pass the username dynamically
                                         mobile: widget.mobile,
+                                        fullName: widget.fullName,
+                                        userId: widget.userId,
                                       ),
                                       transitionDuration: Duration.zero,
                                       reverseTransitionDuration: Duration.zero,
@@ -772,7 +797,7 @@ class DashboardPageState extends State<DashboardPage> {
                           Text(
                             'Provide your details for applying for job',
                             style: GoogleFonts.dmSans(
-                              fontSize: 13.sp,
+                              fontSize: 12.sp,
                               letterSpacing: -0.2.w,
                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF6F6F6F),
@@ -881,95 +906,104 @@ class DashboardPageState extends State<DashboardPage> {
                     SizedBox(height: 23.h),
                     // GridView
 
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      childAspectRatio: 1.5,
-                      mainAxisSpacing: 14.h,
-                      crossAxisSpacing: 15.w,
-                      children: List.generate(4, (index) {
-                        // List of job titles
-                        final jobTitles = [
-                          'Office\n Clerk',
-                          'Senior\n Accountant',
-                          'System\n Admin',
-                          'Cashier'
-                        ];
-                        final jobSvg = [
-                          'assets/images/job_sector.svg',
-                          'assets/images/job_sector1.svg',
-                          'assets/images/job_sector2.svg',
-                          'assets/images/job_sector3.svg',
-                        ];
+                    GestureDetector(
+                      child: GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        childAspectRatio: 1.5,
+                        mainAxisSpacing: 14.h,
+                        crossAxisSpacing: 15.w,
+                        children: List.generate(4, (index) {
+                          // List of job titles
+                          final jobTitles = [
+                            'Office\n Clerk',
+                            'Senior\n Accountant',
+                            'System\n Admin',
+                            'Cashier'
+                          ];
+                          final jobSvg = [
+                            'assets/images/job_sector.svg',
+                            'assets/images/job_sector1.svg',
+                            'assets/images/job_sector2.svg',
+                            'assets/images/job_sector3.svg',
+                          ];
 
-                        return Column(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Container(
-                                padding: const EdgeInsets.only(left: 23),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(22.r),
-                                    topRight: Radius.circular(22.r),
+                          return Column(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Container(
+                                  padding: const EdgeInsets.only(left: 23),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(22.r),
+                                      topRight: Radius.circular(22.r),
+                                    ),
+                                    color: const Color.fromRGBO(
+                                        117, 192, 68, 0.15),
                                   ),
-                                  color:
-                                      const Color.fromRGBO(117, 192, 68, 0.15),
-                                ),
-                                child: Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      SvgPicture.asset(
-                                        jobSvg[index],
-                                        height: 35.h,
-                                        width: 35.w,
-                                      ),
-                                      SizedBox(
-                                          width: 10
-                                              .w), // Add spacing between icon and text
-                                      Text(
-                                        jobTitles[
-                                            index], // Replace with job title
-                                        style: GoogleFonts.dmSans(
-                                          letterSpacing: -0.5.w,
-                                          color: Colors.black,
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.normal,
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        SvgPicture.asset(
+                                          jobSvg[index],
+                                          height: 35.h,
+                                          width: 35.w,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(22.r),
-                                    bottomRight: Radius.circular(22.r),
-                                  ),
-                                  color: const Color.fromRGBO(46, 53, 58, 1),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '110 Vacancies',
-                                    style: GoogleFonts.dmSans(
-                                      letterSpacing: -0.5.w,
-                                      color: const Color.fromRGBO(
-                                          255, 255, 255, 1),
-                                      fontSize: 14.sp,
+                                        SizedBox(
+                                            width: 10
+                                                .w), // Add spacing between icon and text
+                                        Text(
+                                          jobTitles[
+                                              index], // Replace with job title
+                                          style: GoogleFonts.dmSans(
+                                            letterSpacing: -0.5.w,
+                                            color: Colors.black,
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      }),
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(22.r),
+                                      bottomRight: Radius.circular(22.r),
+                                    ),
+                                    color: const Color.fromRGBO(46, 53, 58, 1),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '110 Vacancies',
+                                      style: GoogleFonts.dmSans(
+                                        letterSpacing: -0.5.w,
+                                        color: const Color.fromRGBO(
+                                            255, 255, 255, 1),
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      ),
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return JobDetailPage();
+                        }));
+                      },
                     ),
 
                     SizedBox(height: 20.h),
@@ -986,9 +1020,10 @@ class DashboardPageState extends State<DashboardPage> {
                                 letterSpacing: -0.5),
                           ),
                           onTap: () {
-                            // Navigator.push(context, MaterialPageRoute(builder: (context){
-                            //   return NotificationPage();
-                            // }));
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return const NotificationPage();
+                            }));
                           },
                         ),
                         const SizedBox(

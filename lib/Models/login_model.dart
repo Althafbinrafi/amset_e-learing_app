@@ -11,6 +11,7 @@ String profileModelToJson(ProfileModel data) => json.encode(data.toJson());
 class ProfileModel {
   bool deleted;
   String id;
+  String? fullName;
   String? username; // Nullable
   String? email; // Nullable
   String? mobileNumber; // Nullable
@@ -23,6 +24,7 @@ class ProfileModel {
   ProfileModel({
     required this.deleted,
     required this.id,
+    this.fullName,
     this.username, // Nullable
     this.email, // Nullable
     this.mobileNumber, // Nullable
@@ -36,6 +38,7 @@ class ProfileModel {
   factory ProfileModel.fromJson(Map<String, dynamic> json) => ProfileModel(
         deleted: json["deleted"],
         id: json["_id"],
+        fullName: json["fullName"] as String?,
         username: json["username"] as String?, // Nullable
         email: json["email"] as String?, // Nullable
         mobileNumber: json["mobileNumber"] as String?, // Nullable
@@ -49,6 +52,7 @@ class ProfileModel {
   Map<String, dynamic> toJson() => {
         "deleted": deleted,
         "_id": id,
+        "fullName": fullName,
         "username": username,
         "email": email,
         "mobileNumber": mobileNumber,

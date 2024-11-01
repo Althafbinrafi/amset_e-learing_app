@@ -33,6 +33,7 @@ class RegistrationModel {
 }
 
 class User {
+    String fullName;
     String username;
     String email;
     String mobileNumber;
@@ -45,6 +46,7 @@ class User {
     int v;
 
     User({
+        required this.fullName,
         required this.username,
         required this.email,
         required this.mobileNumber,
@@ -58,6 +60,7 @@ class User {
     });
 
     factory User.fromJson(Map<String, dynamic> json) => User(
+        fullName: json["fullName"],
         username: json["username"],
         email: json["email"],
         mobileNumber: json["mobileNumber"],
@@ -71,6 +74,7 @@ class User {
     );
 
     Map<String, dynamic> toJson() => {
+        "fullName": fullName,
         "username": username,
         "email": email,
         "mobileNumber": mobileNumber,

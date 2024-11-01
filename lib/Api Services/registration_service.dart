@@ -6,6 +6,7 @@ class ApiServiceReg {
   static const String baseUrl = 'https://amset-server.vercel.app/api';
 
   Future<RegistrationModel> registerUser({
+    required String fullName,
     required String username,
     required String email,
     required String password,
@@ -18,6 +19,7 @@ class ApiServiceReg {
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
+          "fullName": fullName,     // Added fullName field
           "username": username,
           "email": email,
           "password": password,

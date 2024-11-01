@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -5,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amset/Models/allCoursesModel.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CourseDetailPageHome extends StatefulWidget {
   final Course course;
@@ -21,6 +24,7 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  String? orderId;
 
   @override
   void initState() {
@@ -62,16 +66,92 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
     _animationController.forward();
   }
 
+  Future<void> _createOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    if (token == null) {
+      log("Error: Auth token is missing. User may need to log in.");
+      return;
+    }
+
+    const int maxRetries = 3;
+    int retryCount = 0;
+    int delay = 2000; // Start with a 2-second delay
+
+    while (retryCount < maxRetries) {
+      try {
+        final response = await http.post(
+          Uri.parse('https://amset-server.vercel.app/api/order/create'),
+          body: json.encode({
+            'amount': widget.course.price * 100,
+            'currency': 'INR',
+            'courseId': widget.course.id,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          orderId = data['orderId'];
+          openCheckout();
+          return; // Exit function on success
+        } else {
+          log('Failed to create order - Status code: ${response.statusCode}, Body: ${response.body}');
+          throw Exception('Failed to create order');
+        }
+      } catch (e) {
+        log('Attempt ${retryCount + 1} failed: $e');
+        await Future.delayed(Duration(milliseconds: delay));
+        delay *= 2; // Exponential backoff
+        retryCount++;
+      }
+    }
+
+    log('Order creation failed after $maxRetries attempts.');
+  }
+
+  Future<void> _verifyOrder(String paymentId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://amset-server.vercel.app/api/course/order/verify'),
+        body: json.encode({
+          'orderId': orderId,
+          'paymentId': paymentId,
+          'courseId': widget.course.id, // Pass course ID for verification
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        log('Order verified and course added to account');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Purchase successful! Course added.')),
+        );
+      } else {
+        throw Exception('Failed to verify order');
+      }
+    } catch (e) {
+      log('Error verifying order: $e');
+    }
+  }
+
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     log("Payment Successful");
+    _verifyOrder(response.paymentId!); // Verify order with backend
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    log("Payment Error");
+    log("Payment Error: ${response.message}");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Payment failed. Please try again.')),
+    );
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    log("External Wallet");
+    log("External Wallet Selected");
   }
 
   void openCheckout() {
@@ -80,6 +160,7 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
       'amount': widget.course.price * 100, // Amount in paise
       'name': 'Amset Course Purchase',
       'description': widget.course.title,
+      'order_id': orderId,
       'prefill': {'contact': '', 'email': ''},
       'retry': {'enabled': true, 'max_count': 1},
       'send_sms_hash': true,
@@ -91,7 +172,7 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
     try {
       _razorpay.open(options);
     } catch (e) {
-      debugPrint('Error: e');
+      debugPrint('Error: $e');
     }
   }
 
@@ -143,7 +224,7 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
                 ),
                 onPressed: () {
                   Navigator.pop(context);
-                  openCheckout();
+                  _createOrder(); // First create order
                 },
               ),
             ],
@@ -274,7 +355,10 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
                             leading: CircleAvatar(
                               backgroundColor:
                                   const Color.fromRGBO(117, 192, 68, 1),
-                              child: Text('${index + 1}',style: GoogleFonts.dmSans(color: Colors.black),),
+                              child: Text(
+                                '${index + 1}',
+                                style: GoogleFonts.dmSans(color: Colors.black),
+                              ),
                             ),
                           );
                         },

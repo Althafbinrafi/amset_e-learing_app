@@ -1,4 +1,5 @@
 import 'package:amset/NavigationBar/user_details_page.dart';
+import 'package:amset/Widgets/bio.dart';
 import 'package:amset/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -12,12 +13,17 @@ class ProfilePage extends StatefulWidget {
   final Function(String)? onNameChanged;
   final String mobile;
   final String username;
+  final String fullName;
+  final String? userId;
 
-  const ProfilePage(
-      {super.key,
-      this.onNameChanged,
-      required this.mobile,
-      required this.username});
+  const ProfilePage({
+    super.key,
+    this.onNameChanged,
+    required this.mobile,
+    required this.fullName,
+    required this.username,
+    this.userId,
+  });
 
   @override
   ProfilePageState createState() => ProfilePageState();
@@ -35,19 +41,31 @@ class ProfilePageState extends State<ProfilePage>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
+  String _userBio = 'Add your bio here...';
+
   @override
   void initState() {
     super.initState();
     username = widget.username;
+    fullName = widget.fullName;
     mobile = widget.mobile;
     _loadProfile();
     _setupAnimations();
+    _loadBio();
+  }
+
+  Future<void> _loadBio() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userBio = prefs.getString('userBio') ?? _userBio;
+    });
   }
 
   Future<void> _loadProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       username = prefs.getString('username') ?? username;
+      fullName = prefs.getString('fullName') ?? fullName;
       _email = prefs.getString('email') ?? _email;
       mobile = prefs.getString('mobileNumber') ?? mobile;
       _avatarPath = prefs.getString('avatar_path') ?? _avatarPath;
@@ -73,47 +91,51 @@ class ProfilePageState extends State<ProfilePage>
     _animationController.forward();
   }
 
-  Future<void> _editProfile() async {
-    final navigator = Navigator.of(context);
+  // Future<void> _editProfile() async {
+  //   final navigator = Navigator.of(context);
 
-    final result = await navigator.push(
-      MaterialPageRoute(
-        builder: (context) => EditProfilePage(
-          currentName: username,
-          currentEmail: _email,
-          currentPhone: mobile,
-          currentAvatar: _avatarPath,
-        ),
-      ),
-    );
+  //   final result = await navigator.push(
+  //     MaterialPageRoute(
+  //       builder: (context) => EditProfilePage(
+  //         currentName: username,
+  //         currentfullName: fullName,
+  //         currentEmail: _email,
+  //         currentPhone: mobile,
+  //         currentAvatar: _avatarPath,
+  //       ),
+  //     ),
+  //   );
 
-    if (result != null) {
-      setState(() {
-        fullName = result['username'];
-        _email = result['email'];
-        mobile = result['mobileNumber'];
-        _avatarPath = result['avatar_path'];
-      });
-      await _saveProfile();
+  //   if (result != null) {
+  //     setState(() {
+  //       username = result['username'];
+  //       fullName = result['fullName'];
+  //       _email = result['email'];
+  //       mobile = result['mobileNumber'];
+  //       _avatarPath = result['avatar_path'];
+  //     });
+  //     await _saveProfile();
 
-      if (widget.onNameChanged != null) {
-        widget.onNameChanged!(username);
-      }
+  //     if (widget.onNameChanged != null) {
+  //       widget.onNameChanged!(username);
+  //     }
 
-      navigator.pop({
-        'username': username,
-        'avatar_path': _avatarPath,
-      });
-    }
-  }
+  //     navigator.pop({
+  //       'username': username,
+  //       'fullName': fullName,
+  //       'avatar_path': _avatarPath,
+  //     });
+  //   }
+  // }
 
-  Future<void> _saveProfile() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', username);
-    await prefs.setString('email', _email);
-    await prefs.setString('mobileNumber', mobile);
-    await prefs.setString('avatar_path', _avatarPath);
-  }
+  // Future<void> _saveProfile() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   await prefs.setString('username', username);
+  //   await prefs.setString('fullName', fullName);
+  //   await prefs.setString('email', _email);
+  //   await prefs.setString('mobileNumber', mobile);
+  //   await prefs.setString('avatar_path', _avatarPath);
+  // }
 
   Future<void> _logout() async {
     final navigator = Navigator.of(context);
@@ -121,15 +143,15 @@ class ProfilePageState extends State<ProfilePage>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
     await prefs.remove('username');
+    await prefs.remove('fullName');
     await prefs.remove('email');
     await prefs.remove('mobileNumber');
     await prefs.remove('avatar_path');
 
     navigator.pushAndRemoveUntil(
       MaterialPageRoute(
-          builder: (context) => const LoginPage(
-                fullName: '',
-              )),
+        builder: (context) => const LoginPage(fullName: ''),
+      ),
       (Route<dynamic> route) => false,
     );
   }
@@ -146,9 +168,7 @@ class ProfilePageState extends State<ProfilePage>
           ),
           content: Text(
             'Are you sure you want to log out?',
-            style: GoogleFonts.dmSans(
-              fontSize: 14.sp,
-            ),
+            style: GoogleFonts.dmSans(fontSize: 14.sp),
           ),
           actions: <Widget>[
             TextButton(
@@ -159,9 +179,7 @@ class ProfilePageState extends State<ProfilePage>
                   color: const Color(0xFF006257),
                 ),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
               child: Text(
@@ -260,7 +278,7 @@ class ProfilePageState extends State<ProfilePage>
                       //width: 300.w,
                       //height: 423.h,
                       padding: EdgeInsets.only(
-                          right: 23.w, top: 20.h, left: 23.w, bottom: 50.h),
+                          right: 23.w, top: 20.h, left: 23.w, bottom: 19.h),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(32.r),
                         border: Border.all(
@@ -344,20 +362,33 @@ class ProfilePageState extends State<ProfilePage>
                           ),
                           //    const SizedBox(height: ),
                           Text(
-                            username,
+                            fullName,
                             style: GoogleFonts.dmSans(
                                 fontSize: 22.sp,
                                 fontWeight: FontWeight.normal,
                                 letterSpacing: -0.3),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            _email,
-                            style: GoogleFonts.dmSans(
-                              fontSize: 16.sp,
-                              letterSpacing: -0.3,
-                              color: Colors.grey,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '@',
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 16.sp,
+                                  letterSpacing: -0.3,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              Text(
+                                username,
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 16.sp,
+                                  letterSpacing: -0.3,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 11),
                           Row(
@@ -368,14 +399,15 @@ class ProfilePageState extends State<ProfilePage>
                                     horizontal: 6.29.w, vertical: 3.29.h),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
-                                  color: const Color(0x1A75C044),
+                                  color: const Color.fromARGB(26, 192, 68, 68),
                                 ),
                                 child: Text(
                                   'Cashier',
                                   style: GoogleFonts.dmSans(
                                       fontSize: 14.sp,
                                       letterSpacing: -0.3,
-                                      color: const Color(0xFF75C044)),
+                                      color: const Color.fromARGB(
+                                          255, 192, 68, 68)),
                                 ),
                               ),
                               SizedBox(
@@ -399,17 +431,65 @@ class ProfilePageState extends State<ProfilePage>
                             ],
                           ),
                           SizedBox(height: 14.h),
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 27.w),
-                            child: Text(
-                              '''Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.''',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.dmSans(
-                                fontSize: 14.sp,
-                                letterSpacing: -0.3,
-                                color: const Color(0xCC2E353A),
+                          Column(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.symmetric(horizontal: 15.w),
+                                child: Text(
+                                  _userBio,
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 14.sp,
+                                    letterSpacing: -0.3,
+                                    color: const Color(0xCC2E353A),
+                                  ),
+                                ),
                               ),
-                            ),
+                              SizedBox(height: 9.h),
+                              GestureDetector(
+                                onTap: () {
+                                  Future.delayed(
+                                      const Duration(milliseconds: 300),
+                                      () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder:
+                                            (context, animation1, animation2) =>
+                                                EditBioPage(
+                                          currentBio: _userBio,
+                                        ),
+                                        transitionDuration: Duration.zero,
+                                        reverseTransitionDuration:
+                                            Duration.zero,
+                                      ),
+                                    );
+
+                                    if (result != null) {
+                                      setState(() {
+                                        _userBio = result;
+                                      });
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 11.29.w, vertical: 3.29.h),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: const Color(0x1A75C044),
+                                  ),
+                                  child: Text(
+                                    'edit bio',
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 15.sp,
+                                      letterSpacing: -0.3,
+                                      color: const Color(0xFF75C044),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           )
                         ],
                       ),
@@ -463,7 +543,12 @@ class ProfilePageState extends State<ProfilePage>
                                 PageRouteBuilder(
                                   pageBuilder:
                                       (context, animation1, animation2) =>
-                                          UserDetailsPage(),
+                                          UserDetailsPage(
+                                    userId: widget.userId,
+                                    fullName: fullName,
+                                    userName: username,
+                                    mobile: mobile,
+                                  ),
                                   transitionDuration: Duration.zero,
                                   reverseTransitionDuration: Duration.zero,
                                 ),
@@ -474,7 +559,7 @@ class ProfilePageState extends State<ProfilePage>
 
                         // Edit Profile
                         GestureDetector(
-                          onTap: _editProfile,
+                          onTap: () {},
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border.all(
@@ -488,7 +573,7 @@ class ProfilePageState extends State<ProfilePage>
                                     'assets/images/edit_profile.svg'),
                                 SizedBox(height: 8.h),
                                 Text(
-                                  '  Edit\nDetails',
+                                  '  Share\n  Profile',
                                   style: GoogleFonts.dmSans(
                                     color: const Color(0xFF006257),
                                     fontSize: 14.sp,
@@ -544,6 +629,7 @@ class ProfilePageState extends State<ProfilePage>
 
 class EditProfilePage extends StatefulWidget {
   final String currentName;
+  final String currentfullName;
   final String currentEmail;
   final String currentPhone;
   final String currentAvatar;
@@ -551,6 +637,7 @@ class EditProfilePage extends StatefulWidget {
   const EditProfilePage({
     super.key,
     required this.currentName,
+    required this.currentfullName,
     required this.currentEmail,
     required this.currentPhone,
     required this.currentAvatar,
@@ -563,6 +650,7 @@ class EditProfilePage extends StatefulWidget {
 class EditProfilePageState extends State<EditProfilePage>
     with SingleTickerProviderStateMixin {
   late TextEditingController _nameController;
+  late TextEditingController _fullnameContorller;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
   String? _avatarPath;
@@ -575,6 +663,7 @@ class EditProfilePageState extends State<EditProfilePage>
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.currentName);
+    _fullnameContorller = TextEditingController(text: widget.currentfullName);
     _emailController = TextEditingController(text: widget.currentEmail);
     _phoneController = TextEditingController(text: widget.currentPhone);
     _avatarPath = widget.currentAvatar;
@@ -618,6 +707,7 @@ class EditProfilePageState extends State<EditProfilePage>
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('username', _nameController.text);
+    await prefs.setString('fullName', _fullnameContorller.text);
     await prefs.setString('email', _emailController.text);
     await prefs.setString('mobileNumber', _phoneController.text);
     if (_avatarPath != null) {
@@ -627,6 +717,7 @@ class EditProfilePageState extends State<EditProfilePage>
     // Use the captured navigator instead of BuildContext
     navigator.pop({
       'username': _nameController.text,
+      'fullName': _fullnameContorller.text,
       'email': _emailController.text,
       'mobileNumber': _phoneController.text,
       'avatar_path': _avatarPath
@@ -689,9 +780,19 @@ class EditProfilePageState extends State<EditProfilePage>
                     const Text('Add Photo'),
                     SizedBox(height: 30.h),
                     TextField(
-                      controller: _nameController,
+                      controller: _fullnameContorller,
                       decoration: InputDecoration(
                         labelText: 'Full Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+                    TextField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'User ID',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10.r)),
                         ),
