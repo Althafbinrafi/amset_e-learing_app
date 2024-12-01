@@ -380,20 +380,6 @@ class AllLessonsPageState extends State<AllLessonsPage> {
                           SizedBox(
                             width: 9.w,
                           ),
-                          // Container(
-                          //   padding: EdgeInsets.only(right: 3.w, left: 3.w),
-                          //   decoration: BoxDecoration(
-                          //       borderRadius: BorderRadius.circular(4),
-                          //       color:
-                          //           const Color.fromRGBO(118, 192, 68, 0.234)),
-                          //   child: Text(
-                          //     'Free',
-                          //     style: GoogleFonts.dmSans(
-                          //         fontSize: 11.sp,
-                          //         fontWeight: FontWeight.w500,
-                          //         color: const Color.fromRGBO(118, 192, 68, 1)),
-                          //   ),
-                          // )
                         ],
                       ),
                     ],

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:amset/DrawerPages/Course/all_lessons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -354,10 +355,13 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
                             ),
                             leading: CircleAvatar(
                               backgroundColor:
-                                  const Color.fromRGBO(117, 192, 68, 1),
+                                  const Color.fromARGB(255, 107, 176, 62),
                               child: Text(
                                 '${index + 1}',
-                                style: GoogleFonts.dmSans(color: Colors.black),
+                                style: GoogleFonts.dmSans(
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color.fromARGB(
+                                        255, 255, 255, 255)),
                               ),
                             ),
                           );
@@ -375,14 +379,21 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
       floatingActionButton: SizedBox(
         width: MediaQuery.of(context).size.width / 1.1,
         child: FloatingActionButton(
-          backgroundColor: const Color.fromRGBO(255, 204, 0, 1),
-          onPressed: _showConfirmationDrawer,
+          backgroundColor: const Color(0xFF75C044),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return AllLessonsPage(
+                courseId: widget.course.id,
+              );
+            }));
+          },
+          // _showConfirmationDrawer,
           elevation: 0,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Purchase Premium',
+                'View Classes',
                 style: GoogleFonts.dmSans(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
@@ -390,16 +401,16 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
                     color: Colors.white),
               ),
               const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.all(8),
-                child: SvgPicture.asset('assets/images/premium.svg',
-                    width: 20.w,
-                    height: 20.h,
-                    colorFilter: const ColorFilter.mode(
-                      Colors.white,
-                      BlendMode.srcIn,
-                    )),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.all(8),
+              //   child: SvgPicture.asset('assets/images/premium.svg',
+              //       width: 20.w,
+              //       height: 20.h,
+              //       colorFilter: const ColorFilter.mode(
+              //         Colors.white,
+              //         BlendMode.srcIn,
+              //       )),
+              // ),
             ],
           ),
         ),

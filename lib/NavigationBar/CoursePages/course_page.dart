@@ -284,11 +284,11 @@ class CourseCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Text(
-                //   '${course.chapters.length} Chapters',
-                //   style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                // ),
-                // SizedBox(height: 8.h),
+                Text(
+                  '${course.chapters.length} Chapters',
+                  style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                ),
+                SizedBox(height: 8.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

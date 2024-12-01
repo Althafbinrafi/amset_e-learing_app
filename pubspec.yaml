@@ -60,6 +60,9 @@ dependencies:
   connectivity_plus: ^6.0.5
   internet_connection_checker: ^1.0.0+1
   smooth_page_indicator: ^1.2.0+3
+  html_unescape: ^2.0.0
+  flutter_html: ^3.0.0-alpha.5
+  
   
 
 

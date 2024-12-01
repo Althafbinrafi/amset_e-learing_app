@@ -230,15 +230,11 @@
 //   }
 // }
 
+import 'package:amset/screens/apply_now.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Assuming you are using this for responsive sizing
 
 class JobDetailPage extends StatelessWidget {
   const JobDetailPage({super.key});
@@ -249,12 +245,33 @@ class JobDetailPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Navigator.pop(context); // Pops the current page off the stack
-          },
+        leading: Padding(
+          padding: EdgeInsets.only(top: 17.h, left: 20.w),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: const Color(0xFF75C044),
+                width: 2,
+              ),
+              color: const Color(0x1A75C044),
+            ),
+            child: GestureDetector(
+              child: const Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Color(0xFF75C044),
+                  size: 20,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
         ),
+        leadingWidth: 50.w,
       ),
       body: SafeArea(
         child: Center(
@@ -314,11 +331,11 @@ class JobDetailPage extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        SizedBox(width: 32.w), // Initial padding from left
-                        _buildContainer("Container 1", Colors.blue[100]!),
-                        _buildContainer("Container 2", Colors.green[100]!),
-                        _buildContainer("Container 3", Colors.orange[100]!),
-                        _buildContainer("Container 4", Colors.purple[100]!),
+                        SizedBox(width: 32.w),
+                        _buildContainer(),
+                        _buildContainer(),
+                        _buildContainer(),
+                        _buildContainer(),
                       ],
                     ),
                   ),
@@ -352,29 +369,41 @@ class JobDetailPage extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 32),
-                      Center(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 32.w, vertical: 12.h),
-                          ),
-                          onPressed: () {},
+                      GestureDetector(
+                        child: Container(
+                          width: 175.w,
+                          padding: const EdgeInsets.all(10.0),
+                          decoration: BoxDecoration(
+                              color: const Color.fromRGBO(46, 53, 58, 1),
+                              borderRadius: BorderRadius.circular(30)),
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Apply For Job",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
+                                'Apply For Job',
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 16.sp,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: -0.5),
                               ),
-                              SizedBox(width: 8),
-                              Icon(Icons.arrow_forward, color: Colors.white),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              const Icon(
+                                Icons.arrow_forward,
+                                size: 18,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              )
                             ],
                           ),
                         ),
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return const ApplyNowPage();
+                          }));
+                        },
                       ),
                       SizedBox(height: 32),
                     ],
@@ -388,36 +417,36 @@ class JobDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContainer(String text, Color color) {
+  Widget _buildContainer() {
     return Container(
       width: 276.w,
       margin: EdgeInsets.only(right: 16.r),
       decoration: BoxDecoration(
-        color: color,
+        //color: ,
         border: Border.all(
-          color: Colors.grey[300]!,
+          color: const Color.fromARGB(255, 70, 71, 81),
           width: 1,
         ),
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(34),
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.grey.withOpacity(0.2),
+        //     spreadRadius: 1,
+        //     blurRadius: 5,
+        //     offset: Offset(0, 2),
+        //   ),
+        // ],
       ),
       child: Center(
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[800],
+          // child: Text(
+
+          //   style: TextStyle(
+          //     fontSize: 16,
+          //     fontWeight: FontWeight.bold,
+          //     color: Colors.grey[800],
+          //   ),
+          // ),
           ),
-        ),
-      ),
     );
   }
 
