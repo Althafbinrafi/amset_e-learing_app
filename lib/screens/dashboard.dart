@@ -5,6 +5,7 @@ import 'package:amset/Models/login_model.dart';
 import 'package:amset/NavigationBar/CoursePages/course_page.dart';
 import 'package:amset/NavigationBar/JobVacancies/job_vacancy.dart';
 import 'package:amset/DrawerPages/Profile/profile_page.dart';
+import 'package:amset/PostPurchasePages/success_purchase_page.dart';
 import 'package:amset/screens/apply_job.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -999,10 +1000,14 @@ class DashboardPageState extends State<DashboardPage> {
                         }),
                       ),
                       onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return JobDetailPage();
-                        }));
+                        Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation1, animation2) =>
+                                  JobDetailPage(),
+                              transitionDuration: Duration.zero,
+                              reverseTransitionDuration: Duration.zero,
+                            ));
                       },
                     ),
 
@@ -1065,33 +1070,41 @@ class DashboardPageState extends State<DashboardPage> {
                           ]),
                     ),
                     SizedBox(height: 20.h), // Add some bottom padding
-                    Container(
-                      width: 175.w,
-                      padding: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                          color: const Color.fromRGBO(46, 53, 58, 1),
-                          borderRadius: BorderRadius.circular(22)),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Apply For Job',
-                            style: GoogleFonts.dmSans(
-                                fontSize: 16.sp,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: -0.5),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          const Icon(
-                            Icons.arrow_forward,
-                            size: 18,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                          )
-                        ],
+                    GestureDetector(
+                      child: Container(
+                        width: 175.w,
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                            color: const Color.fromRGBO(46, 53, 58, 1),
+                            borderRadius: BorderRadius.circular(22)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Apply For Job',
+                              style: GoogleFonts.dmSans(
+                                  fontSize: 16.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: -0.5),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            const Icon(
+                              Icons.arrow_forward,
+                              size: 18,
+                              color: Color.fromARGB(255, 255, 255, 255),
+                            )
+                          ],
+                        ),
                       ),
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return SuccessPurchasePage();
+                        }));
+                      },
                     ),
                     const SizedBox(
                       height: 30,

@@ -436,8 +436,10 @@ class ProfilePageState extends State<ProfilePage>
                               Container(
                                 margin: EdgeInsets.symmetric(horizontal: 15.w),
                                 child: Text(
+                                  maxLines: 6,
                                   _userBio,
                                   textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.dmSans(
                                     fontSize: 14.sp,
                                     letterSpacing: -0.3,

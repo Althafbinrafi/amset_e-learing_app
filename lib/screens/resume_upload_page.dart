@@ -1,3 +1,4 @@
+import 'package:amset/screens/application_success_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -265,7 +266,7 @@ class _ResumeUploadPageState extends State<ResumeUploadPage>
                       padding: const EdgeInsets.all(20.0),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF2F9F3),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(32),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -317,7 +318,7 @@ class _ResumeUploadPageState extends State<ResumeUploadPage>
                     GestureDetector(
                       child: Container(
                         width: 109.w,
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(8.0),
                         decoration: BoxDecoration(
                             color: const Color.fromRGBO(46, 53, 58, 1),
                             borderRadius: BorderRadius.circular(30)),
@@ -336,10 +337,14 @@ class _ResumeUploadPageState extends State<ResumeUploadPage>
                         ),
                       ),
                       onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return ResumeUploadPage();
-                        }));
+                        Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation1, animation2) =>
+                                  ApplicationSuccessPage(),
+                              transitionDuration: Duration.zero,
+                              reverseTransitionDuration: Duration.zero,
+                            ));
                       },
                     ),
                   ],
