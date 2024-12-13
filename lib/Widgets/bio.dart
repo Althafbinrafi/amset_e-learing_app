@@ -189,7 +189,7 @@ class _EditBioPageState extends State<EditBioPage>
                               ),
                               child: TextField(
                                 controller: _bioController,
-                                maxLength: 250,
+                                maxLength: 300,
                                 maxLines: 15,
                                 decoration: InputDecoration(
                                   hintText: 'Write something about yourself...',

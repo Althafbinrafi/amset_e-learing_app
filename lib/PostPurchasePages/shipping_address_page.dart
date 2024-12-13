@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:amset/Models/login_model.dart';
 import 'package:amset/PostPurchasePages/get_certified_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ShippingAddressPage extends StatefulWidget {
-  const ShippingAddressPage({Key? key}) : super(key: key);
+  const ShippingAddressPage({super.key});
 
   @override
   _ShippingAddressPageState createState() => _ShippingAddressPageState();
@@ -234,7 +233,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage>
                                     Navigator.pop(context);
                                   },
                                   child: Container(
-                                    padding: EdgeInsets.all(1.7),
+                                    padding: const EdgeInsets.all(1.7),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(30),
                                       border: Border.all(
@@ -382,7 +381,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage>
                                       PageRouteBuilder(
                                         pageBuilder:
                                             (context, animation1, animation2) =>
-                                                GetCertifiedPage(),
+                                                const GetCertifiedPage(),
                                         transitionDuration: Duration
                                             .zero, // Transition duration
                                         reverseTransitionDuration: Duration

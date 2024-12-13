@@ -164,11 +164,16 @@ class ProfilePageState extends State<ProfilePage>
           title: Text(
             'Confirm Logout',
             style: GoogleFonts.dmSans(
-                fontSize: 14.sp, fontWeight: FontWeight.bold),
+                letterSpacing: -0.3,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold),
           ),
           content: Text(
             'Are you sure you want to log out?',
-            style: GoogleFonts.dmSans(fontSize: 14.sp),
+            style: GoogleFonts.dmSans(
+              fontSize: 14.sp,
+              letterSpacing: -0.3,
+            ),
           ),
           actions: <Widget>[
             TextButton(
@@ -176,6 +181,7 @@ class ProfilePageState extends State<ProfilePage>
                 'Cancel',
                 style: GoogleFonts.dmSans(
                   fontSize: 14.sp,
+                  letterSpacing: -0.3,
                   color: const Color(0xFF006257),
                 ),
               ),
@@ -185,6 +191,7 @@ class ProfilePageState extends State<ProfilePage>
               child: Text(
                 'Logout',
                 style: GoogleFonts.dmSans(
+                  letterSpacing: -0.3,
                   fontSize: 14.sp,
                   color: const Color.fromARGB(255, 231, 15, 15),
                 ),
@@ -217,7 +224,7 @@ class ProfilePageState extends State<ProfilePage>
                   children: [
                     Padding(
                       padding: EdgeInsets.symmetric(
-                          vertical: 20.h, horizontal: 30.w),
+                          vertical: 20.h, horizontal: 25.w),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -389,6 +396,17 @@ class ProfilePageState extends State<ProfilePage>
                                 ),
                               ),
                             ],
+                          ),
+                          SizedBox(
+                            height: 5.h,
+                          ),
+                          Text(
+                            _email,
+                            style: GoogleFonts.dmSans(
+                              fontSize: 16.sp,
+                              letterSpacing: -0.3,
+                              color: Colors.grey,
+                            ),
                           ),
                           const SizedBox(height: 11),
                           Row(

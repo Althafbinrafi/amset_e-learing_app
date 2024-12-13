@@ -127,7 +127,7 @@ class _PaymentSucceededPageState extends State<PaymentSucceededPage>
                   margin: EdgeInsets.symmetric(horizontal: 39.w),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(34),
-                      border: Border.all(color: Color.fromRGBO(46, 53, 58, 1))),
+                      border: Border.all(color: const Color.fromRGBO(46, 53, 58, 1))),
                 ),
                 SizedBox(height: 23.h),
                 // Ship Certificate Button
@@ -138,7 +138,7 @@ class _PaymentSucceededPageState extends State<PaymentSucceededPage>
                         context,
                         PageRouteBuilder(
                           pageBuilder: (context, animation1, animation2) =>
-                              ShippingAddressPage(),
+                              const ShippingAddressPage(),
                           transitionDuration:
                               Duration.zero, // Transition duration
                           reverseTransitionDuration:
@@ -162,7 +162,7 @@ class _PaymentSucceededPageState extends State<PaymentSucceededPage>
                         borderRadius: BorderRadius.circular(39.r),
                         border: Border.all(
                             width: 0.5.w,
-                            color: Color.fromRGBO(46, 53, 58, 1))),
+                            color: const Color.fromRGBO(46, 53, 58, 1))),
                     child: Center(
                       child: Text(
                         'Ship Certificate',

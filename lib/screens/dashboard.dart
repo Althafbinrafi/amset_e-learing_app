@@ -7,6 +7,7 @@ import 'package:amset/NavigationBar/JobVacancies/job_vacancy.dart';
 import 'package:amset/DrawerPages/Profile/profile_page.dart';
 import 'package:amset/PostPurchasePages/success_purchase_page.dart';
 import 'package:amset/screens/apply_job.dart';
+import 'package:amset/screens/tell_us_about_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -199,10 +200,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             backgroundColor: const Color.fromARGB(255, 255, 255, 255),
             leading: Padding(
               padding: EdgeInsets.only(left: 32.w),
-              child: SvgPicture.asset(
-                'assets/images/Dashboard_logo.svg',
-                height: 25.h,
-                width: 140.w,
+              child: GestureDetector(
+                child: SvgPicture.asset(
+                  'assets/images/Dashboard_logo.svg',
+                  height: 25.h,
+                  width: 140.w,
+                ),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return TellUsAboutPage();
+                  }));
+                },
               ),
             ),
             actions: [

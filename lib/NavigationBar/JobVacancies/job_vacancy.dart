@@ -1,3 +1,4 @@
+import 'package:amset/screens/apply_job.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -156,37 +157,46 @@ class NotificationPageState extends State<NotificationPage> {
                         children: [
                           Expanded(
                             flex: 2,
-                            child: Container(
-                              padding: EdgeInsets.only(left: 23.w),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(22.r),
-                                  topRight: Radius.circular(22.r),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return JobDetailPage();
+                                }));
+                              },
+                              child: Container(
+                                padding: EdgeInsets.only(left: 23.w),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(22.r),
+                                    topRight: Radius.circular(22.r),
+                                  ),
+                                  color:
+                                      const Color.fromRGBO(117, 192, 68, 0.15),
                                 ),
-                                color: const Color.fromRGBO(117, 192, 68, 0.15),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    SvgPicture.asset(
-                                      jobSvg[index % jobSvg.length],
-                                      height: 35.h,
-                                      width: 35.w,
-                                    ),
-                                    SizedBox(width: 10.w),
-                                    Expanded(
-                                      child: Text(
-                                        jobTitles[index % jobTitles.length],
-                                        style: GoogleFonts.dmSans(
-                                          color: Colors.black,
-                                          letterSpacing: -0.5,
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.normal,
+                                child: Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      SvgPicture.asset(
+                                        jobSvg[index % jobSvg.length],
+                                        height: 35.h,
+                                        width: 35.w,
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Expanded(
+                                        child: Text(
+                                          jobTitles[index % jobTitles.length],
+                                          style: GoogleFonts.dmSans(
+                                            color: Colors.black,
+                                            letterSpacing: -0.5,
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.normal,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

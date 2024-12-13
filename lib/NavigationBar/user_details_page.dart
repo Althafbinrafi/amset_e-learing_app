@@ -49,6 +49,7 @@ class _UserDetailsPage extends State<UserDetailsPage>
   final _pincodeController = TextEditingController();
   final _whatsappController = TextEditingController();
   final _secondaryPhoneController = TextEditingController();
+  final _emailController = TextEditingController();
 
   @override
   void initState() {
@@ -95,6 +96,7 @@ class _UserDetailsPage extends State<UserDetailsPage>
           _nameController.text = data['fullName'] ?? '';
           _userIdController.text = data['username'] ?? '';
           _avatarUrl = data['avatarUrl'];
+          _emailController.text = data['email'] ?? '';
         });
       } else {
         throw Exception('Failed to fetch user details');
@@ -398,11 +400,10 @@ class _UserDetailsPage extends State<UserDetailsPage>
                                     Text(
                                       'User Details',
                                       style: GoogleFonts.dmSans(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.normal,
-                                        letterSpacing: -1,
-                                      ),
+                                          color: Colors.black,
+                                          fontSize: 20.sp,
+                                          fontWeight: FontWeight.normal,
+                                          letterSpacing: -1),
                                     ),
                                   ],
                                 ),
@@ -464,7 +465,7 @@ class _UserDetailsPage extends State<UserDetailsPage>
                                       label: "Name",
                                       controller: _nameController,
                                     ),
-                                    const SizedBox(height: 16),
+                                    SizedBox(height: 10.h),
                                     _buildLabeledDetail(
                                       label: "User ID",
                                       controller: _userIdController,
@@ -548,37 +549,43 @@ class _UserDetailsPage extends State<UserDetailsPage>
                           ),
 
                           // User details form
-                          const SizedBox(height: 16),
+                          SizedBox(height: 10.h),
+                          _buildLabeledDetail(
+                            label: "Email",
+                            controller: _emailController,
+                            isMultiline: true,
+                          ),
+                          SizedBox(height: 10.h),
                           _buildLabeledDetail(
                             label: "Address",
                             controller: _addressController,
                             isMultiline: true,
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 10.h),
                           _buildLabeledDetail(
                             label: "Post Office",
                             controller: _postOfficeController,
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 10.h),
                           _buildLabeledDetail(
                             label: "District",
                             controller: _districtController,
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 10.h),
                           _buildLabeledDetail(
                             label: "Pincode",
                             controller: _pincodeController,
                             keyboardType: TextInputType.number,
                             maxLength: 6,
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 10.h),
                           _buildLabeledDetail(
                             label: "Whatsapp Number",
                             controller: _whatsappController,
                             keyboardType: TextInputType.phone,
                             maxLength: 10,
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 10.h),
                           _buildLabeledDetail(
                             label: "Secondary Mobile Number",
                             controller: _secondaryPhoneController,
@@ -587,7 +594,7 @@ class _UserDetailsPage extends State<UserDetailsPage>
                           ),
 
                           // Action buttons
-                          const SizedBox(height: 30),
+                          SizedBox(height: 16.h),
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20.0),

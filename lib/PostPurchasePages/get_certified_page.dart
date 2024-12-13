@@ -86,7 +86,7 @@ class _GetCertifiedPageState extends State<GetCertifiedPage> {
               margin: EdgeInsets.symmetric(horizontal: 39.w),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(34),
-                  border: Border.all(color: Color.fromRGBO(46, 53, 58, 1))),
+                  border: Border.all(color: const Color.fromRGBO(46, 53, 58, 1))),
             ),
             SizedBox(
               height: 26.h,

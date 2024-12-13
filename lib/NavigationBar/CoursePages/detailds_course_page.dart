@@ -129,7 +129,7 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
       if (response.statusCode == 200) {
         log('Order verified and course added to account');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Purchase successful! Course added.')),
+          const SnackBar(content: Text('Purchase successful! Course added.')),
         );
       } else {
         throw Exception('Failed to verify order');
@@ -147,7 +147,7 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
   void _handlePaymentError(PaymentFailureResponse response) {
     log("Payment Error: ${response.message}");
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Payment failed. Please try again.')),
+      const SnackBar(content: Text('Payment failed. Please try again.')),
     );
   }
 

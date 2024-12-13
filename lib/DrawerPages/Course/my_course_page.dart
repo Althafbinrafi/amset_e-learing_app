@@ -103,14 +103,29 @@ class MyCoursePageState extends State<MyCoursePage>
         leading: Padding(
           padding: EdgeInsets.only(left: 20.w),
           child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            child: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: Colors.black,
-            ),
             onTap: () {
               Navigator.pop(context);
             },
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 19.w, horizontal: 5.h),
+              //padding: const EdgeInsets.all(1.7),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: const Color(0xFF75C044),
+                  width: 2,
+                ),
+                color: const Color(0x1A75C044),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Color(0xFF75C044),
+                  size: 20,
+                ),
+              ),
+            ),
           ),
         ),
         title: Text(
@@ -150,7 +165,11 @@ class MyCoursePageState extends State<MyCoursePage>
                                   width: 200.w,
                                 ),
                                 SizedBox(height: 10.h),
-                                 Text('Check Your Connection!',style: GoogleFonts.dmSans(color: Colors.black),),
+                                Text(
+                                  'Check Your Connection!',
+                                  style:
+                                      GoogleFonts.dmSans(color: Colors.black),
+                                ),
                               ],
                             ),
                           );
