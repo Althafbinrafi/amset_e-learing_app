@@ -21,8 +21,15 @@ class _CoursePlayerState extends State<CoursePlayer> {
   @override
   void initState() {
     super.initState();
+    final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
+
+    if (videoId == null || videoId.isEmpty) {
+      log('Invalid YouTube video URL: ${widget.videoUrl}');
+      return;
+    }
+
     _controller = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId(widget.videoUrl) ?? '',
+      initialVideoId: videoId,
       flags: const YoutubePlayerFlags(
         autoPlay: true,
         mute: false,
@@ -41,10 +48,10 @@ class _CoursePlayerState extends State<CoursePlayer> {
   }
 
   void _onPlayerStateChange() {
-    if (_controller.value.isFullScreen) {
-      widget.isFullScreen.value = true;
-    } else {
-      widget.isFullScreen.value = false;
+    try {
+      widget.isFullScreen.value = _controller.value.isFullScreen;
+    } catch (e) {
+      log('Error in _onPlayerStateChange: $e');
     }
   }
 

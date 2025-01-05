@@ -1,25 +1,21 @@
-import 'dart:developer';
 
-import 'package:amset/Models/vacany_model.dart';
+import 'package:amset/Models/Course%20Models/course_fetch_model.dart';
 import 'package:http/http.dart' as http;
 
-class ApiServiceJob {
-  Future<JobVacancyModel?> fetchJobVacancies() async {
-    const String apiUrl =
-        'https://amset-server.vercel.app/api/vacancy'; // Replace with your actual API URL
+class ApiService {
+  static const String baseUrl = "https://amset-server.vercel.app/api/course/";
 
+  Future<CourseFetchModel> fetchCourses() async {
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await http.get(Uri.parse(baseUrl));
 
       if (response.statusCode == 200) {
-        return jobVacancyModelFromJson(response.body);
+        return courseFetchModelFromJson(response.body);
       } else {
-        log('Failed to load job vacancies');
-        return null;
+        throw Exception('Failed to load data');
       }
     } catch (e) {
-      log('Error: $e');
-      return null;
+      throw Exception('Error: $e');
     }
   }
 }

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:amset/Models/allCoursesModel.dart';
+import '../Models/Course Models/all_course_model.dart';
+
+
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});

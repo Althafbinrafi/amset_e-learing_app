@@ -1,16 +1,37 @@
 import 'dart:developer';
-import 'package:amset/screens/login.dart';
+import 'package:amset/screens/Reg%20and%20Log/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:amset/Api%20Services/registration_service.dart';
+
+import '../Models/Reg & Log Models/registration_model.dart';
+
 
 class OtpVerificationPage extends StatefulWidget {
+  final String fullName;
+  final String username;
+  final String email;
+  final String password;
   final String mobileNumber;
+  final String location;
+  final String experience;
+  final String sector;
 
-  const OtpVerificationPage({super.key, required this.mobileNumber});
+  const OtpVerificationPage({
+    super.key,
+    required this.fullName,
+    required this.username,
+    required this.email,
+    required this.password,
+    required this.mobileNumber,
+    required this.location,
+    required this.experience,
+    required this.sector,
+  });
 
   @override
   OtpVerificationPageState createState() => OtpVerificationPageState();
@@ -21,7 +42,10 @@ class OtpVerificationPageState extends State<OtpVerificationPage>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
   final TextEditingController _otpController = TextEditingController();
+  final ApiServiceReg _apiService = ApiServiceReg();
+
   String _currentOtp = "";
   bool _isLoading = false;
 
@@ -50,6 +74,97 @@ class OtpVerificationPageState extends State<OtpVerificationPage>
     _animationController.dispose();
     _otpController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleVerifyOtp() async {
+    if (_currentOtp.length == 4) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        // Simulate OTP verification
+        await Future.delayed(const Duration(seconds: 2));
+
+        // Hardcoded OTP for testing; replace with actual OTP verification logic
+        if (_currentOtp == "1234") {
+          log('OTP Verified, registering user...');
+
+          // Call the registration API
+          RegistrationModel registrationResult = await _apiService.registerUser(
+            fullName: widget.fullName,
+            username: widget.username,
+            email: widget.email,
+            password: widget.password,
+            mobileNumber: widget.mobileNumber,
+            experienceSector: widget.sector, // Updated to include sector
+            experience: widget.experience, // Updated to include experience
+            country: widget.location, // Updated to include location
+          );
+
+          if (registrationResult.success) {
+            await _saveUserDataToPreferences();
+            if (!mounted) return;
+
+            // Show the success animation page
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SuccessAnimationPage(
+                  onAnimationComplete: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginPage(
+                          fullName: '',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          } else {
+            _showSnackBar('Registration failed: ${registrationResult.message}');
+          }
+        } else {
+          _showSnackBar('Invalid OTP. Please try again.');
+        }
+      } catch (e) {
+        log('Error during registration: $e');
+        _showSnackBar('Failed to verify OTP or register. Please try again.');
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveUserDataToPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setString('fullName', widget.fullName);
+    await prefs.setString('username', widget.username);
+    await prefs.setString('email', widget.email);
+    await prefs.setString('mobileNumber', widget.mobileNumber);
+    await prefs.setString('location', widget.location);
+    await prefs.setString('experience', widget.experience);
+    await prefs.setString('sector', widget.sector);
+
+    log('User data saved to SharedPreferences');
+  }
+
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -198,62 +313,12 @@ class OtpVerificationPageState extends State<OtpVerificationPage>
       ),
     );
   }
-
-  void _handleVerifyOtp() async {
-    if (_currentOtp.length == 4) {
-      setState(() {
-        _isLoading = true;
-      });
-      log('Verifying OTP: $_currentOtp');
-      // Simulate OTP verification delay
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Navigate to SuccessAnimationPage
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const SuccessAnimationPage()),
-      );
-    }
-  }
 }
 
-class SuccessAnimationPage extends StatefulWidget {
-  const SuccessAnimationPage({super.key});
+class SuccessAnimationPage extends StatelessWidget {
+  final VoidCallback onAnimationComplete;
 
-  @override
-  SuccessAnimationPageState createState() => SuccessAnimationPageState();
-}
-
-class SuccessAnimationPageState extends State<SuccessAnimationPage> {
-  @override
-  void initState() {
-    super.initState();
-    _navigateToDashboardAfterDelay();
-  }
-
-  void _navigateToDashboardAfterDelay() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(seconds: 2));
-      if (!mounted) return;
-
-      String fullName = await _getUserFullName();
-      if (!mounted) return;
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => LoginPage(fullName: fullName),
-        ),
-      );
-    });
-  }
-
-  Future<String> _getUserFullName() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('fullName') ?? '';
-  }
+  const SuccessAnimationPage({super.key, required this.onAnimationComplete});
 
   @override
   Widget build(BuildContext context) {
@@ -265,6 +330,9 @@ class SuccessAnimationPageState extends State<SuccessAnimationPage> {
           width: 200,
           height: 200,
           fit: BoxFit.fill,
+          onLoaded: (composition) {
+            Future.delayed(composition.duration, onAnimationComplete);
+          },
         ),
       ),
     );

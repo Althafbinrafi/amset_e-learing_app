@@ -1,10 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
 
-import 'package:amset/screens/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'screens/Pre Dashboard Pages/splash.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,30 +57,32 @@ class AuthCheckPageState extends State<AuthCheckPage> {
     _checkAuthStatus();
   }
 
-  Future<void> _checkAuthStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    String? fullName = prefs.getString('fullName');
-    String? email = prefs.getString('email');
+ Future<void> _checkAuthStatus() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  String? fullName = prefs.getString('fullName');
+  String? email = prefs.getString('email');
 
-    if (isLoggedIn && fullName != null && email != null) {
-      // User is logged in, navigate to Dashboard or Home
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SplashScreen(),
-        ),
-      );
-    } else {
-      // User is not logged in, navigate to LoginPage
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SplashScreen(),
-        ),
-      );
-    }
+  if (!mounted) return; // Ensure the widget is still mounted.
+
+  if (isLoggedIn && fullName != null && email != null) {
+    // User is logged in, navigate to Dashboard or Home
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SplashScreen(),
+      ),
+    );
+  } else {
+    // User is not logged in, navigate to LoginPage
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SplashScreen(),
+      ),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

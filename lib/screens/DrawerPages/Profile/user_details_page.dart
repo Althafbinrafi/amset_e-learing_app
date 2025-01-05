@@ -1,3 +1,4 @@
+// ignore_for_file: library_private_types_in_public_api
 
 import 'dart:convert';
 import 'dart:developer';
@@ -9,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mime/mime.dart';
+//import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,10 +30,10 @@ class UserDetailsPage extends StatefulWidget {
   });
 
   @override
-  UserDetailsPageState createState() => UserDetailsPageState();
+  _UserDetailsPage createState() => _UserDetailsPage();
 }
 
-class UserDetailsPageState extends State<UserDetailsPage>
+class _UserDetailsPage extends State<UserDetailsPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;

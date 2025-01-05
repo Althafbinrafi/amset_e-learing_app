@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -28,10 +27,10 @@ class UserDetailsPage extends StatefulWidget {
   });
 
   @override
-  UserDetailsPageState createState() => UserDetailsPageState();
+  _UserDetailsPage createState() => _UserDetailsPage();
 }
 
-class UserDetailsPageState extends State<UserDetailsPage>
+class _UserDetailsPage extends State<UserDetailsPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;

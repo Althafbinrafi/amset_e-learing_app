@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'package:amset/DrawerPages/Course/my_course_page.dart';
-import 'package:amset/Models/allCoursesModel.dart';
-import 'package:amset/Models/login_model.dart';
-import 'package:amset/NavigationBar/CoursePages/course_page.dart';
-import 'package:amset/NavigationBar/JobVacancies/job_vacancy.dart';
-import 'package:amset/DrawerPages/Profile/profile_page.dart';
-import 'package:amset/PostPurchasePages/success_purchase_page.dart';
-import 'package:amset/screens/apply_job.dart';
-import 'package:amset/screens/tell_us_about_page.dart';
+import 'package:amset/screens/NavigationBar/CoursePages/course_page.dart';
+import 'package:amset/screens/NavigationBar/JobVacancies/job_vacancy.dart';
+import 'package:amset/screens/DrawerPages/Profile/profile_page.dart';
+import 'package:amset/screens/DrawerPages/Profile/user_details_page.dart';
+import 'package:amset/screens/PostPurchasePages/success_purchase_page.dart';
+import 'package:amset/screens/DrawerPages/PrivacyPolicy/security_policy.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -16,10 +13,14 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
+//import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
 import 'dart:developer';
+import '../Models/Course Models/all_course_model.dart';
+import '../Models/Reg & Log Models/login_model.dart';
+import 'DrawerPages/T and C/t_and_c.dart';
+import 'Job Apply Pages/apply_job.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -35,7 +36,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   String _mobile = 'Mobile number'; // Placeholder for mobile number
   String _fullName = 'Full Name';
   String? _userId; // Nullable userId field
-
+  String? _avatarUrl;
   List<Widget> _pages = [];
 
   @override
@@ -80,16 +81,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           _username = profileData.username ?? 'Unknown User';
           _mobile = profileData.mobileNumber ?? 'No mobile number';
           _fullName = profileData.fullName ?? 'Unknown User';
+          _avatarUrl = profileData.image;
 
           // Initialize pages with the loaded profile data
           _pages = [
             DashboardPage(
-              username: _username,
-              mobile: _mobile,
-              fullName: _fullName,
-              userId:
-                  _userId ?? 'Unknown User ID', // Pass _userId here if not null
-            ),
+                username: _username,
+                mobile: _mobile,
+                fullName: _fullName,
+                userId: _userId ??
+                    'Unknown User ID', // Pass _userId here if not null
+                avatar: _avatarUrl),
             const NotificationPage(),
             const CoursePage(),
           ];
@@ -108,6 +110,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     return WillPopScope(
         onWillPop: () async {
           if (_currentIndex == 0) {
@@ -158,6 +161,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           }
         },
         child: Scaffold(
+          endDrawerEnableOpenDragGesture: false,
           key: _scaffoldKey,
           backgroundColor: Colors.white,
           appBar: _buildAppBar(),
@@ -206,11 +210,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   height: 25.h,
                   width: 140.w,
                 ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return TellUsAboutPage();
-                  }));
-                },
               ),
             ),
             actions: [
@@ -228,8 +227,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     color: Colors.transparent,
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
                         'assets/images/amset_coin.svg',
@@ -246,7 +243,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                           letterSpacing: -0.5.w,
                         ),
                       ),
-                      SizedBox(width: 6.w),
                     ],
                   ),
                 ),
@@ -257,8 +253,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 child: Padding(
                   padding: EdgeInsets.only(right: 23.w),
                   child: CircleAvatar(
-                    backgroundImage: const AssetImage('assets/images/man.png'),
+                    backgroundImage:
+                        _avatarUrl != null ? NetworkImage(_avatarUrl!) : null,
                     radius: 19.r,
+                    child: _avatarUrl == null
+                        ? Image.asset('assets/images/man.png')
+                        : null, // Fallback avatar
                   ),
                 ),
               ),
@@ -324,11 +324,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         padding: EdgeInsets.zero,
         children: [
           SizedBox(
-            height: 170,
+            height: 160,
             child: DrawerHeader(
               padding: EdgeInsets.only(left: 15.w),
               decoration: const BoxDecoration(
-                color: Color.fromARGB(153, 233, 233, 233),
+                color: Color.fromARGB(120, 233, 233, 233),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -337,9 +337,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                   Row(
                     children: [
                       CircleAvatar(
-                        backgroundImage:
-                            const AssetImage('assets/images/man.png'),
-                        radius: 30.r,
+                        backgroundImage: _avatarUrl != null
+                            ? NetworkImage(_avatarUrl!)
+                            : null,
+                        radius: 33.r,
+                        child: _avatarUrl == null
+                            ? Image.asset('assets/images/man.png')
+                            : null, // Fallback avatar
                       ),
                       SizedBox(width: 10.w),
                       Expanded(
@@ -350,21 +354,37 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                               _fullName,
                               style: GoogleFonts.dmSans(
                                 color: const Color.fromARGB(255, 31, 31, 31),
-                                fontSize: 15.sp,
+                                fontSize: 17.sp,
                                 letterSpacing: -0.5,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.fade,
                             ),
-                            Text(
-                              _mobile,
-                              style: GoogleFonts.dmSans(
-                                color: const Color.fromARGB(255, 49, 48, 48),
-                                fontSize: 14.sp,
-                                letterSpacing: -0.5,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            Row(
+                              children: [
+                                Text(
+                                  "@",
+                                  style: GoogleFonts.dmSans(
+                                    color:
+                                        const Color.fromARGB(255, 49, 48, 48),
+                                    fontSize: 16.sp,
+                                    letterSpacing: -0.5,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  _username,
+                                  style: GoogleFonts.dmSans(
+                                    color:
+                                        const Color.fromARGB(255, 49, 48, 48),
+                                    fontSize: 16.sp,
+                                    letterSpacing: -0.5,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -375,24 +395,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.account_circle),
-            title: Text(
-              'Profile',
-              style: GoogleFonts.dmSans(),
-            ),
+          _buildDrawerItem(
+            icon: Icons.account_circle,
+            title: 'Profile',
+            backgroundColor: const Color.fromARGB(72, 192, 193, 192),
             onTap: () {
               Future.delayed(const Duration(milliseconds: 300), () {
+                if (!mounted) return;
                 Navigator.push(
                   context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation1, animation2) =>
                         ProfilePage(
-                      //  fullName: '', // Add fullName or get it dynamically
-
-                      username: _username, // Pass the username dynamically
+                      username: _username,
                       mobile: _mobile,
                       fullName: _fullName,
+                      avatar: _avatarUrl,
                     ),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
@@ -400,64 +418,83 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 );
               });
             },
-            trailing: const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 18,
-            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.school),
-            title: Text(
-              'My Courses',
-              style: GoogleFonts.dmSans(),
-            ),
-            onTap: () {
-              Future.delayed(const Duration(milliseconds: 300), () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        const MyCoursePage(),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                  ),
-                );
-              });
+          _buildDrawerItem(
+            icon: Icons.privacy_tip,
+            title: 'security Policy',
+            backgroundColor: const Color.fromARGB(72, 192, 193, 192),
+            onTap: () async {
+              await Future.delayed(const Duration(milliseconds: 300));
+              if (!mounted) return;
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) =>
+                      const SecurityPolicy(),
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
             },
-            trailing: const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 18,
-            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.history),
-            title: Text(
-              'History',
-              style: GoogleFonts.dmSans(),
-            ),
-            onTap: () {
-              // Navigate to History page
+          _buildDrawerItem(
+            icon: Icons.view_list_rounded,
+            title: 'Terms & Conditions',
+            backgroundColor: const Color.fromARGB(72, 192, 193, 192),
+            onTap: () async {
+              await Future.delayed(const Duration(milliseconds: 300));
+              if (!mounted) return;
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) =>
+                      const TermsAndConditionsPage(),
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
             },
-            trailing: const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 18,
-            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: Text(
-              'Settings',
-              style: GoogleFonts.dmSans(),
-            ),
+          _buildDrawerItem(
+            icon: Icons.settings,
+            title: 'Settings',
+            backgroundColor: const Color.fromARGB(72, 192, 193, 192),
             onTap: () {
               // Navigate to Settings page
             },
-            trailing: const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 18,
-            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required Color backgroundColor,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 15),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(
+          title,
+          style: GoogleFonts.dmSans(
+            letterSpacing: -0.3,
+            fontSize: 15.sp,
+          ),
+        ),
+        onTap: onTap,
+        trailing: const Icon(
+          Icons.arrow_forward_ios_rounded,
+          size: 18,
+        ),
       ),
     );
   }
@@ -543,14 +580,15 @@ class DashboardPage extends StatefulWidget {
   final String mobile;
   final String fullName;
   final String? userId;
+  final String? avatar;
 
-  const DashboardPage({
-    super.key,
-    required this.username,
-    required this.mobile,
-    required this.fullName,
-    this.userId,
-  });
+  const DashboardPage(
+      {super.key,
+      required this.username,
+      required this.mobile,
+      required this.fullName,
+      this.userId,
+      this.avatar});
 
   @override
   DashboardPageState createState() => DashboardPageState();
@@ -563,6 +601,7 @@ class DashboardPageState extends State<DashboardPage> {
   int _currentPage = 0;
   late Timer _timer;
   bool _hasError = false;
+  //Course? _course;
 
   @override
   void initState() {
@@ -617,6 +656,7 @@ class DashboardPageState extends State<DashboardPage> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+
         AllCoursesModel coursesModel = AllCoursesModel.fromJson(data);
         _hasError = false;
         return coursesModel.courses
@@ -636,7 +676,34 @@ class DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: _hasError ? _buildErrorPage() : _buildDashboard(),
+      body: _hasError ? _buildErrorPage() : _buildMainDashboard(),
+    );
+  }
+
+  Widget _buildMainDashboard() {
+    return FutureBuilder<List<Course>>(
+      future: _futureCourses,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: Lottie.asset(
+              'assets/images/loading.json', // Path to your Lottie animation file
+              width: 250, // Adjust the width as needed
+              height: 250, // Adjust the height as needed
+              fit:
+                  BoxFit.contain, // Adjust to how you want the animation to fit
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return _buildErrorPage();
+        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          return _buildDashboard(
+            snapshot.data!.last,
+          ); // Pass the first course or handle as needed
+        } else {
+          return const Center(child: Text('No courses available'));
+        }
+      },
     );
   }
 
@@ -677,7 +744,7 @@ class DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildDashboard() {
+  Widget _buildDashboard(Course course) {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
@@ -745,11 +812,11 @@ class DashboardPageState extends State<DashboardPage> {
                                     PageRouteBuilder(
                                       pageBuilder:
                                           (context, animation1, animation2) =>
-                                              ProfilePage(
+                                              UserDetailsPage(
                                         // fullName:
                                         //    '', // Add fullName or get it dynamically
 
-                                        username: widget
+                                        userName: widget
                                             .username, // Pass the username dynamically
                                         mobile: widget.mobile,
                                         fullName: widget.fullName,
@@ -866,6 +933,7 @@ class DashboardPageState extends State<DashboardPage> {
                           ));
                         } else {
                           final courses = snapshot.data!;
+
                           return SizedBox(
                             height: 200.h,
                             child: ListView.builder(
@@ -875,12 +943,11 @@ class DashboardPageState extends State<DashboardPage> {
                                 final course = courses[index];
                                 return _buildCourseCard(
                                   context,
-                                  course.imageUrl ??
-                                      'assets/images/not_found.jpg',
+                                  course.imageUrl,
                                   course.title,
+                                  course.id,
                                   '${course.chapters.length} Lessons',
-                                  course.description ??
-                                      'No description available',
+                                  course.description,
                                   'Rs. ${course.price} /-',
                                   index,
                                 );
@@ -902,7 +969,6 @@ class DashboardPageState extends State<DashboardPage> {
                       children: [
                         Text(
                           '  Jobs & Vacancies',
-                          //  textAlign: TextAlign.start,
                           style: GoogleFonts.dmSans(
                             color: const Color.fromARGB(255, 0, 0, 0),
                             fontSize: 21.sp,
@@ -913,114 +979,145 @@ class DashboardPageState extends State<DashboardPage> {
                       ],
                     ),
                     SizedBox(height: 23.h),
-                    // GridView
-
-                    GestureDetector(
-                      child: GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        childAspectRatio: 1.5,
-                        mainAxisSpacing: 14.h,
-                        crossAxisSpacing: 15.w,
-                        children: List.generate(4, (index) {
-                          // List of job titles
-                          final jobTitles = [
-                            'Office\n Clerk',
-                            'Senior\n Accountant',
-                            'System\n Admin',
-                            'Cashier'
-                          ];
-                          final jobSvg = [
-                            'assets/images/job_sector.svg',
-                            'assets/images/job_sector1.svg',
-                            'assets/images/job_sector2.svg',
-                            'assets/images/job_sector3.svg',
-                          ];
-
+                    FutureBuilder<List<Course>>(
+                      future: _futureCourses,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _buildShimmerEffectVacencies();
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text(
+                              'Error loading jobs',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No jobs available',
+                              style: GoogleFonts.dmSans(
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          );
+                        } else {
+                          final jobs = snapshot.data!
+                              .take(4)
+                              .toList(); // Limit to 4 jobs
                           return Column(
                             children: [
-                              Expanded(
-                                flex: 2,
-                                child: Container(
-                                  padding: const EdgeInsets.only(left: 23),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(22.r),
-                                      topRight: Radius.circular(22.r),
-                                    ),
-                                    color: const Color.fromRGBO(
-                                        117, 192, 68, 0.15),
-                                  ),
-                                  child: Center(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        SvgPicture.asset(
-                                          jobSvg[index],
-                                          height: 35.h,
-                                          width: 35.w,
+                              GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  childAspectRatio: 1.5,
+                                  mainAxisSpacing: 14.h,
+                                  crossAxisSpacing: 15.w,
+                                ),
+                                itemCount: jobs.length,
+                                itemBuilder: (context, index) {
+                                  final job = jobs[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => JobDetailPage(
+                                            courseId: job.id,
+                                          ),
                                         ),
-                                        SizedBox(
-                                            width: 10
-                                                .w), // Add spacing between icon and text
-                                        Text(
-                                          jobTitles[
-                                              index], // Replace with job title
-                                          style: GoogleFonts.dmSans(
-                                            letterSpacing: -0.5.w,
-                                            color: Colors.black,
-                                            fontSize: 14.sp,
-                                            fontWeight: FontWeight.normal,
+                                      );
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          flex: 2,
+                                          child: Container(
+                                            padding:
+                                                EdgeInsets.only(left: 16.w),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(22.r),
+                                                topRight: Radius.circular(22.r),
+                                              ),
+                                              color: const Color.fromRGBO(
+                                                  117, 192, 68, 0.15),
+                                            ),
+                                            child: Center(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  SvgPicture.asset(
+                                                    'assets/images/job_sector1.svg', // Replace with dynamic image if available
+                                                    height: 35.h,
+                                                    width: 35.w,
+                                                    placeholderBuilder: (context) =>
+                                                        const CircularProgressIndicator(),
+                                                  ),
+                                                  SizedBox(width: 10.w),
+                                                  Expanded(
+                                                    child: Text(
+                                                      job.title,
+                                                      style: GoogleFonts.dmSans(
+                                                        letterSpacing: -0.5.w,
+                                                        color: Colors.black,
+                                                        fontSize: 14.sp,
+                                                        fontWeight:
+                                                            FontWeight.normal,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                bottomLeft:
+                                                    Radius.circular(22.r),
+                                                bottomRight:
+                                                    Radius.circular(22.r),
+                                              ),
+                                              color: const Color.fromRGBO(
+                                                  46, 53, 58, 1),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '${job.vacancyCount} Vacancies',
+                                                style: GoogleFonts.dmSans(
+                                                  letterSpacing: -0.5.w,
+                                                  color: const Color.fromRGBO(
+                                                      255, 255, 255, 1),
+                                                  fontSize: 14.sp,
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
-                              Expanded(
-                                flex: 1,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(22.r),
-                                      bottomRight: Radius.circular(22.r),
-                                    ),
-                                    color: const Color.fromRGBO(46, 53, 58, 1),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '110 Vacancies',
-                                      style: GoogleFonts.dmSans(
-                                        letterSpacing: -0.5.w,
-                                        color: const Color.fromRGBO(
-                                            255, 255, 255, 1),
-                                        fontSize: 14.sp,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              SizedBox(height: 20.h),
                             ],
                           );
-                        }),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation1, animation2) =>
-                                  JobDetailPage(),
-                              transitionDuration: Duration.zero,
-                              reverseTransitionDuration: Duration.zero,
-                            ));
+                        }
                       },
                     ),
 
                     SizedBox(height: 20.h),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -1028,25 +1125,26 @@ class DashboardPageState extends State<DashboardPage> {
                           child: Text(
                             'View More',
                             style: GoogleFonts.dmSans(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: -0.5),
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.5,
+                            ),
                           ),
                           onTap: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return const NotificationPage();
-                            }));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NotificationPage(),
+                              ),
+                            );
                           },
                         ),
-                        const SizedBox(
-                          width: 5,
-                        ),
+                        const SizedBox(width: 5),
                         const Icon(
                           Icons.arrow_forward,
                           size: 18,
                           color: Colors.green,
-                        )
+                        ),
                       ],
                     ),
                     SizedBox(height: 30.h),
@@ -1110,7 +1208,7 @@ class DashboardPageState extends State<DashboardPage> {
                       onTap: () {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                          return SuccessPurchasePage();
+                          return const SuccessPurchasePage();
                         }));
                       },
                     ),
@@ -1126,307 +1224,367 @@ class DashboardPageState extends State<DashboardPage> {
       ],
     );
   }
+}
 
-  Widget _buildShimmerEffect() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: SizedBox(
-        height: 189.h, // Adjusted to match the card height
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 6,
-          itemBuilder: (_, __) => Container(
-            width: 276.w, // Match the card width
-            margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
-            child: Stack(
-              children: [
-                // Shimmer for the image
-                Container(
-                  height: 169.h, // Match the image height
-                  width: 276.w, // Match the image width
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18.r),
-                  ),
-                ),
-                // Shimmer for the gradient overlay
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18.r),
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.7),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                // Shimmer for the title text
-                Positioned(
-                  bottom: 15.h,
-                  left: 15.w,
-                  right: 10.w,
-                  child: Container(
-                    height: 40.h, // Approximate height for two lines of text
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4.r),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showCourseDrawer(BuildContext context, String title, String lessons,
-      String description, String price) {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      builder: (BuildContext context) {
-        // ignore: sized_box_for_whitespace
-        return Container(
-          height: 450.h,
+Widget _buildShimmerEffect() {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[300]!,
+    highlightColor: Colors.grey[100]!,
+    child: SizedBox(
+      height: 189.h, // Adjusted to match the card height
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 6,
+        itemBuilder: (_, __) => Container(
+          width: 276.w, // Match the card width
+          margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
           child: Stack(
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 20.h),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Divider(
-                        color: Color.fromARGB(255, 122, 121, 121),
-                        endIndent: 150,
-                        indent: 150,
-                        thickness: 4,
-                      ),
-                      SizedBox(height: 10.h),
-                      Text(
-                        title,
-                        style: GoogleFonts.dmSans(
-                          letterSpacing: -0.5.w,
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      Text(
-                        'Details:',
-                        style: GoogleFonts.dmSans(
-                          letterSpacing: -0.5.w,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                      SizedBox(height: 5.h),
-                      Text(
-                        description,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 16.sp,
-                          letterSpacing: -0.5.w,
-                        ),
-                      ),
-                      SizedBox(height: 70.h),
-                      // Text(
-                      //   '''
-                      //   Course Details:
-                      //   $lessons
-                      //   Fee: $price
-                      //   ''',
-                      //   style: TextStyle(
-                      //     fontWeight: FontWeight.bold,
-                      //     fontSize: 16.sp,
-                      //   ),
-                      // ),
-                      // SizedBox(height: 80.h),
-                    ],
+              // Shimmer for the image
+              Container(
+                height: 169.h, // Match the image height
+                width: 276.w, // Match the image width
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18.r),
+                ),
+              ),
+              // Shimmer for the gradient overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18.r),
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.7),
+                        Colors.transparent,
+                      ],
+                    ),
                   ),
                 ),
               ),
+              // Shimmer for the title text
               Positioned(
-                bottom: 0.h,
-                left: 0,
-                right: 0,
+                bottom: 15.h,
+                left: 15.w,
+                right: 10.w,
                 child: Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Want to Know more?',
-                        style: GoogleFonts.dmSans(
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.5.w,
-                          color: const Color.fromARGB(255, 0, 0, 0),
-                          fontSize: 18.sp,
-                        ),
-                      ),
-                      SizedBox(width: 10.w),
-                      Container(
-                        width: MediaQuery.of(context).size.width / 3,
-                        decoration: const BoxDecoration(
-                            color: Color.fromRGBO(117, 192, 68, 1),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
-                        child: TextButton(
-                          onPressed: () => _launchWhatsApp(title),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                'assets/images/whatsapp.svg',
-                                colorFilter: const ColorFilter.mode(
-                                    Colors.white, BlendMode.srcIn),
-                                height: 20.0,
-                                width: 20.0,
-                                allowDrawingOutsideViewBox: true,
-                              ),
-                              SizedBox(width: 5.w),
-                              Text(
-                                'Contact',
-                                style: GoogleFonts.dmSans(
-                                  color: Colors.white,
-                                  fontSize: 18.sp,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  height: 40.h, // Approximate height for two lines of text
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4.r),
                   ),
                 ),
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  Future<void> _launchWhatsApp(String title) async {
-    const phoneNumber = '+918089891475';
-    final message = '''I am interested in the course,
-*"$title"*
-How can I know more?
-http://amset-client.vercel.app
-Amset Academy. ''';
-    final url =
-        'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
-    // ignore: deprecated_member_use
-    if (await canLaunch(url)) {
-      // ignore: deprecated_member_use
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-  Widget _buildCourseCard(BuildContext context, String imagePath, String title,
-      String lessons, String description, String price, int index) {
-    return Container(
-      width: 276.w,
-      margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18.r),
+        ),
       ),
-      child: Stack(
+    ),
+  );
+}
+
+Widget _buildShimmerEffectVacencies() {
+  return GridView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      childAspectRatio: 1.5,
+      mainAxisSpacing: 14.h,
+      crossAxisSpacing: 15.w,
+    ),
+    itemCount: 4, // Placeholder count for shimmer
+    itemBuilder: (context, index) {
+      return Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(18.r),
-            child: Image(
-              height: 180.h,
-              width: 276.w,
-              image: imagePath.isNotEmpty
-                  ? NetworkImage(imagePath)
-                  : const AssetImage('assets/images/not_found.png')
-                      as ImageProvider,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.asset(
-                  'assets/images/not_found.jpg',
-                  height: 180.h,
-                  width: 276.w,
-                  fit: BoxFit.cover,
-                );
-              },
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: const Color.fromRGBO(213, 215, 216, 1),
-                ),
-                borderRadius: BorderRadius.circular(18.r),
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.7),
-                    Colors.transparent,
-                  ],
+          // Top section of the shimmer card
+          Expanded(
+            flex: 2,
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                // margin:
+                //     EdgeInsets.symmetric(horizontal: 10.w), // Uniform margin
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(22.r),
+                    topRight: Radius.circular(22.r),
+                  ),
+                  color: Colors.grey[300],
                 ),
               ),
             ),
           ),
-          Positioned(
-            bottom: 15.h,
-            left: 15.w,
-            right: 10.w,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 19.sp,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                    height: 1.2,
+          // Bottom section of the shimmer card
+          Expanded(
+            flex: 1,
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                //     margin: EdgeInsets.symmetric(horizontal: 10.w), // Same margin
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(22.r),
+                    bottomRight: Radius.circular(22.r),
                   ),
+                  color: Colors.grey[300],
                 ),
-                SizedBox(height: 8.h),
-                GestureDetector(
-                  onTap: () {
-                    _showCourseDrawer(
-                        context, title, lessons, description, price);
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white),
-                    child: Text(
-                      'View Details',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: -0.5,
-                        color: const Color.fromARGB(255, 0, 0, 0),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
+
+// void _showCourseDrawer(BuildContext context, String title, String lessons,
+//     String description, String price) {
+//   showModalBottomSheet(
+//     isScrollControlled: true,
+//     context: context,
+//     builder: (BuildContext context) {
+//       // ignore: sized_box_for_whitespace
+//       return Container(
+//         height: 450.h,
+//         child: Stack(
+//           children: [
+//             Padding(
+//               padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 20.h),
+//               child: SingleChildScrollView(
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     const Divider(
+//                       color: Color.fromARGB(255, 122, 121, 121),
+//                       endIndent: 150,
+//                       indent: 150,
+//                       thickness: 4,
+//                     ),
+//                     SizedBox(height: 10.h),
+//                     Text(
+//                       title,
+//                       style: GoogleFonts.dmSans(
+//                         letterSpacing: -0.5.w,
+//                         fontSize: 24.sp,
+//                         fontWeight: FontWeight.bold,
+//                       ),
+//                     ),
+//                     SizedBox(height: 10.h),
+//                     Text(
+//                       'Details:',
+//                       style: GoogleFonts.dmSans(
+//                         letterSpacing: -0.5.w,
+//                         fontWeight: FontWeight.bold,
+//                         fontSize: 20.sp,
+//                       ),
+//                     ),
+//                     SizedBox(height: 5.h),
+//                     Text(
+//                       description,
+//                       style: GoogleFonts.dmSans(
+//                         fontSize: 16.sp,
+//                         letterSpacing: -0.5.w,
+//                       ),
+//                     ),
+//                     SizedBox(height: 70.h),
+//                     // Text(
+//                     //   '''
+//                     //   Course Details:
+//                     //   $lessons
+//                     //   Fee: $price
+//                     //   ''',
+//                     //   style: TextStyle(
+//                     //     fontWeight: FontWeight.bold,
+//                     //     fontSize: 16.sp,
+//                     //   ),
+//                     // ),
+//                     // SizedBox(height: 80.h),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//             Positioned(
+//               bottom: 0.h,
+//               left: 0,
+//               right: 0,
+//               child: Container(
+//                 color: Colors.white,
+//                 padding: const EdgeInsets.symmetric(vertical: 20),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   children: [
+//                     Text(
+//                       'Want to Know more?',
+//                       style: GoogleFonts.dmSans(
+//                         fontWeight: FontWeight.w600,
+//                         letterSpacing: -0.5.w,
+//                         color: const Color.fromARGB(255, 0, 0, 0),
+//                         fontSize: 18.sp,
+//                       ),
+//                     ),
+//                     SizedBox(width: 10.w),
+//                     Container(
+//                       width: MediaQuery.of(context).size.width / 3,
+//                       decoration: const BoxDecoration(
+//                           color: Color.fromRGBO(117, 192, 68, 1),
+//                           borderRadius: BorderRadius.all(Radius.circular(20))),
+//                       child: TextButton(
+//                         onPressed: () => _launchWhatsApp(title),
+//                         child: Row(
+//                           mainAxisAlignment: MainAxisAlignment.center,
+//                           children: [
+//                             SvgPicture.asset(
+//                               'assets/images/whatsapp.svg',
+//                               colorFilter: const ColorFilter.mode(
+//                                   Colors.white, BlendMode.srcIn),
+//                               height: 20.0,
+//                               width: 20.0,
+//                               allowDrawingOutsideViewBox: true,
+//                             ),
+//                             SizedBox(width: 5.w),
+//                             Text(
+//                               'Contact',
+//                               style: GoogleFonts.dmSans(
+//                                 color: Colors.white,
+//                                 fontSize: 18.sp,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       );
+//     },
+//   );
+// }
+
+// Future<void> _launchWhatsApp(String title) async {
+//   const phoneNumber = '+918089891475';
+//   final message = '''I am interested in the course,
+// *"$title"*
+// How can I know more?
+// http://amset-client.vercel.app
+// Amset Academy. ''';
+//   final url = 'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
+//   // ignore: deprecated_member_use
+//   if (await canLaunch(url)) {
+//     // ignore: deprecated_member_use
+//     await launch(url);
+//   } else {
+//     throw 'Could not launch $url';
+//   }
+// }
+
+Widget _buildCourseCard(BuildContext context, String imagePath, String title,
+    String id, String lessons, String description, String price, int index) {
+  return Container(
+    width: 276.w,
+    margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(18.r),
+    ),
+    child: Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(18.r),
+          child: Image(
+            height: 180.h,
+            width: 276.w,
+            image: imagePath.isNotEmpty
+                ? NetworkImage(imagePath)
+                : const AssetImage('assets/images/not_found.png')
+                    as ImageProvider,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Image.asset(
+                'assets/images/not_found.jpg',
+                height: 180.h,
+                width: 276.w,
+                fit: BoxFit.cover,
+              );
+            },
+          ),
+        ),
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: const Color.fromRGBO(213, 215, 216, 1),
+              ),
+              borderRadius: BorderRadius.circular(18.r),
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  Colors.black.withOpacity(0.7),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 15.h,
+          left: 15.w,
+          right: 10.w,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.dmSans(
+                  fontSize: 19.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                  height: 1.2,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return JobDetailPage(
+                      courseId: id,
+                    );
+                  }));
+                  // _showCourseDrawer(
+                  //     context, title, lessons, description, price);
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white),
+                  child: Text(
+                    'View Details',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.5,
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
