@@ -97,6 +97,9 @@ class _UserDetailsPage extends State<UserDetailsPage>
           _emailController.text = data['email'] ?? '';
           _whatsappController.text = data['mobileNumber']?.toString() ?? '';
           _secondaryPhoneController.text = data['secondaryMobileNumber'] ?? '';
+          _postOfficeController.text = data['postOffice'] ?? '';
+          _districtController.text = data['district'] ?? '';
+          _pincodeController.text = data['pinCode'] ?? '';
         });
       } else {
         throw Exception('Failed to fetch user details');

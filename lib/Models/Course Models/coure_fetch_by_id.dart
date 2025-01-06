@@ -92,17 +92,20 @@ class ChapterElement {
   ChapterChapter chapter;
   bool isPremium;
   String id;
+  final List<String> purchasedUsers; // Add this field
 
   ChapterElement({
     required this.chapter,
     required this.isPremium,
     required this.id,
+    required this.purchasedUsers,
   });
 
   factory ChapterElement.fromJson(Map<String, dynamic> json) => ChapterElement(
         chapter: ChapterChapter.fromJson(json["chapter"]),
         isPremium: json["isPremium"],
         id: json["_id"],
+        purchasedUsers: List<String>.from(json['purchasedUsers'] ?? []),
       );
 
   Map<String, dynamic> toJson() => {

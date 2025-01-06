@@ -27,10 +27,10 @@ class UserDetailsPage extends StatefulWidget {
   });
 
   @override
-  _UserDetailsPage createState() => _UserDetailsPage();
+  State<UserDetailsPage> createState() => _UserDetailsPageState();
 }
 
-class _UserDetailsPage extends State<UserDetailsPage>
+class _UserDetailsPageState extends State<UserDetailsPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;

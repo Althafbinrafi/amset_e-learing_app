@@ -72,6 +72,8 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
   }
 
   Future<void> _handlePurchase(String chapterId, double amount) async {
+    if (!mounted) return;
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
@@ -92,6 +94,8 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
 
       debugPrint('Response Status: ${response.statusCode}');
       debugPrint('Response Body: ${response.body}');
+
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'];
@@ -116,13 +120,17 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
       }
     } catch (e) {
       debugPrint('Error initiating payment: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment initiation failed: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Payment initiation failed: $e')),
+        );
+      }
     }
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    if (!mounted) return;
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
@@ -146,11 +154,16 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
 
       debugPrint('Verify Response: ${verifyResponse.body}');
 
+      if (!mounted) return;
+
       if (verifyResponse.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Payment successful!')),
         );
-        _loadCourse(widget.courseId); // Reload course data
+
+        if (mounted) {
+          _loadCourse(widget.courseId); // Reload course data
+        }
       } else {
         final errorMessage =
             jsonDecode(verifyResponse.body)['message'] ?? 'Unknown error';
@@ -158,9 +171,11 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
       }
     } catch (e) {
       debugPrint('Payment verification error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment verification failed: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Payment verification failed: $e')),
+        );
+      }
     }
   }
 
@@ -178,8 +193,12 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
   }
 
   void _handleChapterNavigation(ChapterElement chapter) async {
+    if (!mounted) return;
+
     final prefs = await SharedPreferences.getInstance();
     final purchasedChapters = prefs.getStringList('purchased_chapters') ?? [];
+
+    if (!mounted) return;
 
     if (chapter.chapter.isPremium == true &&
         !purchasedChapters.contains(chapter.chapter.id)) {
