@@ -71,6 +71,7 @@ dependencies:
   pdfx: ^2.8.0
   chewie: ^1.8.5
   sliding_up_panel: ^2.0.0+1
+  intl: ^0.20.1
   
   
 

@@ -128,7 +128,7 @@ class _SkipPageState extends State<SkipPage>
                         ),
                         SizedBox(height: 50.h),
                         Container(
-                          width: 133.w,
+                          width: 133,
                           height: 45.h,
                           decoration: BoxDecoration(
                             color: _isLoading ? Colors.grey : Colors.black,
@@ -137,10 +137,10 @@ class _SkipPageState extends State<SkipPage>
                           child: TextButton(
                             onPressed: _onGetStartedPressed,
                             child: _isLoading
-                                ? SizedBox(
-                                    height: 20.h,
-                                    width: 20.w,
-                                    child: const CircularProgressIndicator(
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       color: Colors.white,
                                     ),
@@ -149,7 +149,7 @@ class _SkipPageState extends State<SkipPage>
                                     'Get Started',
                                     style: GoogleFonts.dmSans(
                                         color: Colors.white,
-                                        fontSize: 18.sp,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.w400),
                                   ),
                           ),

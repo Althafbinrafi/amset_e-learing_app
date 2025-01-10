@@ -10,7 +10,6 @@ import 'package:amset/Api%20Services/registration_service.dart';
 
 import '../Models/Reg & Log Models/registration_model.dart';
 
-
 class OtpVerificationPage extends StatefulWidget {
   final String fullName;
   final String username;
@@ -125,14 +124,25 @@ class OtpVerificationPageState extends State<OtpVerificationPage>
               ),
             );
           } else {
-            _showSnackBar('Registration failed: ${registrationResult.message}');
+            _showSnackBar(
+                registrationResult.message); // Show the message directly
           }
         } else {
           _showSnackBar('Invalid OTP. Please try again.');
         }
       } catch (e) {
-        log('Error during registration: $e');
-        _showSnackBar('Failed to verify OTP or register. Please try again.');
+        // Clean up the error message
+        final errorMessage = e
+            .toString()
+            .replaceAll(RegExp('error:'), '') // Remove the "error:" prefix
+            .replaceAll(
+                RegExp(r'Exception:.*?:'), '') // Remove redundant prefixes
+
+            .replaceAll(RegExp(r'[{}"]'), '') // Remove special characters
+            .trim();
+
+        log(errorMessage); // Log only the cleaned error message
+        _showSnackBar(errorMessage); // Show only the cleaned error message
       } finally {
         setState(() {
           _isLoading = false;

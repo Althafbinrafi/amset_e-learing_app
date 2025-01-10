@@ -151,7 +151,7 @@ class _UserDetailsPage extends State<UserDetailsPage>
     if (mounted) setState(() => _isLoading = true);
 
     final url =
-        Uri.parse('https://amset-server.vercel.app/api/user/profile/image');
+        Uri.parse('https://amset-server.vercel.app/api/user/image-upload');
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,11 +35,24 @@ class _ChapterPageState extends State<ChapterPage> {
   bool showSuccessPanel = false;
   bool showErrorPanel = false;
   String errorMessage = '';
+  bool _isFullScreen = false;
 
   @override
   void initState() {
     super.initState();
     chapterDataFuture = fetchChapterData();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    _youtubePlayerController?.dispose();
+    super.dispose();
   }
 
   Future<Map<String, dynamic>> fetchChapterData() async {
@@ -66,7 +81,15 @@ class _ChapterPageState extends State<ChapterPage> {
           if (videoId != null) {
             _youtubePlayerController = YoutubePlayerController(
               initialVideoId: videoId,
-              flags: const YoutubePlayerFlags(autoPlay: false),
+              flags: const YoutubePlayerFlags(
+                autoPlay: true,
+                mute: false,
+                disableDragSeek: false,
+                loop: false,
+                isLive: false,
+                forceHD: false,
+                enableCaption: true,
+              ),
             );
           }
         }
@@ -93,226 +116,47 @@ class _ChapterPageState extends State<ChapterPage> {
     return match?.group(1);
   }
 
-  void handleSubmit(Map<String, dynamic> chapter) async {
-    if (!mounted) return;
+  Widget _buildYoutubePlayer() {
+    if (_youtubePlayerController == null) return const SizedBox.shrink();
 
-    try {
-      setState(() {
-        isLoading = true;
-      });
-
-      // Initial validation
-      if (userAnswers.isEmpty) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please answer all questions before submitting.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      final allQuestionsAnswered = chapter['questions'].every((question) {
-        return userAnswers
-            .any((answer) => answer['questionId'] == question['_id']);
-      });
-
-      if (!allQuestionsAnswered) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please answer all questions before submitting.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-
-      if (token == null) {
-        throw Exception('Authentication token not found.');
-      }
-
-      final requestBody = {
-        'userAnswers': userAnswers.map((answer) {
-          return {
-            'questionId': answer['questionId'],
-            'selectedOptionIndex': answer['selectedOptionIndex'],
-          };
-        }).toList(),
-      };
-
-      final response = await http.post(
-        Uri.parse(
-            'https://amset-server.vercel.app/api/chapter/${widget.chapterId}/complete-chapter?courseId=${widget.courseId}'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(requestBody),
-      );
-
-      if (!mounted) return;
-
-      final responseData = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-        // Server successfully processed the submission
-        if (mounted) {
-          setState(() {
-            isSubmitted = true;
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Answers successfully submitted!'),
-              backgroundColor: Colors.green,
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        return YoutubePlayerBuilder(
+          player: YoutubePlayer(
+            controller: _youtubePlayerController!,
+            showVideoProgressIndicator: true,
+            progressIndicatorColor: const Color.fromARGB(255, 0, 183, 82),
+            progressColors: const ProgressBarColors(
+              playedColor: Colors.green,
+              handleColor: Colors.green,
             ),
-          );
-
-          setState(() {
-            showSuccessPanel = true;
-            _panelController.open();
-          });
-        }
-      } else if (response.statusCode == 400 && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(responseData['message'] ?? 'Invalid submission'),
-            backgroundColor: Colors.red,
+            actionsPadding: const EdgeInsets.all(8),
           ),
-        );
-      } else if (response.statusCode == 409 && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('This chapter has already been submitted'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to submit answers. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      log('Error submitting answers: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Network error. Please check your connection and try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
-  }
-
-  // void _showErrorPanel(String message) {
-  //   setState(() {
-  //     errorMessage = message;
-  //     showErrorPanel = true;
-  //     showSuccessPanel = false; // Ensure success panel is hidden
-  //     _panelController.open();
-  //   });
-  // }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SlidingUpPanel(
-        controller: _panelController,
-        minHeight: 0,
-        maxHeight: MediaQuery.of(context).size.height * 0.4,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        panel: showSuccessPanel
-            ? _buildSuccessPanel()
-            : showErrorPanel
-                ? _buildErrorPanel()
-                : Container(),
-        backdropEnabled: true,
-        backdropOpacity: 0.5,
-        onPanelClosed: () {
-          setState(() {
-            showSuccessPanel = false;
-            showErrorPanel = false;
-          });
-        },
-        body: FutureBuilder<Map<String, dynamic>>(
-          future: chapterDataFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Error: ${snapshot.error}',
-                  style: const TextStyle(fontSize: 16, color: Colors.red),
-                ),
-              );
-            }
-
-            final chapter = snapshot.data!;
-            return Scaffold(
-              backgroundColor: Colors.white,
-              appBar: AppBar(
-                title: Text(
-                  chapter['title'] ?? "Chapter",
-                  style:
-                      GoogleFonts.dmSans(fontSize: 20.0, letterSpacing: -0.3),
-                ),
-                centerTitle: true,
-                surfaceTintColor: Colors.transparent,
-                backgroundColor: Colors.white,
-                leading: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20.0),
-                    child: SvgPicture.asset(
-                      'assets/images/back_btn.svg',
-                      width: 25,
-                      height: 25,
-                    ),
-                  ),
-                ),
-                leadingWidth: 55.0,
-              ),
-              body: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_youtubePlayerController != null)
-                      YoutubePlayer(
-                        controller: _youtubePlayerController!,
-                        showVideoProgressIndicator: true,
-                        aspectRatio: 16 / 9,
-                      ),
-                    const SizedBox(height: 16),
-                    _buildDescriptionSection(chapter),
-                    _buildQuestionsSection(chapter),
-                    _buildSubmitButton(chapter),
-                  ],
-                ),
-              ),
+          onEnterFullScreen: () {
+            SystemChrome.setPreferredOrientations([
+              DeviceOrientation.landscapeLeft,
+              DeviceOrientation.landscapeRight,
+            ]);
+            setState(() {
+              _isFullScreen = true;
+            });
+          },
+          onExitFullScreen: () {
+            SystemChrome.setPreferredOrientations([
+              DeviceOrientation.portraitUp,
+            ]);
+            setState(() {
+              _isFullScreen = false;
+            });
+          },
+          builder: (context, player) {
+            return AspectRatio(
+              aspectRatio: 16 / 9,
+              child: player,
             );
           },
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -495,84 +339,6 @@ class _ChapterPageState extends State<ChapterPage> {
     );
   }
 
-  Widget _buildErrorPanel() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Lottie.asset(
-            'assets/images/error.json',
-            width: 120,
-            height: 120,
-            repeat: false,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Error',
-            style: GoogleFonts.dmSans(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              errorMessage,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.dmSans(
-                fontSize: 16,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                _panelController.close();
-                setState(() {
-                  showErrorPanel = false;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-              child: Text(
-                'Close',
-                style: GoogleFonts.dmSans(
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSubmitButton(Map<String, dynamic> chapter) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -595,7 +361,14 @@ class _ChapterPageState extends State<ChapterPage> {
                 backgroundColor: const Color(0xFF75C044),
               ),
               child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        strokeWidth: 3,
+                      ),
+                    )
                   : Text(
                       'Submit Answers',
                       style: GoogleFonts.dmSans(
@@ -611,84 +384,414 @@ class _ChapterPageState extends State<ChapterPage> {
 
   Widget _buildSuccessPanel() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      height: MediaQuery.of(context).size.height * 0.7, // 60% of screen height
+      padding: EdgeInsets.symmetric(
+        horizontal:
+            MediaQuery.of(context).size.width * 0.05, // 5% of screen width
+        vertical: 16,
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: IntrinsicHeight(
-        // This will make the container height match its content
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Drawer handle
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          // Drawer handle
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
             ),
-            // Lottie animation
-            Lottie.asset(
-              'assets/images/claimCoin.json',
-              width: 120, // Reduced size
-              height: 120, // Reduced size
-              repeat: false,
+          ),
+          // Lottie animation
+          Lottie.asset(
+            'assets/images/claimCoin.json',
+            width:
+                MediaQuery.of(context).size.width * 0.35, // 35% of screen width
+            height: MediaQuery.of(context).size.width * 0.35, // Keep it square
+            repeat: false,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Congratulations!',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.dmSans(
+              fontSize: MediaQuery.of(context).size.width *
+                  0.05, // 5% of screen width
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF75C044),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Congratulations!',
-              style: GoogleFonts.dmSans(
-                fontSize: 20, // Reduced size
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF75C044),
-              ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "You've earned 100 coins",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.dmSans(
+              fontSize: MediaQuery.of(context).size.width *
+                  0.04, // 4% of screen width
+              color: Colors.black87,
             ),
-            const SizedBox(height: 8),
-            Text(
-              "You've earned 100 coins",
-              style: GoogleFonts.dmSans(
-                fontSize: 16, // Reduced size
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  _panelController.close();
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF75C044),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: Text(
-                  'Claim Reward',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 16,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+          ),
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                _panelController.close();
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF75C044),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
                 ),
               ),
+              child: Text(
+                'Claim Reward',
+                style: GoogleFonts.dmSans(
+                  fontSize: MediaQuery.of(context).size.width *
+                      0.04, // 4% of screen width
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
+  Widget _buildErrorPanel() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 16),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.red,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Error',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    errorMessage,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      showErrorPanel = false;
+                    });
+                    _panelController.close();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    minimumSize: const Size(200, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    'Close',
+                    style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void handleSubmit(Map<String, dynamic> chapter) async {
+    if (!mounted) return;
+
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      // Initial validation
+      if (userAnswers.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please answer all questions before submitting.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final allQuestionsAnswered = chapter['questions'].every((question) {
+        return userAnswers
+            .any((answer) => answer['questionId'] == question['_id']);
+      });
+
+      if (!allQuestionsAnswered) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please answer all questions before submitting.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        throw Exception('Authentication token not found.');
+      }
+
+      final requestBody = {
+        'userAnswers': userAnswers.map((answer) {
+          return {
+            'questionId': answer['questionId'],
+            'selectedOptionIndex': answer['selectedOptionIndex'],
+          };
+        }).toList(),
+      };
+
+      final response = await http.post(
+        Uri.parse(
+            'https://amset-server.vercel.app/api/chapter/${widget.chapterId}/complete-chapter?courseId=${widget.courseId}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (!mounted) return;
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        // Server successfully processed the submission
+        if (mounted) {
+          setState(() {
+            isSubmitted = true;
+          });
+
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   const SnackBar(
+          //     content: Text('Answers successfully submitted!'),
+          //     backgroundColor: Colors.green,
+          //   ),
+          // );
+
+          setState(() {
+            showSuccessPanel = true;
+            _panelController.open();
+          });
+        }
+      } else if (response.statusCode == 400 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(responseData['message'] ?? 'Invalid submission'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else if (response.statusCode == 409 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('This chapter has already been submitted'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to submit answers. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      log('Error submitting answers: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Network error. Please check your connection and try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
-  void dispose() {
-    _youtubePlayerController?.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
+    return WillPopScope(
+      onWillPop: () async {
+        if (_isFullScreen) {
+          _youtubePlayerController?.toggleFullScreenMode();
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SlidingUpPanel(
+          controller: _panelController,
+          minHeight: 0,
+          maxHeight: MediaQuery.of(context).size.height * 0.4,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          panel: showSuccessPanel
+              ? _buildSuccessPanel()
+              : showErrorPanel
+                  ? _buildErrorPanel()
+                  : Container(),
+          backdropEnabled: true,
+          backdropOpacity: 0.5,
+          onPanelClosed: () {
+            setState(() {
+              showSuccessPanel = false;
+              showErrorPanel = false;
+            });
+          },
+          body: FutureBuilder<Map<String, dynamic>>(
+            future: chapterDataFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: Lottie.asset(
+                    'assets/images/loading.json',
+                    width: 200.w,
+                    height: 200.h,
+                    fit: BoxFit.contain,
+                  ),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    style: const TextStyle(fontSize: 16, color: Colors.red),
+                  ),
+                );
+              }
+
+              final chapter = snapshot.data!;
+              return Scaffold(
+                backgroundColor: Colors.white,
+                appBar: _isFullScreen
+                    ? null
+                    : AppBar(
+                        title: Text(
+                          chapter['title'] ?? "Chapter",
+                          style: GoogleFonts.dmSans(
+                              fontSize: 20.0, letterSpacing: -0.3),
+                        ),
+                        centerTitle: true,
+                        surfaceTintColor: Colors.transparent,
+                        backgroundColor: Colors.white,
+                        leading: GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 20.0),
+                            child: SvgPicture.asset(
+                              'assets/images/back_btn.svg',
+                              width: 25,
+                              height: 25,
+                            ),
+                          ),
+                        ),
+                        leadingWidth: 55.0,
+                      ),
+                body: Column(
+                  children: [
+                    // Video section with fixed height
+                    SizedBox(
+                      height: _isFullScreen
+                          ? MediaQuery.of(context).size.height
+                          : MediaQuery.of(context).size.width *
+                              9 /
+                              16, // 16:9 aspect ratio
+                      child: _buildYoutubePlayer(),
+                    ),
+                    // Scrollable content section
+                    if (!_isFullScreen)
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 1.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 16),
+                                _buildDescriptionSection(chapter),
+                                _buildQuestionsSection(chapter),
+                                _buildSubmitButton(chapter),
+                                const SizedBox(height: 16),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -18,6 +18,7 @@ class ProfilePage extends StatefulWidget {
   final String fullName;
   final String? userId;
   final String? avatar;
+  final int totalCoins; // Accept total coins
 
   const ProfilePage({
     super.key,
@@ -25,6 +26,7 @@ class ProfilePage extends StatefulWidget {
     required this.mobile,
     required this.fullName,
     required this.username,
+    required this.totalCoins,
     this.userId,
     this.avatar,
   });
@@ -281,7 +283,7 @@ class ProfilePageState extends State<ProfilePage>
                                     ),
                                     SizedBox(width: 6.w),
                                     Text(
-                                      '126',
+                                      widget.totalCoins.toString(),
                                       style: GoogleFonts.dmSans(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w400,
@@ -296,11 +298,11 @@ class ProfilePageState extends State<ProfilePage>
                             ],
                           ),
                           CircleAvatar(
-                            maxRadius: 60.r,
+                            maxRadius: 70.r,
                             backgroundColor: Colors.transparent,
                             child: SizedBox(
-                              height: 75.h,
-                              width: 75.w,
+                              height: 95.h,
+                              width: 95.w,
                               child: ClipOval(
                                 child: widget.avatar != null &&
                                         widget.avatar!.isNotEmpty
@@ -371,45 +373,45 @@ class ProfilePageState extends State<ProfilePage>
                             ),
                           ),
                           const SizedBox(height: 11),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 6.29.w, vertical: 3.29.h),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: const Color.fromARGB(26, 192, 68, 68),
-                                ),
-                                child: Text(
-                                  'Cashier',
-                                  style: GoogleFonts.dmSans(
-                                      fontSize: 14.sp,
-                                      letterSpacing: -0.3,
-                                      color: const Color.fromARGB(
-                                          255, 192, 68, 68)),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 7.w,
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 6.29.w, vertical: 3.29.h),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: const Color(0x1AFFCC00),
-                                ),
-                                child: Text(
-                                  'Accountant',
-                                  style: GoogleFonts.dmSans(
-                                      fontSize: 14.sp,
-                                      letterSpacing: -0.3,
-                                      color: const Color(0xFFFFCC00)),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.center,
+                          //   children: [
+                          //     Container(
+                          //       padding: EdgeInsets.symmetric(
+                          //           horizontal: 6.29.w, vertical: 3.29.h),
+                          //       decoration: BoxDecoration(
+                          //         borderRadius: BorderRadius.circular(20),
+                          //         color: const Color.fromARGB(26, 192, 68, 68),
+                          //       ),
+                          //       child: Text(
+                          //         'Cashier',
+                          //         style: GoogleFonts.dmSans(
+                          //             fontSize: 14.sp,
+                          //             letterSpacing: -0.3,
+                          //             color: const Color.fromARGB(
+                          //                 255, 192, 68, 68)),
+                          //       ),
+                          //     ),
+                          //     SizedBox(
+                          //       width: 7.w,
+                          //     ),
+                          //     Container(
+                          //       padding: EdgeInsets.symmetric(
+                          //           horizontal: 6.29.w, vertical: 3.29.h),
+                          //       decoration: BoxDecoration(
+                          //         borderRadius: BorderRadius.circular(20),
+                          //         color: const Color(0x1AFFCC00),
+                          //       ),
+                          //       child: Text(
+                          //         'Accountant',
+                          //         style: GoogleFonts.dmSans(
+                          //             fontSize: 14.sp,
+                          //             letterSpacing: -0.3,
+                          //             color: const Color(0xFFFFCC00)),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                           SizedBox(height: 14.h),
                           Column(
                             children: [

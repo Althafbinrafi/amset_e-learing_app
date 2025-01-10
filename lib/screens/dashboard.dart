@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:amset/screens/DrawerPages/More/more_page.dart';
 import 'package:amset/screens/NavigationBar/CoursePages/course_page.dart';
 import 'package:amset/screens/NavigationBar/JobVacancies/job_vacancy.dart';
 import 'package:amset/screens/DrawerPages/Profile/profile_page.dart';
@@ -37,6 +38,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   String _fullName = 'Full Name';
   String? _userId; // Nullable userId field
   String? _avatarUrl;
+  int _totalCoins = 0; // To store the total coins count
   List<Widget> _pages = [];
 
   @override
@@ -76,24 +78,38 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       log('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final profileData = profileModelFromJson(response.body);
+        final profileData = userModelFromJson(response.body);
+
+        // Calculate total coins from courseCoins
+        int totalCoins = profileData.courseCoins?.fold<int>(
+              0,
+              (sum, coin) => sum + (coin.coins ?? 0), // Handle nullable coins
+            ) ??
+            0; // Provide default value if courseCoins is null
+
         setState(() {
-          _username = profileData.username ?? 'Unknown User';
-          _mobile = profileData.mobileNumber ?? 'No mobile number';
-          _fullName = profileData.fullName ?? 'Unknown User';
+          _username = profileData.username ?? "Unknown User"; // Default if null
+          _mobile =
+              profileData.mobileNumber ?? "Unknown Mobile"; // Default if null
+          _fullName = profileData.fullName ?? "Full Name"; // Default if null
           _avatarUrl = profileData.image;
+          _totalCoins = totalCoins; // Set the total coins count
 
           // Initialize pages with the loaded profile data
           _pages = [
             DashboardPage(
-                username: _username,
-                mobile: _mobile,
-                fullName: _fullName,
-                userId: _userId ??
-                    'Unknown User ID', // Pass _userId here if not null
-                avatar: _avatarUrl),
-            const NotificationPage(),
-            const CoursePage(),
+              username: _username,
+              mobile: _mobile,
+              fullName: _fullName,
+              userId: _userId ?? 'Unknown User ID',
+              avatar: _avatarUrl,
+              totalCoins: _totalCoins, // Pass total coins to DashboardPage
+            ),
+            const JobVacancy(),
+            CoursePage(
+              userId: _userId.toString(),
+              token: token,
+            ),
           ];
         });
       } else if (response.statusCode == 404) {
@@ -110,80 +126,82 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
     return WillPopScope(
-        onWillPop: () async {
-          if (_currentIndex == 0) {
-            return await showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                backgroundColor: Colors.white,
-                title: Text(
-                  'Exit App',
-                  style: GoogleFonts.dmSans(
-                      fontSize: 14.sp, fontWeight: FontWeight.bold),
-                ),
-                content: Text(
-                  'Are you sure you want to exit the app?',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 14.sp,
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(
-                      'No',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 14.sp,
-                        color: const Color(0xFF006257),
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: Text(
-                      'Yes',
-                      style: GoogleFonts.dmSans(
-                        fontSize: 14.sp,
-                        color: const Color(0xFF006257),
-                      ),
-                    ),
-                  ),
-                ],
+      onWillPop: () async {
+        if (_currentIndex == 0) {
+          return await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: Colors.white,
+              title: Text(
+                'Exit App',
+                style: GoogleFonts.dmSans(
+                    fontSize: 14.sp, fontWeight: FontWeight.bold),
               ),
-            );
-          } else {
-            setState(() {
-              _currentIndex = 0;
-            });
-            return false;
-          }
-        },
-        child: Scaffold(
-          endDrawerEnableOpenDragGesture: false,
-          key: _scaffoldKey,
-          backgroundColor: Colors.white,
-          appBar: _buildAppBar(),
-          body: IndexedStack(
+              content: Text(
+                'Are you sure you want to exit the app?',
+                style: GoogleFonts.dmSans(
+                  fontSize: 14.sp,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'No',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14.sp,
+                      color: const Color(0xFF006257),
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text(
+                    'Yes',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14.sp,
+                      color: const Color(0xFF006257),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        } else {
+          setState(() {
+            _currentIndex = 0;
+          });
+          return false;
+        }
+      },
+      child: Scaffold(
+        endDrawerEnableOpenDragGesture: false,
+        key: _scaffoldKey,
+        backgroundColor: Colors.white,
+        appBar: _buildAppBar(),
+        body: RefreshIndicator(
+          onRefresh: _fetchProfileData, // Pull-to-refresh
+          child: IndexedStack(
             index: _currentIndex,
             children: _pages.isNotEmpty
                 ? _pages
                 : [
                     Center(
                       child: Lottie.asset(
-                        'assets/images/loading.json', // Path to your Lottie animation file
-                        width: 250, // Adjust the width as needed
-                        height: 250, // Adjust the height as needed
-                        fit: BoxFit
-                            .contain, // Adjust to how you want the animation to fit
+                        'assets/images/loading.json',
+                        width: 250,
+                        height: 250,
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ],
           ),
-          bottomNavigationBar: _buildBottomNavigationBar(),
-          endDrawer: _buildDrawer(),
-        ));
+        ),
+        bottomNavigationBar: _buildBottomNavigationBar(),
+        endDrawer: _buildDrawer(),
+      ),
+    );
   }
 
   AppBar? _buildAppBar() {
@@ -235,7 +253,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       ),
                       SizedBox(width: 6.w),
                       Text(
-                        '126',
+                        '$_totalCoins ',
                         style: GoogleFonts.dmSans(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w400,
@@ -253,15 +271,23 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 child: Padding(
                   padding: EdgeInsets.only(right: 23.w),
                   child: CircleAvatar(
-                    backgroundImage:
-                        _avatarUrl != null ? NetworkImage(_avatarUrl!) : null,
                     radius: 19.r,
-                    child: _avatarUrl == null
-                        ? Image.asset('assets/images/man.png')
-                        : null, // Fallback avatar
+                    backgroundImage:
+                        _avatarUrl != null && _avatarUrl!.isNotEmpty
+                            ? NetworkImage(_avatarUrl!)
+                            : const AssetImage('assets/images/man.png')
+                                as ImageProvider,
                   ),
                 ),
               ),
+              // Refresh Icon
+              // IconButton(
+              //   onPressed: _fetchProfileData, // Trigger refresh manually
+              //   icon: const Icon(
+              //     Icons.refresh,
+              //     color: Colors.black,
+              //   ),
+              // ),
             ],
           )
         : null;
@@ -411,6 +437,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       mobile: _mobile,
                       fullName: _fullName,
                       avatar: _avatarUrl,
+                      totalCoins: _totalCoins,
                     ),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
@@ -456,11 +483,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             },
           ),
           _buildDrawerItem(
-            icon: Icons.settings,
-            title: 'Settings',
+            icon: Icons.more_vert,
+            title: 'More',
             backgroundColor: const Color.fromARGB(72, 192, 193, 192),
-            onTap: () {
-              // Navigate to Settings page
+            onTap: () async {
+              await Future.delayed(const Duration(milliseconds: 300));
+              if (!mounted) return;
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) => MorePage(
+                    userId: _userId.toString(),
+                  ),
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
             },
           ),
         ],
@@ -519,7 +557,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 ),
                 SizedBox(height: 16.h),
                 Text(
-                  '126',
+                  '$_totalCoins',
                   style: GoogleFonts.dmSans(
                     fontSize: 30.sp,
                     letterSpacing: -0.5.w,
@@ -581,6 +619,7 @@ class DashboardPage extends StatefulWidget {
   final String fullName;
   final String? userId;
   final String? avatar;
+  final int totalCoins; // Accept total coins
 
   const DashboardPage(
       {super.key,
@@ -588,6 +627,7 @@ class DashboardPage extends StatefulWidget {
       required this.mobile,
       required this.fullName,
       this.userId,
+      required this.totalCoins,
       this.avatar});
 
   @override
@@ -601,6 +641,7 @@ class DashboardPageState extends State<DashboardPage> {
   int _currentPage = 0;
   late Timer _timer;
   bool _hasError = false;
+  bool _showProfileDashboard = true;
   //Course? _course;
 
   @override
@@ -750,142 +791,20 @@ class DashboardPageState extends State<DashboardPage> {
         SliverToBoxAdapter(
           child: Column(
             children: [
+              SizedBox(height: 10.h),
+              if (_showProfileDashboard)
+                ProfileDashboard(
+                  onClose: () {
+                    setState(() {
+                      _showProfileDashboard = false; // Remove dashboard
+                    });
+                  },
+                  fullName: widget.fullName,
+                  mobile: widget.mobile,
+                  userId: widget.userId.toString(),
+                  username: widget.username,
+                ),
               SizedBox(height: 23.h),
-              Row(
-                children: [
-                  SizedBox(width: 36.w),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Hi, ',
-                          style: GoogleFonts.dmSans(
-                            color: Colors.black,
-                            fontSize: 25.sp,
-                            letterSpacing: -0.5.w,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        TextSpan(
-                          text: widget.fullName, // Display username dynamically
-                          style: GoogleFonts.dmSans(
-                            color: Colors.black,
-                            fontSize: 25.sp,
-                            letterSpacing: -1,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 7.h),
-              Row(
-                children: [
-                  SizedBox(width: 36.w),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Unlock your career',
-                          style: GoogleFonts.dmSans(
-                            color: Colors.black,
-                            fontSize: 17.sp,
-                            letterSpacing: -1,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        TextSpan(
-                            text: ' completing your profile',
-                            style: GoogleFonts.dmSans(
-                              color: const Color.fromRGBO(70, 139, 25, 1),
-                              fontSize: 17.sp,
-                              decoration: TextDecoration.underline,
-                              letterSpacing: -1,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder:
-                                          (context, animation1, animation2) =>
-                                              UserDetailsPage(
-                                        // fullName:
-                                        //    '', // Add fullName or get it dynamically
-
-                                        userName: widget
-                                            .username, // Pass the username dynamically
-                                        mobile: widget.mobile,
-                                        fullName: widget.fullName,
-                                        userId: widget.userId,
-                                      ),
-                                      transitionDuration: Duration.zero,
-                                      reverseTransitionDuration: Duration.zero,
-                                    ));
-                              }),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.only(left: 20),
-                margin: EdgeInsets.only(top: 20.h, left: 33.w, right: 33.w),
-
-                height: 73.h,
-                // width: MediaQuery.of(context).size.width - 49.w,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  borderRadius: BorderRadius.circular(18.r),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color.fromRGBO(117, 192, 68, 0.3),
-                      spreadRadius: 3,
-                      blurRadius: 107.7,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/images/profile_warning.svg',
-                      height: 25.h,
-                    ),
-                    SizedBox(width: 15.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Complete your profile setup',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 17.sp,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF2D2D2D),
-                              letterSpacing: -0.5.w,
-                            ),
-                          ),
-                          Text(
-                            'Provide your details for applying for job',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 12.sp,
-                              letterSpacing: -0.2.w,
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF6F6F6F),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 30.h),
               Container(
                 width: MediaQuery.of(context).size.width,
                 padding: EdgeInsets.only(left: 25.w),
@@ -915,32 +834,30 @@ class DashboardPageState extends State<DashboardPage> {
                             ConnectionState.waiting) {
                           return _buildShimmerEffect();
                         } else if (snapshot.hasError) {
-                          return Center(
-                              child: Text(
-                            'Error loading courses',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 14.sp,
-                            ),
-                          ));
+                          return const Center(
+                              child: Text('Error loading courses'));
                         } else if (!snapshot.hasData ||
                             snapshot.data!.isEmpty) {
-                          return Center(
-                              child: Text(
-                            'No courses available',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 14.sp,
-                            ),
-                          ));
+                          return const Center(
+                              child: Text('No courses available'));
                         } else {
-                          final courses = snapshot.data!;
+                          // Filter published courses and sort by vacancy count
+                          final courses = snapshot.data!
+                              .where((course) => course.isPublished)
+                              .toList()
+                            ..sort((a, b) =>
+                                b.vacancyCount.compareTo(a.vacancyCount));
+
+                          // Take only the first 4 courses
+                          final featuredCourses = courses.take(4).toList();
 
                           return SizedBox(
                             height: 200.h,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: courses.length,
+                              itemCount: featuredCourses.length,
                               itemBuilder: (context, index) {
-                                final course = courses[index];
+                                final course = featuredCourses[index];
                                 return _buildCourseCard(
                                   context,
                                   course.imageUrl,
@@ -1005,9 +922,13 @@ class DashboardPageState extends State<DashboardPage> {
                             ),
                           );
                         } else {
+                          // Filter only published jobs and take first 4
                           final jobs = snapshot.data!
-                              .take(4)
-                              .toList(); // Limit to 4 jobs
+                              .where((job) =>
+                                  job.isPublished) // Filter published jobs only
+                              .take(4) // Take first 4 jobs
+                              .toList();
+
                           return Column(
                             children: [
                               GridView.builder(
@@ -1026,13 +947,17 @@ class DashboardPageState extends State<DashboardPage> {
                                   return GestureDetector(
                                     onTap: () {
                                       Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => JobDetailPage(
-                                            courseId: job.id,
-                                          ),
-                                        ),
-                                      );
+                                          context,
+                                          PageRouteBuilder(
+                                            pageBuilder: (context, animation1,
+                                                    animation2) =>
+                                                JobDetailPage(
+                                              courseId: job.id.toString(),
+                                            ),
+                                            transitionDuration: Duration.zero,
+                                            reverseTransitionDuration:
+                                                Duration.zero,
+                                          ));
                                     },
                                     child: Column(
                                       children: [
@@ -1055,7 +980,7 @@ class DashboardPageState extends State<DashboardPage> {
                                                     MainAxisAlignment.start,
                                                 children: [
                                                   SvgPicture.asset(
-                                                    'assets/images/job_sector1.svg', // Replace with dynamic image if available
+                                                    'assets/images/job_sector1.svg',
                                                     height: 35.h,
                                                     width: 35.w,
                                                     placeholderBuilder: (context) =>
@@ -1133,8 +1058,12 @@ class DashboardPageState extends State<DashboardPage> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => const NotificationPage(),
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation1, animation2) =>
+                                        const JobVacancy(),
+                                transitionDuration: Duration.zero,
+                                reverseTransitionDuration: Duration.zero,
                               ),
                             );
                           },
@@ -1343,150 +1272,6 @@ Widget _buildShimmerEffectVacencies() {
   );
 }
 
-// void _showCourseDrawer(BuildContext context, String title, String lessons,
-//     String description, String price) {
-//   showModalBottomSheet(
-//     isScrollControlled: true,
-//     context: context,
-//     builder: (BuildContext context) {
-//       // ignore: sized_box_for_whitespace
-//       return Container(
-//         height: 450.h,
-//         child: Stack(
-//           children: [
-//             Padding(
-//               padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 20.h),
-//               child: SingleChildScrollView(
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     const Divider(
-//                       color: Color.fromARGB(255, 122, 121, 121),
-//                       endIndent: 150,
-//                       indent: 150,
-//                       thickness: 4,
-//                     ),
-//                     SizedBox(height: 10.h),
-//                     Text(
-//                       title,
-//                       style: GoogleFonts.dmSans(
-//                         letterSpacing: -0.5.w,
-//                         fontSize: 24.sp,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                     SizedBox(height: 10.h),
-//                     Text(
-//                       'Details:',
-//                       style: GoogleFonts.dmSans(
-//                         letterSpacing: -0.5.w,
-//                         fontWeight: FontWeight.bold,
-//                         fontSize: 20.sp,
-//                       ),
-//                     ),
-//                     SizedBox(height: 5.h),
-//                     Text(
-//                       description,
-//                       style: GoogleFonts.dmSans(
-//                         fontSize: 16.sp,
-//                         letterSpacing: -0.5.w,
-//                       ),
-//                     ),
-//                     SizedBox(height: 70.h),
-//                     // Text(
-//                     //   '''
-//                     //   Course Details:
-//                     //   $lessons
-//                     //   Fee: $price
-//                     //   ''',
-//                     //   style: TextStyle(
-//                     //     fontWeight: FontWeight.bold,
-//                     //     fontSize: 16.sp,
-//                     //   ),
-//                     // ),
-//                     // SizedBox(height: 80.h),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//             Positioned(
-//               bottom: 0.h,
-//               left: 0,
-//               right: 0,
-//               child: Container(
-//                 color: Colors.white,
-//                 padding: const EdgeInsets.symmetric(vertical: 20),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     Text(
-//                       'Want to Know more?',
-//                       style: GoogleFonts.dmSans(
-//                         fontWeight: FontWeight.w600,
-//                         letterSpacing: -0.5.w,
-//                         color: const Color.fromARGB(255, 0, 0, 0),
-//                         fontSize: 18.sp,
-//                       ),
-//                     ),
-//                     SizedBox(width: 10.w),
-//                     Container(
-//                       width: MediaQuery.of(context).size.width / 3,
-//                       decoration: const BoxDecoration(
-//                           color: Color.fromRGBO(117, 192, 68, 1),
-//                           borderRadius: BorderRadius.all(Radius.circular(20))),
-//                       child: TextButton(
-//                         onPressed: () => _launchWhatsApp(title),
-//                         child: Row(
-//                           mainAxisAlignment: MainAxisAlignment.center,
-//                           children: [
-//                             SvgPicture.asset(
-//                               'assets/images/whatsapp.svg',
-//                               colorFilter: const ColorFilter.mode(
-//                                   Colors.white, BlendMode.srcIn),
-//                               height: 20.0,
-//                               width: 20.0,
-//                               allowDrawingOutsideViewBox: true,
-//                             ),
-//                             SizedBox(width: 5.w),
-//                             Text(
-//                               'Contact',
-//                               style: GoogleFonts.dmSans(
-//                                 color: Colors.white,
-//                                 fontSize: 18.sp,
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       );
-//     },
-//   );
-// }
-
-// Future<void> _launchWhatsApp(String title) async {
-//   const phoneNumber = '+918089891475';
-//   final message = '''I am interested in the course,
-// *"$title"*
-// How can I know more?
-// http://amset-client.vercel.app
-// Amset Academy. ''';
-//   final url = 'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}';
-//   // ignore: deprecated_member_use
-//   if (await canLaunch(url)) {
-//     // ignore: deprecated_member_use
-//     await launch(url);
-//   } else {
-//     throw 'Could not launch $url';
-//   }
-// }
-
 Widget _buildCourseCard(BuildContext context, String imagePath, String title,
     String id, String lessons, String description, String price, int index) {
   return Container(
@@ -1556,11 +1341,14 @@ Widget _buildCourseCard(BuildContext context, String imagePath, String title,
               SizedBox(height: 8.h),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return JobDetailPage(
-                      courseId: id,
-                    );
-                  }));
+                  Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) =>
+                            JobDetailPage(courseId: id),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ));
                   // _showCourseDrawer(
                   //     context, title, lessons, description, price);
                 },
@@ -1587,4 +1375,196 @@ Widget _buildCourseCard(BuildContext context, String imagePath, String title,
       ],
     ),
   );
+}
+
+class ProfileDashboard extends StatefulWidget {
+  final String fullName;
+  final String username;
+  final String mobile;
+  final String userId;
+  final VoidCallback onClose;
+
+  const ProfileDashboard({
+    super.key,
+    required this.fullName,
+    required this.username,
+    required this.mobile,
+    required this.userId,
+    required this.onClose,
+  });
+
+  @override
+  ProfileDashboardState createState() => ProfileDashboardState();
+}
+
+class ProfileDashboardState extends State<ProfileDashboard> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(height: 23.h),
+        // Name and Close Icon in the Same Row
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 36.w),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Hi, ',
+                      style: GoogleFonts.dmSans(
+                        color: Colors.black,
+                        fontSize: 25.sp,
+                        letterSpacing: -0.5.w,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    TextSpan(
+                      text: widget.fullName, // Display username dynamically
+                      style: GoogleFonts.dmSans(
+                        color: Colors.black,
+                        fontSize: 25.sp,
+                        letterSpacing: -1,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                  right: 27.w, bottom: 11), // Adjust padding if needed
+              child: GestureDetector(
+                onTap: widget.onClose, // Notify parent to close dashboard
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        width: 1,
+                        color: Colors.grey,
+                      )),
+                  child: const Icon(
+                    Icons.close,
+                    size: 18,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 7.h),
+        Row(
+          children: [
+            SizedBox(width: 36.w),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Unlock your career',
+                    style: GoogleFonts.dmSans(
+                      color: Colors.black,
+                      fontSize: 17.sp,
+                      letterSpacing: -1,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  TextSpan(
+                    text: ' completing your profile',
+                    style: GoogleFonts.dmSans(
+                      color: const Color.fromRGBO(70, 139, 25, 1),
+                      fontSize: 17.sp,
+                      decoration: TextDecoration.underline,
+                      letterSpacing: -1,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation1, animation2) =>
+                                UserDetailsPage(
+                              userName: widget.username,
+                              mobile: widget.mobile,
+                              fullName: widget.fullName,
+                              userId: widget.userId,
+                            ),
+                            transitionDuration: Duration.zero,
+                            reverseTransitionDuration: Duration.zero,
+                          ),
+                        );
+                      },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 20.h, left: 33.w, right: 33.w),
+          child: Stack(
+            children: [
+              Container(
+                height: 73.h,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  borderRadius: BorderRadius.circular(18.r),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromRGBO(117, 192, 68, 0.3),
+                      spreadRadius: 3,
+                      blurRadius: 107.7,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(width: 20.w),
+                    SvgPicture.asset(
+                      'assets/images/profile_warning.svg',
+                      height: 25.h,
+                    ),
+                    SizedBox(width: 15.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Complete your profile setup',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 17.sp,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF2D2D2D),
+                              letterSpacing: -0.5.w,
+                            ),
+                          ),
+                          Text(
+                            'Provide your details for applying for job',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 12.sp,
+                              letterSpacing: -0.2.w,
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF6F6F6F),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Add other sections below this
+      ],
+    );
+  }
 }

@@ -154,9 +154,13 @@ class _ApplyNowPageState extends State<ApplyNowPage>
                   Navigator.pop(context); // Close the drawer
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AllLessonsPage(courseId: widget.courseId),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) =>
+                          AllLessonsPage(
+                        courseId: widget.courseId,
+                      ),
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
                     ),
                   );
                 },
@@ -266,6 +270,7 @@ class _ApplyNowPageState extends State<ApplyNowPage>
                                   onTap: _isLoading ? null : _applyForCourse,
                                   child: Container(
                                     width: 159.w,
+                                    height: 40,
                                     padding: const EdgeInsets.all(10.0),
                                     decoration: BoxDecoration(
                                       color:
@@ -274,11 +279,10 @@ class _ApplyNowPageState extends State<ApplyNowPage>
                                     ),
                                     child: Center(
                                       child: _isLoading
-                                          ? SizedBox(
-                                              height: 25.h,
-                                              width: 25.w,
-                                              child:
-                                                  const CircularProgressIndicator(
+                                          ? const SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
                                                 color: Colors.white,
                                                 strokeWidth: 2,
                                               ),

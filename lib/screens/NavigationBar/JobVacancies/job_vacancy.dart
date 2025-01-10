@@ -9,14 +9,14 @@ import 'package:lottie/lottie.dart';
 import '../../../Models/Course Models/course_fetch_model.dart';
 import '../../Job Apply Pages/apply_job.dart';
 
-class NotificationPage extends StatefulWidget {
-  const NotificationPage({super.key});
+class JobVacancy extends StatefulWidget {
+  const JobVacancy({super.key});
 
   @override
-  NotificationPageState createState() => NotificationPageState();
+  JobVacancyState createState() => JobVacancyState();
 }
 
-class NotificationPageState extends State<NotificationPage> {
+class JobVacancyState extends State<JobVacancy> {
   bool _isExpanded = false;
   late Future _courseData;
   final TextEditingController _searchController = TextEditingController();
@@ -28,7 +28,8 @@ class NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     _courseData = ApiService().fetchCourses().then((data) {
-      _allCourses = data.courses;
+      // Store only published courses
+      _allCourses = data.courses.where((course) => course.isPublished).toList();
       _filteredCourses = _allCourses;
       return data;
     });
@@ -48,6 +49,8 @@ class NotificationPageState extends State<NotificationPage> {
       } else {
         _filteredCourses = _allCourses
             .where((course) =>
+                course
+                    .isPublished && // Ensure only published courses are included in search
                 course.title.toLowerCase().contains(query.toLowerCase()))
             .toList();
       }

@@ -1,9 +1,11 @@
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../Api Services/jobvacancy_api_services.dart';
 import '../../Models/Course Models/course_fetch_model.dart';
@@ -22,16 +24,20 @@ class _JobDetailPageState extends State<JobDetailPage>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  late PageController _pageController; // PageController for poster swiping
+  Timer? _autoSwipeTimer; // Timer for automatic swiping
 
   bool _isLoading = true;
   Course? _courseData;
   String? _error;
+  int _currentPage = 0; // Keep track of the current page
 
   @override
   void initState() {
     super.initState();
     _setupAnimations();
     _fetchCourseDetails();
+    _setupAutoSwipe();
   }
 
   void _setupAnimations() {
@@ -56,6 +62,29 @@ class _JobDetailPageState extends State<JobDetailPage>
     );
 
     _animationController.forward();
+  }
+
+  void _setupAutoSwipe() {
+    _pageController = PageController(initialPage: 0);
+
+    _autoSwipeTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_courseData != null && _courseData!.hiringPartners.length > 1) {
+        // Calculate the next page
+        int nextPage = (_currentPage + 1) % _courseData!.hiringPartners.length;
+
+        // Animate to the next page
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+
+        // Update the current page
+        setState(() {
+          _currentPage = nextPage;
+        });
+      }
+    });
   }
 
   Future<void> _fetchCourseDetails() async {
@@ -83,6 +112,7 @@ class _JobDetailPageState extends State<JobDetailPage>
   @override
   void dispose() {
     _animationController.dispose();
+    _autoSwipeTimer?.cancel();
     super.dispose();
   }
 
@@ -118,139 +148,143 @@ class _JobDetailPageState extends State<JobDetailPage>
 
   Widget _buildShimmerEffect() {
     return SingleChildScrollView(
-      child: Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: Column(
-          children: [
-            // Icon shimmer
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0.w),
-              child: Column(
-                children: [
-                  Container(
-                    height: 45.h,
-                    width: 45.w,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+      child: Center(
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Icon shimmer
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32.0.w),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 45.h,
+                      width: 45.w,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 18.h),
-                  // Title shimmer
-                  // Container(
-                  //   height: 24.h,
-                  //   width: 200.w,
-                  //   decoration: BoxDecoration(
-                  //     color: Colors.white,
-                  //     borderRadius: BorderRadius.circular(12),
-                  //   ),
-                  // ),
-                  SizedBox(height: 10.h),
-                  // Vacancy count shimmer
-                  Container(
-                    height: 17.h,
-                    width: 100.w,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
+                    SizedBox(height: 18.h),
+                    // Title shimmer
+                    // Container(
+                    //   height: 24.h,
+                    //   width: 200.w,
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.white,
+                    //     borderRadius: BorderRadius.circular(12),
+                    //   ),
+                    // ),
+                    SizedBox(height: 10.h),
+                    // Vacancy count shimmer
+                    Container(
+                      height: 17.h,
+                      width: 100.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20.h),
-                  // Description shimmer
-                  Column(
-                    children: List.generate(
-                      4,
-                      (index) => Padding(
-                        padding: EdgeInsets.only(bottom: 8.h),
-                        child: Container(
-                          height: 16.h,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
+                    SizedBox(height: 20.h),
+                    // Description shimmer
+                    Column(
+                      children: List.generate(
+                        4,
+                        (index) => Padding(
+                          padding: EdgeInsets.only(bottom: 8.h),
+                          child: Container(
+                            height: 16.h,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 32.h),
-                ],
+                    SizedBox(height: 32.h),
+                  ],
+                ),
               ),
-            ),
 
-            // Posters shimmer
-            SizedBox(
-              height: 169.h,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
+              // Posters shimmer
+              SizedBox(
+                height: 169.h,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      SizedBox(width: 32.w),
+                      ...List.generate(
+                        1,
+                        (index) => Container(
+                          width: 276.w,
+                          margin: EdgeInsets.only(right: 16.r),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(34),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.h),
+
+              // Hiring Partners text shimmer
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32.0.w),
+                child: Column(
                   children: [
-                    SizedBox(width: 32.w),
-                    ...List.generate(
-                      3,
-                      (index) => Container(
-                        width: 276.w,
-                        margin: EdgeInsets.only(right: 16.r),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(34),
+                    SizedBox(height: 15.h),
+                    // Container(
+                    //   height: 39.h,
+                    //   width: 200.w,
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.white,
+                    //     borderRadius: BorderRadius.circular(30.r),
+                    //   ),
+                    // ),
+                    SizedBox(height: 16.h),
+                    // Partner logos shimmer
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: List.generate(
+                        2,
+                        (index) => Container(
+                          width: 100.w,
+                          height: 40.h,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(30.r),
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-            SizedBox(height: 16.h),
 
-            // Hiring Partners text shimmer
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0.w),
-              child: Column(
-                children: [
-                  SizedBox(height: 15.h),
-                  // Container(
-                  //   height: 39.h,
-                  //   width: 200.w,
-                  //   decoration: BoxDecoration(
-                  //     color: Colors.white,
-                  //     borderRadius: BorderRadius.circular(30.r),
-                  //   ),
-                  // ),
-                  SizedBox(height: 16.h),
-                  // Partner logos shimmer
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: List.generate(
-                      2,
-                      (index) => Container(
-                        width: 100.w,
-                        height: 40.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30.r),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              SizedBox(height: 40.h),
+              // Apply button shimmer
+              Container(
+                width: 175.w,
+                height: 45.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
-            ),
-
-            SizedBox(height: 40.h),
-            // Apply button shimmer
-            Container(
-              width: 175.w,
-              height: 45.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-            SizedBox(height: 32.h),
-          ],
+              SizedBox(height: 32.h),
+            ],
+          ),
         ),
       ),
     );
@@ -279,8 +313,6 @@ class _JobDetailPageState extends State<JobDetailPage>
         child: Center(
           child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 32.0.w),
@@ -341,21 +373,47 @@ class _JobDetailPageState extends State<JobDetailPage>
                     ],
                   ),
                 ),
-                if (_courseData?.hiringPartners?.isNotEmpty ?? false)
-                  SizedBox(
-                    height: 169.h,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          SizedBox(width: 32.w),
-                          ..._courseData!.hiringPartners!
-                              .map((partner) => _buildPosterContainer(partner)),
-                        ],
+                if (_courseData?.hiringPartners.isNotEmpty ?? false)
+                  Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24.w),
+                        child: SizedBox(
+                          height: 169.h,
+                          child: PageView.builder(
+                            controller: _pageController,
+                            itemCount: _courseData!.hiringPartners.length,
+                            onPageChanged: (index) {
+                              // Update the current page when the user swipes manually
+                              setState(() {
+                                _currentPage = index;
+                              });
+                            },
+                            itemBuilder: (context, index) {
+                              return _buildPosterContainer(
+                                _courseData!.hiringPartners[index],
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 12),
+                      // Swiping Indicator
+                      SmoothPageIndicator(
+                        controller: _pageController,
+                        count: _courseData!.hiringPartners.length,
+                        effect: ExpandingDotsEffect(
+                          activeDotColor: Colors.black,
+                          dotColor: Colors.grey[400]!,
+                          dotHeight: 8.0,
+                          dotWidth: 8.0,
+                          expansionFactor: 3,
+                          spacing: 4.0,
+                        ),
+                      ),
+                    ],
                   ),
-                if (_courseData?.hiringPartners?.isNotEmpty ?? false)
+                if (_courseData?.hiringPartners.isNotEmpty ?? false)
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 32.0.w),
                     child: Column(
@@ -372,14 +430,7 @@ class _JobDetailPageState extends State<JobDetailPage>
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 8,
-                          runSpacing: 16,
-                          children: _courseData!.hiringPartners!
-                              .map((partner) => _buildPartnerLogo(partner))
-                              .toList(),
-                        ),
+                        _buildPartnerLogosList(_courseData!.hiringPartners),
                       ],
                     ),
                   ),
@@ -390,7 +441,9 @@ class _JobDetailPageState extends State<JobDetailPage>
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation1, animation2) =>
-                             ApplyNowPage(courseId: widget.courseId,),
+                            ApplyNowPage(
+                          courseId: widget.courseId,
+                        ),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                       ),
@@ -435,122 +488,141 @@ class _JobDetailPageState extends State<JobDetailPage>
   }
 
   Widget _buildPosterContainer(HiringPartner partner) {
-    return Container(
-      width: 276.w,
-      margin: EdgeInsets.only(right: 16.r),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: const Color.fromARGB(138, 70, 71, 81),
-          width: 1,
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: 12.0), // Padding for each poster
+      child: Container(
+        width: 276.w,
+        // margin: EdgeInsets.only(right: 16.r),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: const Color.fromARGB(138, 70, 71, 81),
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(34),
         ),
-        borderRadius: BorderRadius.circular(34),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(34),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Image.network(
-                partner.poster,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 24,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Image not available',
-                        style: TextStyle(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(34),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.network(
+                  partner.poster,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 24,
                           color: Colors.grey[400],
-                          fontSize: 14.sp,
                         ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Image not available',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        color: Colors.white,
                       ),
-                    ],
-                  ),
-                ),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      color: Colors.white,
-                    ),
-                  );
-                },
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.7),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-                padding: EdgeInsets.all(16.r),
-                child: Text(
-                  partner.companyName,
-                  style: GoogleFonts.dmSans(
-                    color: Colors.white,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.3,
-                  ),
-                  textAlign: TextAlign.center,
+                    );
+                  },
                 ),
               ),
-            ),
-          ],
+              // Positioned(
+              //   bottom: 0,
+              //   left: 0,
+              //   right: 0,
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //       gradient: LinearGradient(
+              //         begin: Alignment.bottomCenter,
+              //         end: Alignment.topCenter,
+              //         colors: [
+              //           Colors.black.withOpacity(0.7),
+              //           Colors.transparent,
+              //         ],
+              //       ),
+              //     ),
+              //     padding: EdgeInsets.all(16.r),
+              //     child: Text(
+              //       partner.companyName,
+              //       style: GoogleFonts.dmSans(
+              //         color: Colors.white,
+              //         fontSize: 16.sp,
+              //         fontWeight: FontWeight.w500,
+              //         letterSpacing: -0.3,
+              //       ),
+              //       textAlign: TextAlign.center,
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildPartnerLogo(HiringPartner partner) {
-    return Container(
-      width: 100.w,
-      height: 50.h,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: const Color.fromARGB(0, 137, 134, 134),
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(8),
+Widget _buildPartnerLogosList(List<HiringPartner> partners) {
+  return SingleChildScrollView(
+    scrollDirection: Axis.horizontal, // Horizontal scrolling
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: partners.map((partner) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: 3.0), // Add spacing between logos
+          child: _buildPartnerLogo(partner),
+        );
+      }).toList(),
+    ),
+  );
+}
+
+Widget _buildPartnerLogo(HiringPartner partner) {
+  return Container(
+    width: 100.w,
+    height: 50.h,
+    decoration: BoxDecoration(
+      border: Border.all(
+        color: const Color.fromARGB(0, 137, 134, 134),
+        width: 1,
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: partner.companyLogo != null
-            ? Image.network(
-                partner.companyLogo!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.business),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      color: Colors.white,
-                    ),
-                  );
-                },
-              )
-            : const Icon(Icons.business),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.network(
+        partner.companyLogo ?? '', // Use empty string if companyLogo is null
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.business),
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              color: Colors.white,
+            ),
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
 }

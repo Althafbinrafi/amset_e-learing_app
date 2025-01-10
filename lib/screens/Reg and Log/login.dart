@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:amset/screens/dashboard.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -319,44 +318,6 @@ class _LoginPageState extends State<LoginPage>
                                       ),
                                     ),
                                     SizedBox(height: 30.h),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          height: 23,
-                                          width: 23,
-                                          child: SvgPicture.asset(
-                                              'assets/images/google 1.svg'),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        RichText(
-                                          textAlign: TextAlign.center,
-                                          text: TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text: 'Register with',
-                                                style: GoogleFonts.dmSans(
-                                                  color: Colors.black,
-                                                  letterSpacing: -0.5.w,
-                                                  fontSize: 16.sp,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                              TextSpan(
-                                                text: ' Google',
-                                                style: GoogleFonts.dmSans(
-                                                  color: Colors.black,
-                                                  letterSpacing: -0.5.w,
-                                                  fontSize: 16.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
                                   ],
                                 ),
                               ),

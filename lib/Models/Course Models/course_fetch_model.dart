@@ -1,91 +1,100 @@
-
-
 import 'dart:convert';
 
-CourseFetchModel courseFetchModelFromJson(String str) => CourseFetchModel.fromJson(json.decode(str));
+CourseFetchModel courseFetchModelFromJson(String str) =>
+    CourseFetchModel.fromJson(json.decode(str));
 
-String courseFetchModelToJson(CourseFetchModel data) => json.encode(data.toJson());
+String courseFetchModelToJson(CourseFetchModel data) =>
+    json.encode(data.toJson());
 
 class CourseFetchModel {
-    int results;
-    List<Course> courses;
+  int results;
+  List<Course> courses;
 
-    CourseFetchModel({
-        required this.results,
-        required this.courses,
-    });
+  CourseFetchModel({
+    required this.results,
+    required this.courses,
+  });
 
-    factory CourseFetchModel.fromJson(Map<String, dynamic> json) => CourseFetchModel(
-        results: json["results"],
-        courses: List<Course>.from(json["courses"].map((x) => Course.fromJson(x))),
-    );
+  factory CourseFetchModel.fromJson(Map<String, dynamic> json) =>
+      CourseFetchModel(
+        results: json["results"] ?? 0,
+        courses: (json["courses"] as List<dynamic>? ?? [])
+            .map((x) => Course.fromJson(x as Map<String, dynamic>))
+            .toList(),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "results": results,
-        "courses": List<dynamic>.from(courses.map((x) => x.toJson())),
-    };
+        "courses": courses.map((x) => x.toJson()).toList(),
+      };
 }
 
 class Course {
-    String id;
-    String title;
-    bool isPublished;
-    DateTime createdAt;
-    DateTime updatedAt;
-    int v;
-    String description;
-    String? category;
-    String imageUrl;
-    int price;
-    bool? isPremium;
-    bool deleted;
-    int coinsOfRecommend;
-    int vacancyCount;
-    List<Chapter> chapters;
-    List<Learner>? learners;
-    List<HiringPartner>? hiringPartners;
+  String id;
+  String title;
+  bool isPublished;
+  DateTime createdAt;
+  DateTime updatedAt;
+  int v;
+  String description;
+  String category;
+  String imageUrl;
+  int price;
+  bool isPremium;
+  bool deleted;
+  int coinsOfRecommend;
+  int vacancyCount;
+  List<Chapter> chapters;
+  List<Learner> learners;
+  List<HiringPartner> hiringPartners;
 
-    Course({
-        required this.id,
-        required this.title,
-        required this.isPublished,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.v,
-        required this.description,
-        this.category,
-        required this.imageUrl,
-        required this.price,
-        this.isPremium,
-        required this.deleted,
-        required this.coinsOfRecommend,
-        required this.vacancyCount,
-        required this.chapters,
-        this.learners,
-        this.hiringPartners,
-    });
+  Course({
+    required this.id,
+    required this.title,
+    required this.isPublished,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.v,
+    required this.description,
+    this.category = '',
+    required this.imageUrl,
+    this.price = 0,
+    this.isPremium = false,
+    this.deleted = false,
+    this.coinsOfRecommend = 0,
+    this.vacancyCount = 0,
+    this.chapters = const [],
+    this.learners = const [],
+    this.hiringPartners = const [],
+  });
 
-    factory Course.fromJson(Map<String, dynamic> json) => Course(
-        id: json["_id"],
-        title: json["title"],
-        isPublished: json["isPublished"],
-        createdAt: DateTime.parse(json["createdAt"]),
-        updatedAt: DateTime.parse(json["updatedAt"]),
-        v: json["__v"],
-        description: json["description"],
-        category: json["category"],
-        imageUrl: json["imageUrl"],
-        price: json["price"],
-        isPremium: json["isPremium"],
-        deleted: json["deleted"],
-        coinsOfRecommend: json["coinsOfRecommend"],
-        vacancyCount: json["vacancyCount"],
-        chapters: List<Chapter>.from(json["chapters"].map((x) => Chapter.fromJson(x))),
-        learners: json["learners"] == null ? [] : List<Learner>.from(json["learners"]!.map((x) => Learner.fromJson(x))),
-        hiringPartners: json["hiringPartners"] == null ? [] : List<HiringPartner>.from(json["hiringPartners"]!.map((x) => HiringPartner.fromJson(x))),
-    );
+  factory Course.fromJson(Map<String, dynamic> json) => Course(
+        id: json["_id"] ?? '',
+        title: json["title"] ?? '',
+        isPublished: json["isPublished"] ?? false,
+        createdAt: DateTime.tryParse(json["createdAt"] ?? '') ?? DateTime.now(),
+        updatedAt: DateTime.tryParse(json["updatedAt"] ?? '') ?? DateTime.now(),
+        v: json["__v"] ?? 0,
+        description: json["description"] ?? '',
+        category: json["category"] ?? '',
+        imageUrl: json["imageUrl"] ?? '',
+        price: json["price"] ?? 0,
+        isPremium: json["isPremium"] ?? false,
+        deleted: json["deleted"] ?? false,
+        coinsOfRecommend: json["coinsOfRecommend"] ?? 0,
+        vacancyCount: json["vacancyCount"] ?? 0,
+        chapters: (json["chapters"] as List<dynamic>? ?? [])
+            .map((x) => Chapter.fromJson(x as Map<String, dynamic>))
+            .toList(),
+        learners: (json["learners"] as List<dynamic>? ?? [])
+            .map((x) => Learner.fromJson(x as Map<String, dynamic>))
+            .toList(),
+        hiringPartners: (json["hiringPartners"] as List<dynamic>? ?? [])
+            .map((x) => HiringPartner.fromJson(x as Map<String, dynamic>))
+            .toList(),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "_id": id,
         "title": title,
         "isPublished": isPublished,
@@ -100,54 +109,56 @@ class Course {
         "deleted": deleted,
         "coinsOfRecommend": coinsOfRecommend,
         "vacancyCount": vacancyCount,
-        "chapters": List<dynamic>.from(chapters.map((x) => x.toJson())),
-        "learners": learners == null ? [] : List<dynamic>.from(learners!.map((x) => x.toJson())),
-        "hiringPartners": hiringPartners == null ? [] : List<dynamic>.from(hiringPartners!.map((x) => x.toJson())),
-    };
+        "chapters": chapters.map((x) => x.toJson()).toList(),
+        "learners": learners.map((x) => x.toJson()).toList(),
+        "hiringPartners": hiringPartners.map((x) => x.toJson()).toList(),
+      };
 }
 
 class Chapter {
-    String id;
-    String title;
-    bool isPublished;
-    String course;
-    int position;
-    DateTime createdAt;
-    DateTime updatedAt;
-    int v;
-    String? description;
-    bool? isPremium;
-    List<Question>? questions;
+  String id;
+  String title;
+  bool isPublished;
+  String course;
+  int position;
+  DateTime createdAt;
+  DateTime updatedAt;
+  int v;
+  String description;
+  bool isPremium;
+  List<Question> questions;
 
-    Chapter({
-        required this.id,
-        required this.title,
-        required this.isPublished,
-        required this.course,
-        required this.position,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.v,
-        this.description,
-        this.isPremium,
-        this.questions,
-    });
+  Chapter({
+    required this.id,
+    required this.title,
+    required this.isPublished,
+    required this.course,
+    required this.position,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.v,
+    this.description = '',
+    this.isPremium = false,
+    this.questions = const [],
+  });
 
-    factory Chapter.fromJson(Map<String, dynamic> json) => Chapter(
-        id: json["_id"],
-        title: json["title"],
-        isPublished: json["isPublished"],
-        course: json["course"],
-        position: json["position"],
-        createdAt: DateTime.parse(json["createdAt"]),
-        updatedAt: DateTime.parse(json["updatedAt"]),
-        v: json["__v"],
-        description: json["description"],
-        isPremium: json["isPremium"],
-        questions: json["questions"] == null ? [] : List<Question>.from(json["questions"]!.map((x) => Question.fromJson(x))),
-    );
+  factory Chapter.fromJson(Map<String, dynamic> json) => Chapter(
+        id: json["_id"] ?? '',
+        title: json["title"] ?? '',
+        isPublished: json["isPublished"] ?? false,
+        course: json["course"] ?? '',
+        position: json["position"] ?? 0,
+        createdAt: DateTime.tryParse(json["createdAt"] ?? '') ?? DateTime.now(),
+        updatedAt: DateTime.tryParse(json["updatedAt"] ?? '') ?? DateTime.now(),
+        v: json["__v"] ?? 0,
+        description: json["description"] ?? '',
+        isPremium: json["isPremium"] ?? false,
+        questions: (json["questions"] as List<dynamic>? ?? [])
+            .map((x) => Question.fromJson(x as Map<String, dynamic>))
+            .toList(),
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "_id": id,
         "title": title,
         "isPublished": isPublished,
@@ -158,86 +169,86 @@ class Chapter {
         "__v": v,
         "description": description,
         "isPremium": isPremium,
-        "questions": questions == null ? [] : List<dynamic>.from(questions!.map((x) => x.toJson())),
-    };
+        "questions": questions.map((x) => x.toJson()).toList(),
+      };
 }
 
 class Question {
-    String questionText;
-    List<String> options;
-    int correctAnswerIndex;
-    String id;
+  String questionText;
+  List<String> options;
+  int correctAnswerIndex;
+  String id;
 
-    Question({
-        required this.questionText,
-        required this.options,
-        required this.correctAnswerIndex,
-        required this.id,
-    });
+  Question({
+    required this.questionText,
+    required this.options,
+    required this.correctAnswerIndex,
+    required this.id,
+  });
 
-    factory Question.fromJson(Map<String, dynamic> json) => Question(
-        questionText: json["questionText"],
-        options: List<String>.from(json["options"].map((x) => x)),
-        correctAnswerIndex: json["correctAnswerIndex"],
-        id: json["_id"],
-    );
+  factory Question.fromJson(Map<String, dynamic> json) => Question(
+        questionText: json["questionText"] ?? '',
+        options: (json["options"] as List<dynamic>? ?? []).cast<String>(),
+        correctAnswerIndex: json["correctAnswerIndex"] ?? 0,
+        id: json["_id"] ?? '',
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "questionText": questionText,
-        "options": List<dynamic>.from(options.map((x) => x)),
+        "options": options,
         "correctAnswerIndex": correctAnswerIndex,
         "_id": id,
-    };
+      };
 }
 
 class HiringPartner {
-    String companyName;
-    String? companyLogo;
-    String poster;
-    String id;
+  String companyName;
+  String? companyLogo;
+  String poster;
+  String id;
 
-    HiringPartner({
-        required this.companyName,
-        this.companyLogo,
-        required this.poster,
-        required this.id,
-    });
+  HiringPartner({
+    required this.companyName,
+    this.companyLogo = '',
+    required this.poster,
+    required this.id,
+  });
 
-    factory HiringPartner.fromJson(Map<String, dynamic> json) => HiringPartner(
-        companyName: json["companyName"],
-        companyLogo: json["companyLogo"],
-        poster: json["poster"],
-        id: json["_id"],
-    );
+  factory HiringPartner.fromJson(Map<String, dynamic> json) => HiringPartner(
+        companyName: json["companyName"] ?? '',
+        companyLogo: json["companyLogo"] ?? '',
+        poster: json["poster"] ?? '',
+        id: json["_id"] ?? '',
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "companyName": companyName,
         "companyLogo": companyLogo,
         "poster": poster,
         "_id": id,
-    };
+      };
 }
 
 class Learner {
-    String user;
-    DateTime joinedOn;
-    String id;
+  String user;
+  DateTime joinedOn;
+  String id;
 
-    Learner({
-        required this.user,
-        required this.joinedOn,
-        required this.id,
-    });
+  Learner({
+    required this.user,
+    required this.joinedOn,
+    required this.id,
+  });
 
-    factory Learner.fromJson(Map<String, dynamic> json) => Learner(
-        user: json["user"],
-        joinedOn: DateTime.parse(json["joinedOn"]),
-        id: json["_id"],
-    );
+  factory Learner.fromJson(Map<String, dynamic> json) => Learner(
+        user: json["user"] ?? '',
+        joinedOn: DateTime.tryParse(json["joinedOn"] ?? '') ?? DateTime.now(),
+        id: json["_id"] ?? '',
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "user": user,
         "joinedOn": joinedOn.toIso8601String(),
         "_id": id,
-    };
+      };
 }

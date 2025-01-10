@@ -1,9 +1,6 @@
 import 'dart:developer';
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
@@ -317,43 +314,6 @@ class _RegisterPageState extends State<RegisterPage>
                                   ),
                                 ),
                                 SizedBox(height: 30.h),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      height: 23,
-                                      width: 23,
-                                      child: SvgPicture.asset(
-                                          'assets/images/google 1.svg'),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    RichText(
-                                      textAlign: TextAlign.center,
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: 'Register with',
-                                            style: GoogleFonts.dmSans(
-                                              color: Colors.black,
-                                              letterSpacing: -0.5.w,
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: ' Google',
-                                            style: GoogleFonts.dmSans(
-                                              color: Colors.black,
-                                              letterSpacing: -0.5.w,
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ],
                             ),
                           ),

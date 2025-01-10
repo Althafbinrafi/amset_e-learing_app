@@ -1,13 +1,7 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import 'package:razorpay_flutter/razorpay_flutter.dart';
-import 'package:http/http.dart' as http;
 
 import '../../../Models/Course Models/all_course_model.dart';
 import '../../Course Lessons/all_lessons.dart';
@@ -23,29 +17,18 @@ class CourseDetailPageHome extends StatefulWidget {
 
 class CourseDetailPageHomeState extends State<CourseDetailPageHome>
     with SingleTickerProviderStateMixin {
-  late Razorpay _razorpay;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  String? orderId;
 
   @override
   void initState() {
     super.initState();
-
-    // Razorpay setup
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-
-    // Animation setup
     _setupAnimations();
   }
 
   @override
   void dispose() {
-    _razorpay.clear();
     _animationController.dispose();
     super.dispose();
   }
@@ -69,55 +52,15 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
     _animationController.forward();
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    log("Payment Successful");
-    _verifyOrder(response.paymentId!);
-  }
-
-  void _handlePaymentError(PaymentFailureResponse response) {
-    log("Payment Error: ${response.message}");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Payment failed. Please try again.')),
-    );
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    log("External Wallet Selected");
-  }
-
-  Future<void> _verifyOrder(String paymentId) async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://amset-server.vercel.app/api/course/order/verify'),
-        body: json.encode({
-          'orderId': orderId,
-          'paymentId': paymentId,
-          'courseId': widget.course.id,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        log('Order verified and course added to account');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Purchase successful! Course added.')),
-          );
-        }
-      } else {
-        throw Exception('Failed to verify order');
-      }
-    } catch (e) {
-      log('Error verifying order: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Filter published chapters
-    final publishedChapters = widget.course.chapters
-        .where((chapter) => chapter.isPublished == true)
-        .toList();
+    // Filter chapters
+    final publishedChapters =
+        widget.course.chapters.where((chapter) => chapter.isPublished).toList();
+    final premiumChapters =
+        publishedChapters.where((chapter) => chapter.isPremium).toList();
+    final freeChapters =
+        publishedChapters.where((chapter) => !chapter.isPremium).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -188,14 +131,15 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
                         ),
                       ),
                       const SizedBox(height: 5),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        child: SvgPicture.asset(
-                          'assets/images/premium_label.svg',
-                          width: 20.w,
-                          height: 20.h,
+                      if (widget.course.isPremium)
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          child: SvgPicture.asset(
+                            'assets/images/premium_label.svg',
+                            width: 20.w,
+                            height: 20.h,
+                          ),
                         ),
-                      ),
                       SizedBox(height: 16.h),
                       // Course Description
                       Text(
@@ -217,44 +161,33 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
                         ),
                       ),
                       SizedBox(height: 16.h),
-                      // Chapters
-                      Text(
-                        'Published Chapters:',
-                        style: GoogleFonts.dmSans(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -0.5,
+                      // Free Chapters
+                      if (freeChapters.isNotEmpty) ...[
+                        Text(
+                          'Free Chapters:',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8.h),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: publishedChapters.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(
-                              publishedChapters[index].title,
-                              style: GoogleFonts.dmSans(
-                                fontSize: 16.sp,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                            leading: CircleAvatar(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 107, 176, 62),
-                              child: Text(
-                                '${index + 1}',
-                                style: GoogleFonts.dmSans(
-                                  fontWeight: FontWeight.w600,
-                                  color:
-                                      const Color.fromARGB(255, 255, 255, 255),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                        SizedBox(height: 8.h),
+                        _buildChapterList(freeChapters),
+                      ],
+                      SizedBox(height: 16.h),
+                      // Premium Chapters
+                      if (premiumChapters.isNotEmpty) ...[
+                        Text(
+                          'Premium Chapters:',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        _buildChapterList(premiumChapters),
+                      ],
                       SizedBox(height: 60.h),
                     ],
                   ),
@@ -292,6 +225,36 @@ class CourseDetailPageHomeState extends State<CourseDetailPageHome>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildChapterList(List<Chapter> chapters) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: chapters.length,
+      itemBuilder: (context, index) {
+        final chapter = chapters[index];
+        return ListTile(
+          title: Text(
+            chapter.title,
+            style: GoogleFonts.dmSans(
+              fontSize: 16.sp,
+              letterSpacing: -0.5,
+            ),
+          ),
+          leading: CircleAvatar(
+            backgroundColor: const Color.fromARGB(255, 107, 176, 62),
+            child: Text(
+              '${index + 1}',
+              style: GoogleFonts.dmSans(
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

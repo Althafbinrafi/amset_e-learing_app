@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -22,6 +23,7 @@ class AllLessonsPage extends StatefulWidget {
 class _AllLessonsPageState extends State<AllLessonsPage> {
   late Future<CoureFetchById> futureCourse;
   late Razorpay _razorpay;
+  late String userId;
 
   @override
   void initState() {
@@ -30,7 +32,13 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    _initializeUser();
     _loadCourse(widget.courseId);
+  }
+
+  Future<void> _initializeUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    userId = prefs.getString('user_id') ?? ''; // Save userId for later use
   }
 
   @override
@@ -74,6 +82,9 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
   Future<void> _handlePurchase(String chapterId, double amount) async {
     if (!mounted) return;
 
+    final confirm = await _showConfirmationDialog(amount);
+    if (!confirm) return;
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
@@ -103,7 +114,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
           'key': 'rzp_test_cE8SRoaGo1LWRd',
           'amount': data['amount'],
           'currency': 'INR',
-          'name': 'Your Company Name',
+          'name': 'amset',
           'description': 'Chapter Purchase',
           'order_id': data['orderId'],
           'prefill': {
@@ -126,6 +137,84 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
         );
       }
     }
+  }
+
+  Future<bool> _showConfirmationDialog(double amount) async {
+    return await showModalBottomSheet<bool>(
+          context: context,
+          isDismissible: true,
+          builder: (context) {
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.r),
+                  topRight: Radius.circular(20.r),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Confirm Purchase',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+                  Text(
+                    'Are you sure you want to purchase this chapter for ₹${amount.toStringAsFixed(2)}?',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 16.sp,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(
+                          'Cancel',
+                          style: GoogleFonts.dmSans(
+                            letterSpacing: -0.3,
+                            color: Colors.grey,
+                            fontSize: 16.sp,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.w),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: Colors.amber,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                        ),
+                        child: Text(
+                          'Confirm',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.white,
+                            fontSize: 16.sp,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ) ??
+        false; // Return false if dismissed without selection
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
@@ -192,17 +281,12 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
     );
   }
 
-  void _handleChapterNavigation(ChapterElement chapter) async {
-    if (!mounted) return;
+  void _handleChapterNavigation(ChapterElement chapter) {
+    final isPurchased =
+        chapter.chapter.purchasedUsers?.contains(userId) ?? false;
 
-    final prefs = await SharedPreferences.getInstance();
-    final purchasedChapters = prefs.getStringList('purchased_chapters') ?? [];
-
-    if (!mounted) return;
-
-    if (chapter.chapter.isPremium == true &&
-        !purchasedChapters.contains(chapter.chapter.id)) {
-      _handlePurchase(chapter.chapter.id, 2000);
+    if (!isPurchased && chapter.chapter.isPremium == true) {
+      _handlePurchase(chapter.chapter.id, 2000); // Assuming the price is 2000
     } else {
       Navigator.push(
         context,
@@ -242,7 +326,14 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
           future: futureCourse,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(
+                child: Lottie.asset(
+                  'assets/images/loading.json',
+                  width: 200.w,
+                  height: 200.h,
+                  fit: BoxFit.contain,
+                ),
+              );
             } else if (snapshot.hasError) {
               debugPrint('Error in FutureBuilder: ${snapshot.error}');
               return Center(
@@ -345,6 +436,11 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                               final chapterTitle = chapter.chapter.title;
                               final chapterImage = course.imageUrl;
 
+                              // Check if the chapter is purchased
+                              final isPurchased = chapter.chapter.purchasedUsers
+                                      ?.contains(userId) ??
+                                  false;
+
                               return Column(
                                 children: [
                                   ListTile(
@@ -374,19 +470,39 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                                         letterSpacing: -0.3,
                                       ),
                                     ),
-                                    subtitle: Text(
-                                      'Part ${index + 1}',
-                                      style: GoogleFonts.dmSans(
-                                        fontSize: 14.sp,
-                                        color: Colors.grey[600],
-                                        letterSpacing: -0.3,
-                                      ),
+                                    subtitle: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Part ${index + 1}',
+                                          style: GoogleFonts.dmSans(
+                                            fontSize: 14.sp,
+                                            color: Colors.grey[600],
+                                            letterSpacing: -0.3,
+                                          ),
+                                        ),
+                                        if (chapter.chapter.isPremium == true &&
+                                            isPurchased) // Add "Purchased" text
+                                          Padding(
+                                            padding:
+                                                EdgeInsets.only(left: 10.w),
+                                            child: Text(
+                                              'Purchased',
+                                              style: GoogleFonts.dmSans(
+                                                  fontSize: 14.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.green,
+                                                  letterSpacing: -0.3),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        if (chapter.chapter.isPremium ==
-                                            true) // Only show lock for premium chapters
+                                        if (chapter.chapter.isPremium == true &&
+                                            !isPurchased) // Show lock if premium and not purchased
                                           Container(
                                             margin: EdgeInsets.only(right: 8.w),
                                             child: const Icon(

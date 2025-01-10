@@ -92,20 +92,17 @@ class ChapterElement {
   ChapterChapter chapter;
   bool isPremium;
   String id;
-  final List<String> purchasedUsers; // Add this field
 
   ChapterElement({
     required this.chapter,
     required this.isPremium,
     required this.id,
-    required this.purchasedUsers,
   });
 
   factory ChapterElement.fromJson(Map<String, dynamic> json) => ChapterElement(
         chapter: ChapterChapter.fromJson(json["chapter"]),
         isPremium: json["isPremium"],
         id: json["_id"],
-        purchasedUsers: List<String>.from(json['purchasedUsers'] ?? []),
       );
 
   Map<String, dynamic> toJson() => {
@@ -116,6 +113,7 @@ class ChapterElement {
 }
 
 class ChapterChapter {
+  List<String>? purchasedUsers; // Made nullable
   String id;
   String title;
   bool? isPublished; // Nullable
@@ -130,6 +128,7 @@ class ChapterChapter {
   bool? isPremium; // Nullable
 
   ChapterChapter({
+    this.purchasedUsers, // Made nullable
     required this.id,
     required this.title,
     this.isPublished, // Nullable
@@ -145,6 +144,9 @@ class ChapterChapter {
   });
 
   factory ChapterChapter.fromJson(Map<String, dynamic> json) => ChapterChapter(
+        purchasedUsers: (json["purchasedUsers"] as List<dynamic>?)
+            ?.map((x) => x as String)
+            .toList(),
         id: json["_id"] ?? "",
         title: json["title"] ?? "Untitled Chapter",
         isPublished: json["isPublished"], // Directly assign nullable value
@@ -165,6 +167,9 @@ class ChapterChapter {
       );
 
   Map<String, dynamic> toJson() => {
+        "purchasedUsers": purchasedUsers == null
+            ? null
+            : List<dynamic>.from(purchasedUsers!.map((x) => x)),
         "_id": id,
         "title": title,
         "isPublished": isPublished,
@@ -324,16 +329,16 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json["_id"],
-        fullName: json["fullName"],
-        username: json["username"],
-        email: json["email"],
-        password: json["password"],
-        mobileNumber: json["mobileNumber"],
-        isAdmin: json["isAdmin"],
+        id: json["_id"] ?? "",
+        fullName: json["fullName"] ?? "Unnamed User",
+        username: json["username"] ?? "Unknown",
+        email: json["email"] ?? "",
+        password: json["password"] ?? "",
+        mobileNumber: json["mobileNumber"] ?? "",
+        isAdmin: json["isAdmin"] ?? false,
         bioDescription: json["bioDescription"],
         courses: List<dynamic>.from(json["courses"].map((x) => x)),
-        deleted: json["deleted"],
+        deleted: json["deleted"] ?? false,
         image: json["image"],
         forgotPasswordToken: json["forgotPasswordToken"],
         forgotPasswordTokenExpiry: json["forgotPasswordTokenExpiry"] == null
@@ -351,8 +356,9 @@ class User {
         experience: json["experience"],
         experienceSector: json["experienceSector"],
         secondaryMobileNumber: json["secondaryMobileNumber"],
-        v: json["__v"],
-        updatedAt: DateTime.parse(json["updatedAt"]),
+        v: json["__v"] ?? 0,
+        updatedAt: DateTime.parse(
+            json["updatedAt"] ?? DateTime.now().toIso8601String()),
         answers:
             List<Answer>.from(json["answers"].map((x) => Answer.fromJson(x))),
         completedChapters:
