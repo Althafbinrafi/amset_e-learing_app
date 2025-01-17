@@ -481,16 +481,24 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                                         ),
                                         if (chapter.chapter.isPremium == true &&
                                             isPurchased) // Add "Purchased" text
-                                          Padding(
-                                            padding:
-                                                EdgeInsets.only(left: 10.w),
-                                            child: Text(
-                                              'Purchased',
-                                              style: GoogleFonts.dmSans(
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.green,
-                                                  letterSpacing: -0.3),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                color: Colors.green.shade200),
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 10.w, right: 10.w),
+                                              child: Text(
+                                                'Purchased',
+                                                style: GoogleFonts.dmSans(
+                                                    fontSize: 14.sp,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    color: const Color.fromARGB(
+                                                        255, 255, 255, 255),
+                                                    letterSpacing: -0.5),
+                                              ),
                                             ),
                                           ),
                                       ],

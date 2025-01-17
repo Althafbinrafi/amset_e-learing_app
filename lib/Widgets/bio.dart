@@ -1,14 +1,17 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditBioPage extends StatefulWidget {
   final String currentBio;
+  final String userId; // Add userId to identify the user
 
-  const EditBioPage({super.key, required this.currentBio});
+  const EditBioPage(
+      {super.key, required this.currentBio, required this.userId});
 
   @override
   State<EditBioPage> createState() => _EditBioPageState();
@@ -54,11 +57,13 @@ class _EditBioPageState extends State<EditBioPage>
     super.dispose();
   }
 
-  Future<void> _saveBio() async {
+  Future<void> _updateBio() async {
     if (_bioController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bio cannot be empty')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bio cannot be empty')),
+        );
+      }
       return;
     }
 
@@ -66,31 +71,61 @@ class _EditBioPageState extends State<EditBioPage>
       _isLoading = true;
     });
 
-    try {
-      // Save to SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userBio', _bioController.text);
+    final url = Uri.parse(
+        'https://amset-server.vercel.app/api/user/profile/${widget.userId}');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
 
-      if (!mounted) return;
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bio updated successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      // Navigate back with the new bio
-      Navigator.pop(context, _bioController.text);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save bio: $e')),
-      );
-    } finally {
+    if (token == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Authorization token is missing')),
+        );
+      }
       setState(() {
         _isLoading = false;
       });
+      return;
+    }
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'bioDescription': _bioController.text.trim()}),
+      );
+
+      if (response.statusCode == 200) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Bio updated successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Navigate back with the updated bio
+          Navigator.pop(context, _bioController.text.trim());
+        }
+      } else {
+        throw Exception(
+            'Failed to update bio. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update bio: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -138,7 +173,6 @@ class _EditBioPageState extends State<EditBioPage>
                               ),
                             ],
                           ),
-                          // Save button
                         ],
                       ),
                     ),
@@ -153,8 +187,8 @@ class _EditBioPageState extends State<EditBioPage>
                               Row(
                                 children: [
                                   Text(
-                                    textAlign: TextAlign.start,
                                     '    My Bio',
+                                    textAlign: TextAlign.start,
                                     style: GoogleFonts.dmSans(
                                       color: const Color.fromARGB(134, 0, 0, 0),
                                       fontSize: 13.sp,
@@ -235,11 +269,11 @@ class _EditBioPageState extends State<EditBioPage>
                                     width: 13.w,
                                   ),
                                   GestureDetector(
-                                    onTap: _isLoading ? null : _saveBio,
+                                    onTap: _isLoading ? null : _updateBio,
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 35.w,
-                                        vertical: 7.h,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 35,
+                                        vertical: 7,
                                       ),
                                       decoration: BoxDecoration(
                                         borderRadius:
@@ -248,11 +282,10 @@ class _EditBioPageState extends State<EditBioPage>
                                             const Color.fromARGB(255, 0, 0, 0),
                                       ),
                                       child: _isLoading
-                                          ? SizedBox(
-                                              width: 20.w,
-                                              height: 20.h,
-                                              child:
-                                                  const CircularProgressIndicator(
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
                                                 color: Colors.white,
                                                 strokeWidth: 2,
                                               ),

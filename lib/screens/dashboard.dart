@@ -40,6 +40,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   String? _userId; // Nullable userId field
   String? _avatarUrl;
   int _totalCoins = 0; // To store the total coins count
+  // String? _bio = 'User Bio';
   List<Widget> _pages = [];
 
   @override
@@ -95,6 +96,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           _fullName = profileData.fullName ?? "Full Name"; // Default if null
           _avatarUrl = profileData.image;
           _totalCoins = totalCoins; // Set the total coins count
+          // _bio = profileData.;
 
           // Initialize pages with the loaded profile data
           _pages = [
@@ -668,9 +670,11 @@ class DashboardPageState extends State<DashboardPage> {
     super.initState();
     _scrollController = ScrollController();
     _pageController = PageController(initialPage: 0);
-    _fetchProfileData(); // Fetch profile data here
-    log("User ID: ${widget.userId}");
+
     _loadCourses();
+    _fetchProfileData(); // Fetch profile data here
+
+    log("User ID: ${widget.userId}");
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startAutoPageChange();
@@ -705,11 +709,10 @@ class DashboardPageState extends State<DashboardPage> {
   Future<void> _fetchProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-    final userId =
-        prefs.getString('user_id'); // Retrieve userId from SharedPreferences
+    final userId = prefs.getString('user_id');
 
     if (userId != null) {
-      log("User ID from SharedPreferences: $userId"); // Log userId
+      log("User ID from SharedPreferences: $userId");
     } else {
       log("No User ID found in SharedPreferences.");
     }
@@ -732,25 +735,42 @@ class DashboardPageState extends State<DashboardPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        // Assuming `data` contains the user profile fields
-        setState(() {
-          _showProfileDashboard = [
-            data['fullName'],
-            data['username'],
-            data['email'],
-            data['address'],
-            data['mobileNumber'],
-            data['postOffice'],
-            data['pinCode'],
-            data['image'],
-            data['secondaryMobileNumber'],
-          ].any((field) => field == null); // Check if any field is null
-        });
+        // Check if any required field is null
+        final isProfileIncomplete = [
+          data['fullName'],
+          data['username'],
+          data['email'],
+          data['address'],
+          data['mobileNumber'],
+          data['postOffice'],
+          data['pinCode'],
+          data['image'],
+          data['secondaryMobileNumber'],
+        ].any((field) => field == null);
+
+        if (isProfileIncomplete) {
+          // If any field is null, show the ProfileDashboard
+          setState(() {
+            _showProfileDashboard = true;
+          });
+        } else {
+          // If all fields are not null, save to SharedPreferences
+          await prefs.setBool('hasShownProfileDashboard', true);
+          setState(() {
+            _showProfileDashboard = false; // Don't show the dashboard
+          });
+        }
       } else {
         log('Failed to fetch profile data. Status Code: ${response.statusCode}');
+        setState(() {
+          _showProfileDashboard = false; // Default to not showing on error
+        });
       }
     } catch (e) {
       log('Error fetching profile data: $e');
+      setState(() {
+        _showProfileDashboard = false; // Default to not showing on error
+      });
     }
   }
 
@@ -864,9 +884,13 @@ class DashboardPageState extends State<DashboardPage> {
               SizedBox(height: 10.h),
               if (_showProfileDashboard)
                 ProfileDashboard(
-                  onClose: () {
+                  onClose: () async {
+                    // Permanently hide the dashboard
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('hasShownProfileDashboard', true);
+
                     setState(() {
-                      _showProfileDashboard = false; // Hide dashboard on close
+                      _showProfileDashboard = false;
                     });
                   },
                   fullName: widget.fullName,

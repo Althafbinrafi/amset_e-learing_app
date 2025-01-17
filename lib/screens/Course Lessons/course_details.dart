@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -711,6 +710,7 @@ class _ChapterPageState extends State<ChapterPage> {
                 return Center(
                   child: Lottie.asset(
                     'assets/images/loading2.json',
+                    
                   ),
                 );
               }

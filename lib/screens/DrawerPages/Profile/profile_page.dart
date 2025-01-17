@@ -47,7 +47,7 @@ class ProfilePageState extends State<ProfilePage>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  String _userBio = 'Add your bio here...';
+  String _userBio = '';
 
   @override
   void initState() {
@@ -101,13 +101,18 @@ class ProfilePageState extends State<ProfilePage>
     final navigator = Navigator.of(context);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Clear all related keys
     await prefs.remove('auth_token');
     await prefs.remove('username');
     await prefs.remove('fullName');
     await prefs.remove('email');
     await prefs.remove('mobileNumber');
     await prefs.remove('avatar_path');
+    await prefs.remove('hasShownProfileDashboard');
+    await prefs.remove('userBio');
 
+    // Navigate to login and clear all navigation history
     navigator.pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (context) => const LoginPage(fullName: ''),
@@ -443,6 +448,7 @@ class ProfilePageState extends State<ProfilePage>
                                           (context, animation1, animation2) =>
                                               EditBioPage(
                                         currentBio: _userBio,
+                                        userId: widget.userId.toString(),
                                       ),
                                       transitionDuration: Duration.zero,
                                       reverseTransitionDuration: Duration.zero,
