@@ -315,9 +315,9 @@ class CoinDetailCard extends StatelessWidget {
                       Text(
                         courseName,
                         style: GoogleFonts.dmSans(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.3),
                       ),
                       const SizedBox(height: 4),
                       Row(

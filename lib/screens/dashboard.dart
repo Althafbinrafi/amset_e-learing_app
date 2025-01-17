@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:amset/screens/DrawerPages/Live%20sessions/live_sessions.dart';
 import 'package:amset/screens/DrawerPages/More/more_page.dart';
 import 'package:amset/screens/NavigationBar/CoursePages/course_page.dart';
 import 'package:amset/screens/NavigationBar/JobVacancies/job_vacancy.dart';
@@ -483,6 +484,24 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             },
           ),
           _buildDrawerItem(
+            icon: Icons.live_tv_rounded,
+            title: 'Live',
+            backgroundColor: const Color.fromARGB(72, 192, 193, 192),
+            onTap: () async {
+              await Future.delayed(const Duration(milliseconds: 300));
+              if (!mounted) return;
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) =>
+                      const LiveSessions(),
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            },
+          ),
+          _buildDrawerItem(
             icon: Icons.more_vert,
             title: 'More',
             backgroundColor: const Color.fromARGB(72, 192, 193, 192),
@@ -513,8 +532,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     required VoidCallback onTap,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 15),
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 15),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(10),
@@ -649,11 +668,10 @@ class DashboardPageState extends State<DashboardPage> {
     super.initState();
     _scrollController = ScrollController();
     _pageController = PageController(initialPage: 0);
-
-    _loadCourses();
+    _fetchProfileData(); // Fetch profile data here
     log("User ID: ${widget.userId}");
+    _loadCourses();
 
-    // Use a post-frame callback to ensure the widget is fully built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startAutoPageChange();
     });
@@ -682,6 +700,58 @@ class DashboardPageState extends State<DashboardPage> {
     _pageController.dispose();
     _timer.cancel();
     super.dispose();
+  }
+
+  Future<void> _fetchProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    final userId =
+        prefs.getString('user_id'); // Retrieve userId from SharedPreferences
+
+    if (userId != null) {
+      log("User ID from SharedPreferences: $userId"); // Log userId
+    } else {
+      log("No User ID found in SharedPreferences.");
+    }
+
+    if (token == null) {
+      log('Token is null.');
+      return;
+    }
+
+    final url = Uri.parse('https://amset-server.vercel.app/api/user/profile');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // Assuming `data` contains the user profile fields
+        setState(() {
+          _showProfileDashboard = [
+            data['fullName'],
+            data['username'],
+            data['email'],
+            data['address'],
+            data['mobileNumber'],
+            data['postOffice'],
+            data['pinCode'],
+            data['image'],
+            data['secondaryMobileNumber'],
+          ].any((field) => field == null); // Check if any field is null
+        });
+      } else {
+        log('Failed to fetch profile data. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error fetching profile data: $e');
+    }
   }
 
   Future<void> _loadCourses() async {
@@ -796,7 +866,7 @@ class DashboardPageState extends State<DashboardPage> {
                 ProfileDashboard(
                   onClose: () {
                     setState(() {
-                      _showProfileDashboard = false; // Remove dashboard
+                      _showProfileDashboard = false; // Hide dashboard on close
                     });
                   },
                   fullName: widget.fullName,
