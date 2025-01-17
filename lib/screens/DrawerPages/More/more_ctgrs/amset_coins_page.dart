@@ -108,10 +108,7 @@ class _AmsetCoinsPageState extends State<AmsetCoinsPage> {
       body: _isLoading
           ? Center(
               child: Lottie.asset(
-                'assets/images/loading.json',
-                width: 200.w,
-                height: 200.h,
-                fit: BoxFit.contain,
+                'assets/images/loading2.json',
               ),
             )
           : RefreshIndicator(

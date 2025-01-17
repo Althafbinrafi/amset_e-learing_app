@@ -657,9 +657,7 @@ class _UserDetailsPage extends State<UserDetailsPage>
         color: Colors.white,
         child: Center(
           child: Lottie.asset(
-            'assets/images/loading.json',
-            width: 250,
-            height: 250,
+            'assets/images/loading2.json',
           ),
         ),
       ),

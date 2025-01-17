@@ -316,13 +316,13 @@ class JobVacancyState extends State<JobVacancy> {
           child: GestureDetector(
             onTap: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return JobDetailPage(courseId: course.id);
-                  },
-                ),
-              );
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) =>
+                        JobDetailPage(courseId: course.id),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ));
             },
             child: Container(
               padding: EdgeInsets.only(left: 16.w),

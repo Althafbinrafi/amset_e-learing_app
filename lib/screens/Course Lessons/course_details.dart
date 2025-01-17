@@ -710,10 +710,7 @@ class _ChapterPageState extends State<ChapterPage> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
                   child: Lottie.asset(
-                    'assets/images/loading.json',
-                    width: 200.w,
-                    height: 200.h,
-                    fit: BoxFit.contain,
+                    'assets/images/loading2.json',
                   ),
                 );
               }
