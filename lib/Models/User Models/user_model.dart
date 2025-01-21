@@ -9,49 +9,49 @@ UserModel userModelFromJson(String str) => UserModel.fromJson(json.decode(str));
 String userModelToJson(UserModel data) => json.encode(data.toJson());
 
 class UserModel {
-    String id;
-    String username;
-    String email;
-    String mobileNumber;
-    bool isAdmin;
-    int v;
-    List<dynamic> courses;
-    DateTime updatedAt;
-    String image;
-    String address;
-    String district;
-    String fullName;
-    String postOffice;
-    String pinCode;
-    String secondaryMobileNumber;
-    List<Answer> answers;
-    List<String> completedChapters;
-    List<CourseCoin> courseCoins;
-    bool deleted;
+  String id;
+  String username;
+  String email;
+  String mobileNumber;
+  bool isAdmin;
+  int v;
+  List<dynamic> courses;
+  DateTime updatedAt;
+  String image;
+  String address;
+  String district;
+  String fullName;
+  String postOffice;
+  String pinCode;
+  String secondaryMobileNumber;
+  List<Answer> answers;
+  List<String> completedChapters;
+  List<CourseCoin> courseCoins;
+  bool deleted;
 
-    UserModel({
-        required this.id,
-        required this.username,
-        required this.email,
-        required this.mobileNumber,
-        required this.isAdmin,
-        required this.v,
-        required this.courses,
-        required this.updatedAt,
-        required this.image,
-        required this.address,
-        required this.district,
-        required this.fullName,
-        required this.postOffice,
-        required this.pinCode,
-        required this.secondaryMobileNumber,
-        required this.answers,
-        required this.completedChapters,
-        required this.courseCoins,
-        required this.deleted,
-    });
+  UserModel({
+    required this.id,
+    required this.username,
+    required this.email,
+    required this.mobileNumber,
+    required this.isAdmin,
+    required this.v,
+    required this.courses,
+    required this.updatedAt,
+    required this.image,
+    required this.address,
+    required this.district,
+    required this.fullName,
+    required this.postOffice,
+    required this.pinCode,
+    required this.secondaryMobileNumber,
+    required this.answers,
+    required this.completedChapters,
+    required this.courseCoins,
+    required this.deleted,
+  });
 
-    factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
+  factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
         id: json["_id"],
         username: json["username"],
         email: json["email"],
@@ -67,13 +67,16 @@ class UserModel {
         postOffice: json["postOffice"],
         pinCode: json["pinCode"],
         secondaryMobileNumber: json["secondaryMobileNumber"],
-        answers: List<Answer>.from(json["answers"].map((x) => Answer.fromJson(x))),
-        completedChapters: List<String>.from(json["completedChapters"].map((x) => x)),
-        courseCoins: List<CourseCoin>.from(json["courseCoins"].map((x) => CourseCoin.fromJson(x))),
+        answers:
+            List<Answer>.from(json["answers"].map((x) => Answer.fromJson(x))),
+        completedChapters:
+            List<String>.from(json["completedChapters"].map((x) => x)),
+        courseCoins: List<CourseCoin>.from(
+            json["courseCoins"].map((x) => CourseCoin.fromJson(x))),
         deleted: json["deleted"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "_id": id,
         "username": username,
         "email": email,
@@ -90,84 +93,86 @@ class UserModel {
         "pinCode": pinCode,
         "secondaryMobileNumber": secondaryMobileNumber,
         "answers": List<dynamic>.from(answers.map((x) => x.toJson())),
-        "completedChapters": List<dynamic>.from(completedChapters.map((x) => x)),
+        "completedChapters":
+            List<dynamic>.from(completedChapters.map((x) => x)),
         "courseCoins": List<dynamic>.from(courseCoins.map((x) => x.toJson())),
         "deleted": deleted,
-    };
+      };
 }
 
 class Answer {
-    String chapterId;
-    String courseId;
-    List<UserAnswer> userAnswers;
-    String id;
+  String chapterId;
+  String courseId;
+  List<UserAnswer> userAnswers;
+  String id;
 
-    Answer({
-        required this.chapterId,
-        required this.courseId,
-        required this.userAnswers,
-        required this.id,
-    });
+  Answer({
+    required this.chapterId,
+    required this.courseId,
+    required this.userAnswers,
+    required this.id,
+  });
 
-    factory Answer.fromJson(Map<String, dynamic> json) => Answer(
+  factory Answer.fromJson(Map<String, dynamic> json) => Answer(
         chapterId: json["chapterId"],
         courseId: json["courseId"],
-        userAnswers: List<UserAnswer>.from(json["userAnswers"].map((x) => UserAnswer.fromJson(x))),
+        userAnswers: List<UserAnswer>.from(
+            json["userAnswers"].map((x) => UserAnswer.fromJson(x))),
         id: json["_id"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "chapterId": chapterId,
         "courseId": courseId,
         "userAnswers": List<dynamic>.from(userAnswers.map((x) => x.toJson())),
         "_id": id,
-    };
+      };
 }
 
 class UserAnswer {
-    String questionId;
-    int selectedOptionIndex;
-    String id;
+  String questionId;
+  int selectedOptionIndex;
+  String id;
 
-    UserAnswer({
-        required this.questionId,
-        required this.selectedOptionIndex,
-        required this.id,
-    });
+  UserAnswer({
+    required this.questionId,
+    required this.selectedOptionIndex,
+    required this.id,
+  });
 
-    factory UserAnswer.fromJson(Map<String, dynamic> json) => UserAnswer(
+  factory UserAnswer.fromJson(Map<String, dynamic> json) => UserAnswer(
         questionId: json["questionId"],
         selectedOptionIndex: json["selectedOptionIndex"],
         id: json["_id"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "questionId": questionId,
         "selectedOptionIndex": selectedOptionIndex,
         "_id": id,
-    };
+      };
 }
 
 class CourseCoin {
-    String courseId;
-    int coins;
-    String id;
+  String courseId;
+  int coins;
+  String id;
 
-    CourseCoin({
-        required this.courseId,
-        required this.coins,
-        required this.id,
-    });
+  CourseCoin({
+    required this.courseId,
+    required this.coins,
+    required this.id,
+  });
 
-    factory CourseCoin.fromJson(Map<String, dynamic> json) => CourseCoin(
+  factory CourseCoin.fromJson(Map<String, dynamic> json) => CourseCoin(
         courseId: json["courseId"],
         coins: json["coins"],
         id: json["_id"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "courseId": courseId,
         "coins": coins,
         "_id": id,
-    };
+      };
 }

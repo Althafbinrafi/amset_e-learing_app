@@ -187,6 +187,7 @@ class _AmsetCoinsPageState extends State<AmsetCoinsPage> {
                               Text(
                                 'No coins earned yet',
                                 style: GoogleFonts.dmSans(
+                                  letterSpacing: -0.3,
                                   fontSize: 16,
                                   color: Colors.grey[600],
                                 ),
@@ -329,6 +330,7 @@ class CoinDetailCard extends StatelessWidget {
                             '${courseCoin.coins} coins',
                             style: GoogleFonts.dmSans(
                               fontSize: 16,
+                              letterSpacing: -0.3,
                               color: Colors.grey[600],
                               fontWeight: FontWeight.w500,
                             ),

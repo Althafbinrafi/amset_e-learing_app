@@ -24,6 +24,7 @@ class UserModel {
     List<String>? completedChapters;
     List<CourseCoin>? courseCoins;
     bool? deleted;
+    String? bioDescription;
 
     UserModel({
         this.id,
@@ -45,6 +46,7 @@ class UserModel {
         this.completedChapters,
         this.courseCoins,
         this.deleted,
+        this.bioDescription,
     });
 
     factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
@@ -67,6 +69,7 @@ class UserModel {
         completedChapters: json["completedChapters"] == null ? [] : List<String>.from(json["completedChapters"].map((x) => x)),
         courseCoins: json["courseCoins"] == null ? [] : List<CourseCoin>.from(json["courseCoins"].map((x) => CourseCoin.fromJson(x))),
         deleted: json["deleted"],
+        bioDescription: json["bioDescription"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -89,6 +92,7 @@ class UserModel {
         "completedChapters": completedChapters == null ? [] : List<dynamic>.from(completedChapters!.map((x) => x)),
         "courseCoins": courseCoins == null ? [] : List<dynamic>.from(courseCoins!.map((x) => x.toJson())),
         "deleted": deleted,
+        "bioDescription": bioDescription,
     };
 }
 

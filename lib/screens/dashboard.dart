@@ -13,9 +13,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-//import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -40,7 +40,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   String? _userId; // Nullable userId field
   String? _avatarUrl;
   int _totalCoins = 0; // To store the total coins count
-  // String? _bio = 'User Bio';
+  String? _bio = 'User Bio';
   List<Widget> _pages = [];
 
   @override
@@ -96,7 +96,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           _fullName = profileData.fullName ?? "Full Name"; // Default if null
           _avatarUrl = profileData.image;
           _totalCoins = totalCoins; // Set the total coins count
-          // _bio = profileData.;
+          _bio = profileData.bioDescription;
 
           // Initialize pages with the loaded profile data
           _pages = [
@@ -135,7 +135,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           return await showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              backgroundColor: Colors.white,
               title: Text(
                 'Exit App',
                 style: GoogleFonts.dmSans(
@@ -143,30 +142,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               ),
               content: Text(
                 'Are you sure you want to exit the app?',
-                style: GoogleFonts.dmSans(
-                  fontSize: 14.sp,
-                ),
+                style: GoogleFonts.dmSans(fontSize: 14.sp),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text(
-                    'No',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14.sp,
-                      color: const Color(0xFF006257),
-                    ),
-                  ),
+                  child: Text('No', style: GoogleFonts.dmSans(fontSize: 14.sp)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text(
-                    'Yes',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14.sp,
-                      color: const Color(0xFF006257),
-                    ),
-                  ),
+                  child:
+                      Text('Yes', style: GoogleFonts.dmSans(fontSize: 14.sp)),
                 ),
               ],
             ),
@@ -183,24 +169,46 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         key: _scaffoldKey,
         backgroundColor: Colors.white,
         appBar: _buildAppBar(),
-        body: RefreshIndicator(
-          onRefresh: _fetchProfileData, // Pull-to-refresh
-          child: IndexedStack(
-            index: _currentIndex,
-            children: _pages.isNotEmpty
-                ? _pages
-                : [
-                    Center(
-                      child: Lottie.asset(
-                        'assets/images/loading.json',
-                        width: 250,
-                        height: 250,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ],
-          ),
-        ),
+        body: _currentIndex == 0
+            ? LiquidPullToRefresh(
+                springAnimationDurationInMilliseconds: 400,
+                animSpeedFactor: 2,
+                showChildOpacityTransition: false,
+                onRefresh: _fetchProfileData, // Triggered on pull
+                color: const Color.fromRGBO(117, 192, 68, 1),
+                backgroundColor: Colors.white,
+                height: 68.0,
+                child: IndexedStack(
+                  index: _currentIndex,
+                  children: _pages.isNotEmpty
+                      ? _pages
+                      : [
+                          Center(
+                            child: Lottie.asset(
+                              'assets/images/loading.json',
+                              width: 250,
+                              height: 250,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ],
+                ),
+              )
+            : IndexedStack(
+                index: _currentIndex,
+                children: _pages.isNotEmpty
+                    ? _pages
+                    : [
+                        Center(
+                          child: Lottie.asset(
+                            'assets/images/loading.json',
+                            width: 250,
+                            height: 250,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
+              ),
         bottomNavigationBar: _buildBottomNavigationBar(),
         endDrawer: _buildDrawer(),
       ),
@@ -441,6 +449,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       fullName: _fullName,
                       avatar: _avatarUrl,
                       totalCoins: _totalCoins,
+                      bioDescription: _bio,
                     ),
                     transitionDuration: Duration.zero,
                     reverseTransitionDuration: Duration.zero,
@@ -662,8 +671,7 @@ class DashboardPageState extends State<DashboardPage> {
   int _currentPage = 0;
   late Timer _timer;
   bool _hasError = false;
-  bool _showProfileDashboard = true;
-  //Course? _course;
+  bool _showProfileDashboard = false; // Default to false
 
   @override
   void initState() {
@@ -671,8 +679,8 @@ class DashboardPageState extends State<DashboardPage> {
     _scrollController = ScrollController();
     _pageController = PageController(initialPage: 0);
 
+    _fetchProfileData(); // Fetch profile data and set _showProfileDashboard
     _loadCourses();
-    _fetchProfileData(); // Fetch profile data here
 
     log("User ID: ${widget.userId}");
 
@@ -711,14 +719,8 @@ class DashboardPageState extends State<DashboardPage> {
     final token = prefs.getString('auth_token');
     final userId = prefs.getString('user_id');
 
-    if (userId != null) {
-      log("User ID from SharedPreferences: $userId");
-    } else {
-      log("No User ID found in SharedPreferences.");
-    }
-
-    if (token == null) {
-      log('Token is null.');
+    if (token == null || userId == null) {
+      log('Token or User ID is null.');
       return;
     }
 
@@ -749,27 +751,24 @@ class DashboardPageState extends State<DashboardPage> {
         ].any((field) => field == null);
 
         if (isProfileIncomplete) {
-          // If any field is null, show the ProfileDashboard
           setState(() {
             _showProfileDashboard = true;
           });
         } else {
-          // If all fields are not null, save to SharedPreferences
-          await prefs.setBool('hasShownProfileDashboard', true);
           setState(() {
-            _showProfileDashboard = false; // Don't show the dashboard
+            _showProfileDashboard = false;
           });
         }
       } else {
         log('Failed to fetch profile data. Status Code: ${response.statusCode}');
         setState(() {
-          _showProfileDashboard = false; // Default to not showing on error
+          _showProfileDashboard = false;
         });
       }
     } catch (e) {
       log('Error fetching profile data: $e');
       setState(() {
-        _showProfileDashboard = false; // Default to not showing on error
+        _showProfileDashboard = false;
       });
     }
   }
@@ -818,19 +817,16 @@ class DashboardPageState extends State<DashboardPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: Lottie.asset(
-              'assets/images/loading.json', // Path to your Lottie animation file
-              width: 250, // Adjust the width as needed
-              height: 250, // Adjust the height as needed
-              fit:
-                  BoxFit.contain, // Adjust to how you want the animation to fit
+              'assets/images/loading.json',
+              width: 250,
+              height: 250,
+              fit: BoxFit.contain,
             ),
           );
         } else if (snapshot.hasError) {
           return _buildErrorPage();
         } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          return _buildDashboard(
-            snapshot.data!.last,
-          ); // Pass the first course or handle as needed
+          return _buildDashboard(snapshot.data!.last);
         } else {
           return const Center(child: Text('No courses available'));
         }
@@ -881,11 +877,9 @@ class DashboardPageState extends State<DashboardPage> {
         SliverToBoxAdapter(
           child: Column(
             children: [
-              SizedBox(height: 10.h),
               if (_showProfileDashboard)
                 ProfileDashboard(
                   onClose: () async {
-                    // Permanently hide the dashboard
                     final prefs = await SharedPreferences.getInstance();
                     await prefs.setBool('hasShownProfileDashboard', true);
 
@@ -895,7 +889,7 @@ class DashboardPageState extends State<DashboardPage> {
                   },
                   fullName: widget.fullName,
                   mobile: widget.mobile,
-                  userId: widget.userId.toString(),
+                  userId: widget.userId ?? '',
                   username: widget.username,
                 ),
               SizedBox(height: 23.h),

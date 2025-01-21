@@ -72,6 +72,8 @@ dependencies:
   chewie: ^1.8.5
   sliding_up_panel: ^2.0.0+1
   intl: ^0.20.1
+  liquid_pull_to_refresh: ^3.0.1
+  flutter_riverpod: ^2.6.1
   
   
 

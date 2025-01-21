@@ -485,7 +485,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                                             decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(20),
-                                                color: Colors.green.shade200),
+                                                color: Colors.amber),
                                             child: Padding(
                                               padding: EdgeInsets.only(
                                                   left: 10.w, right: 10.w),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../Models/Course Models/all_course_model.dart';
 
@@ -98,8 +99,14 @@ class CoursePageState extends State<CoursePage> {
         backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
       ),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _refreshCourses,
+        child: LiquidPullToRefresh(
+          onRefresh: _refreshCourses, // Replace the default RefreshIndicator
+          color: const Color.fromRGBO(117, 192, 68, 1),
+          backgroundColor: Colors.white,
+          height: 68.0,
+          showChildOpacityTransition: false,
+          springAnimationDurationInMilliseconds: 400,
+          animSpeedFactor: 2,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -157,7 +164,6 @@ class CoursePageState extends State<CoursePage> {
                         ),
                       );
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      // When there are no applied courses
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,

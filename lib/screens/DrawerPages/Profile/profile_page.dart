@@ -1,10 +1,8 @@
 import 'package:amset/screens/DrawerPages/Profile/user_details_page.dart';
 import 'package:amset/Widgets/bio.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,18 +16,19 @@ class ProfilePage extends StatefulWidget {
   final String fullName;
   final String? userId;
   final String? avatar;
-  final int totalCoins; // Accept total coins
+  final int totalCoins;
+  final String? bioDescription;
 
-  const ProfilePage({
-    super.key,
-    this.onNameChanged,
-    required this.mobile,
-    required this.fullName,
-    required this.username,
-    required this.totalCoins,
-    this.userId,
-    this.avatar,
-  });
+  const ProfilePage(
+      {super.key,
+      this.onNameChanged,
+      required this.mobile,
+      required this.fullName,
+      required this.username,
+      required this.totalCoins,
+      this.userId,
+      this.avatar,
+      this.bioDescription});
 
   @override
   ProfilePageState createState() => ProfilePageState();
@@ -42,12 +41,11 @@ class ProfilePageState extends State<ProfilePage>
   late String mobile;
   String _email = 'example@gmail.com';
   String _avatarPath = 'assets/images/man.png';
+  String _userBio = '';
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
-  String _userBio = '';
 
   @override
   void initState() {
@@ -55,6 +53,7 @@ class ProfilePageState extends State<ProfilePage>
     username = widget.username;
     fullName = widget.fullName;
     mobile = widget.mobile;
+    _userBio = widget.bioDescription ?? '';
     _loadProfile();
     _setupAnimations();
     _loadBio();
@@ -234,8 +233,6 @@ class ProfilePageState extends State<ProfilePage>
                     ),
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 24.w),
-                      //width: 300.w,
-                      //height: 423.h,
                       padding: EdgeInsets.only(
                           right: 23.w, top: 20.h, left: 23.w, bottom: 19.h),
                       decoration: BoxDecoration(
@@ -378,45 +375,7 @@ class ProfilePageState extends State<ProfilePage>
                             ),
                           ),
                           const SizedBox(height: 11),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.center,
-                          //   children: [
-                          //     Container(
-                          //       padding: EdgeInsets.symmetric(
-                          //           horizontal: 6.29.w, vertical: 3.29.h),
-                          //       decoration: BoxDecoration(
-                          //         borderRadius: BorderRadius.circular(20),
-                          //         color: const Color.fromARGB(26, 192, 68, 68),
-                          //       ),
-                          //       child: Text(
-                          //         'Cashier',
-                          //         style: GoogleFonts.dmSans(
-                          //             fontSize: 14.sp,
-                          //             letterSpacing: -0.3,
-                          //             color: const Color.fromARGB(
-                          //                 255, 192, 68, 68)),
-                          //       ),
-                          //     ),
-                          //     SizedBox(
-                          //       width: 7.w,
-                          //     ),
-                          //     Container(
-                          //       padding: EdgeInsets.symmetric(
-                          //           horizontal: 6.29.w, vertical: 3.29.h),
-                          //       decoration: BoxDecoration(
-                          //         borderRadius: BorderRadius.circular(20),
-                          //         color: const Color(0x1AFFCC00),
-                          //       ),
-                          //       child: Text(
-                          //         'Accountant',
-                          //         style: GoogleFonts.dmSans(
-                          //             fontSize: 14.sp,
-                          //             letterSpacing: -0.3,
-                          //             color: const Color(0xFFFFCC00)),
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
+
                           SizedBox(height: 14.h),
                           Column(
                             children: [
@@ -617,225 +576,225 @@ class ProfilePageState extends State<ProfilePage>
   }
 }
 
-class EditProfilePage extends StatefulWidget {
-  final String currentName;
-  final String currentfullName;
-  final String currentEmail;
-  final String currentPhone;
-  final String currentAvatar;
+// class EditProfilePage extends StatefulWidget {
+//   final String currentName;
+//   final String currentfullName;
+//   final String currentEmail;
+//   final String currentPhone;
+//   final String currentAvatar;
 
-  const EditProfilePage({
-    super.key,
-    required this.currentName,
-    required this.currentfullName,
-    required this.currentEmail,
-    required this.currentPhone,
-    required this.currentAvatar,
-  });
+//   const EditProfilePage({
+//     super.key,
+//     required this.currentName,
+//     required this.currentfullName,
+//     required this.currentEmail,
+//     required this.currentPhone,
+//     required this.currentAvatar,
+//   });
 
-  @override
-  EditProfilePageState createState() => EditProfilePageState();
-}
+//   @override
+//   EditProfilePageState createState() => EditProfilePageState();
+// }
 
-class EditProfilePageState extends State<EditProfilePage>
-    with SingleTickerProviderStateMixin {
-  late TextEditingController _nameController;
-  late TextEditingController _fullnameContorller;
-  late TextEditingController _emailController;
-  late TextEditingController _phoneController;
-  String? _avatarPath;
+// class EditProfilePageState extends State<EditProfilePage>
+//     with SingleTickerProviderStateMixin {
+//   late TextEditingController _nameController;
+//   late TextEditingController _fullnameContorller;
+//   late TextEditingController _emailController;
+//   late TextEditingController _phoneController;
+//   String? _avatarPath;
 
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+//   late AnimationController _animationController;
+//   late Animation<double> _fadeAnimation;
+//   late Animation<Offset> _slideAnimation;
 
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.currentName);
-    _fullnameContorller = TextEditingController(text: widget.currentfullName);
-    _emailController = TextEditingController(text: widget.currentEmail);
-    _phoneController = TextEditingController(text: widget.currentPhone);
-    _avatarPath = widget.currentAvatar;
+//   @override
+//   void initState() {
+//     super.initState();
+//     _nameController = TextEditingController(text: widget.currentName);
+//     _fullnameContorller = TextEditingController(text: widget.currentfullName);
+//     _emailController = TextEditingController(text: widget.currentEmail);
+//     _phoneController = TextEditingController(text: widget.currentPhone);
+//     _avatarPath = widget.currentAvatar;
 
-    _setupAnimations();
-  }
+//     _setupAnimations();
+//   }
 
-  void _setupAnimations() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
+//   void _setupAnimations() {
+//     _animationController = AnimationController(
+//       vsync: this,
+//       duration: const Duration(milliseconds: 800),
+//     );
 
-    _fadeAnimation =
-        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
+//     _fadeAnimation =
+//         Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+//     _slideAnimation =
+//         Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+//       CurvedAnimation(
+//         parent: _animationController,
+//         curve: Curves.easeOutCubic,
+//       ),
+//     );
 
-    _animationController.forward();
-  }
+//     _animationController.forward();
+//   }
 
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+//   Future<void> _pickImage() async {
+//     final ImagePicker picker = ImagePicker();
+//     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-    if (image != null) {
-      setState(() {
-        _avatarPath = image.path;
-      });
-    }
-  }
+//     if (image != null) {
+//       setState(() {
+//         _avatarPath = image.path;
+//       });
+//     }
+//   }
 
-  Future<void> _saveProfile() async {
-    // Capture the navigator before the async operations
-    final navigator = Navigator.of(context);
+//   Future<void> _saveProfile() async {
+//     // Capture the navigator before the async operations
+//     final navigator = Navigator.of(context);
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', _nameController.text);
-    await prefs.setString('fullName', _fullnameContorller.text);
-    await prefs.setString('email', _emailController.text);
-    await prefs.setString('mobileNumber', _phoneController.text);
-    if (_avatarPath != null) {
-      await prefs.setString('avatar_path', _avatarPath!);
-    }
+//     SharedPreferences prefs = await SharedPreferences.getInstance();
+//     await prefs.setString('username', _nameController.text);
+//     await prefs.setString('fullName', _fullnameContorller.text);
+//     await prefs.setString('email', _emailController.text);
+//     await prefs.setString('mobileNumber', _phoneController.text);
+//     if (_avatarPath != null) {
+//       await prefs.setString('avatar_path', _avatarPath!);
+//     }
 
-    // Use the captured navigator instead of BuildContext
-    navigator.pop({
-      'username': _nameController.text,
-      'fullName': _fullnameContorller.text,
-      'email': _emailController.text,
-      'mobileNumber': _phoneController.text,
-      'avatar_path': _avatarPath
-    });
-  }
+//     // Use the captured navigator instead of BuildContext
+//     navigator.pop({
+//       'username': _nameController.text,
+//       'fullName': _fullnameContorller.text,
+//       'email': _emailController.text,
+//       'mobileNumber': _phoneController.text,
+//       'avatar_path': _avatarPath
+//     });
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: SlideTransition(
-            position: _slideAnimation,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 35.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          child: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            size: 25,
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        Text(
-                          'Edit Profile',
-                          style: GoogleFonts.dmSans(
-                              color: Colors.black,
-                              fontSize: 27.sp,
-                              fontWeight: FontWeight.normal,
-                              letterSpacing: -1),
-                        ),
-                        const SizedBox(
-                          width: 1,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 30.h),
-                    Center(
-                      child: GestureDetector(
-                        onTap: _pickImage,
-                        child: CircleAvatar(
-                          radius: 60.r,
-                          backgroundImage: _avatarPath != null
-                              ? FileImage(File(_avatarPath!))
-                              : const AssetImage('assets/images/man.png')
-                                  as ImageProvider,
-                        ),
-                      ),
-                    ),
-                    const Text('Add Photo'),
-                    SizedBox(height: 30.h),
-                    TextField(
-                      controller: _fullnameContorller,
-                      decoration: InputDecoration(
-                        labelText: 'Full Name',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-                    TextField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: 'User ID',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-                    TextField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-                    TextField(
-                      controller: _phoneController,
-                      decoration: InputDecoration(
-                        labelText: 'Phone Number',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.r)),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 30.h),
-                    Center(
-                      child: SizedBox(
-                        height: 50.h,
-                        width: 0.5.sw,
-                        child: ElevatedButton(
-                          style: TextButton.styleFrom(
-                            backgroundColor: const Color(0xFF006257),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.r),
-                            ),
-                          ),
-                          onPressed: _saveProfile,
-                          child: Text(
-                            'Save',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20.sp),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.white,
+//       body: SafeArea(
+//         child: FadeTransition(
+//           opacity: _fadeAnimation,
+//           child: SlideTransition(
+//             position: _slideAnimation,
+//             child: SingleChildScrollView(
+//               child: Padding(
+//                 padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 35.h),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.center,
+//                   children: [
+//                     Row(
+//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                       children: [
+//                         GestureDetector(
+//                           child: const Icon(
+//                             Icons.arrow_back_ios_new_rounded,
+//                             size: 25,
+//                           ),
+//                           onTap: () {
+//                             Navigator.pop(context);
+//                           },
+//                         ),
+//                         Text(
+//                           'Edit Profile',
+//                           style: GoogleFonts.dmSans(
+//                               color: Colors.black,
+//                               fontSize: 27.sp,
+//                               fontWeight: FontWeight.normal,
+//                               letterSpacing: -1),
+//                         ),
+//                         const SizedBox(
+//                           width: 1,
+//                         ),
+//                       ],
+//                     ),
+//                     SizedBox(height: 30.h),
+//                     Center(
+//                       child: GestureDetector(
+//                         onTap: _pickImage,
+//                         child: CircleAvatar(
+//                           radius: 60.r,
+//                           backgroundImage: _avatarPath != null
+//                               ? FileImage(File(_avatarPath!))
+//                               : const AssetImage('assets/images/man.png')
+//                                   as ImageProvider,
+//                         ),
+//                       ),
+//                     ),
+//                     const Text('Add Photo'),
+//                     SizedBox(height: 30.h),
+//                     TextField(
+//                       controller: _fullnameContorller,
+//                       decoration: InputDecoration(
+//                         labelText: 'Full Name',
+//                         border: OutlineInputBorder(
+//                           borderRadius: BorderRadius.all(Radius.circular(10.r)),
+//                         ),
+//                       ),
+//                     ),
+//                     SizedBox(height: 20.h),
+//                     TextField(
+//                       controller: _nameController,
+//                       decoration: InputDecoration(
+//                         labelText: 'User ID',
+//                         border: OutlineInputBorder(
+//                           borderRadius: BorderRadius.all(Radius.circular(10.r)),
+//                         ),
+//                       ),
+//                     ),
+//                     SizedBox(height: 20.h),
+//                     TextField(
+//                       controller: _emailController,
+//                       decoration: InputDecoration(
+//                         labelText: 'Email',
+//                         border: OutlineInputBorder(
+//                           borderRadius: BorderRadius.all(Radius.circular(10.r)),
+//                         ),
+//                       ),
+//                     ),
+//                     SizedBox(height: 20.h),
+//                     TextField(
+//                       controller: _phoneController,
+//                       decoration: InputDecoration(
+//                         labelText: 'Phone Number',
+//                         border: OutlineInputBorder(
+//                           borderRadius: BorderRadius.all(Radius.circular(10.r)),
+//                         ),
+//                       ),
+//                     ),
+//                     SizedBox(height: 30.h),
+//                     Center(
+//                       child: SizedBox(
+//                         height: 50.h,
+//                         width: 0.5.sw,
+//                         child: ElevatedButton(
+//                           style: TextButton.styleFrom(
+//                             backgroundColor: const Color(0xFF006257),
+//                             shape: RoundedRectangleBorder(
+//                               borderRadius: BorderRadius.circular(30.r),
+//                             ),
+//                           ),
+//                           onPressed: _saveProfile,
+//                           child: Text(
+//                             'Save',
+//                             style:
+//                                 TextStyle(color: Colors.white, fontSize: 20.sp),
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
