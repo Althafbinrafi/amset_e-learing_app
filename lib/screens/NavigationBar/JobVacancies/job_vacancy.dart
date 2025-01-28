@@ -298,7 +298,7 @@ class JobVacancyState extends State<JobVacancy> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(17.r),
             borderSide: BorderSide(
-              color: Colors.grey.withOpacity(0.5),
+              color: Colors.grey.withAlpha(5),
               width: 1,
             ),
           ),

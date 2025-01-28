@@ -710,7 +710,6 @@ class _ChapterPageState extends State<ChapterPage> {
                 return Center(
                   child: Lottie.asset(
                     'assets/images/loading2.json',
-                    
                   ),
                 );
               }

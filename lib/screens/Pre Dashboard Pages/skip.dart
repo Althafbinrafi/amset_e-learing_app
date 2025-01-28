@@ -129,7 +129,7 @@ class _SkipPageState extends State<SkipPage>
                         SizedBox(height: 50.h),
                         Container(
                           width: 133,
-                          height: 45.h,
+                          height: 45,
                           decoration: BoxDecoration(
                             color: _isLoading ? Colors.grey : Colors.black,
                             borderRadius: BorderRadius.circular(40.r),

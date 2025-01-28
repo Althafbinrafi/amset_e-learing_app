@@ -303,8 +303,8 @@ class ProfilePageState extends State<ProfilePage>
                             maxRadius: 70.r,
                             backgroundColor: Colors.transparent,
                             child: SizedBox(
-                              height: 95.h,
-                              width: 95.w,
+                              height: 95,
+                              width: 95,
                               child: ClipOval(
                                 child: widget.avatar != null &&
                                         widget.avatar!.isNotEmpty

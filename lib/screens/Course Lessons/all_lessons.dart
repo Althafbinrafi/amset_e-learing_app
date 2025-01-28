@@ -38,7 +38,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
 
   Future<void> _initializeUser() async {
     final prefs = await SharedPreferences.getInstance();
-    userId = prefs.getString('user_id') ?? ''; // Save userId for later use
+    userId = prefs.getString('user_id') ?? '';
   }
 
   @override
@@ -214,7 +214,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
             );
           },
         ) ??
-        false; // Return false if dismissed without selection
+        false;
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
@@ -251,7 +251,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
         );
 
         if (mounted) {
-          _loadCourse(widget.courseId); // Reload course data
+          _loadCourse(widget.courseId);
         }
       } else {
         final errorMessage =
@@ -286,7 +286,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
         chapter.chapter.purchasedUsers?.contains(userId) ?? false;
 
     if (!isPurchased && chapter.chapter.isPremium == true) {
-      _handlePurchase(chapter.chapter.id, 2000); // Assuming the price is 2000
+      _handlePurchase(chapter.chapter.id, 2000);
     } else {
       Navigator.push(
         context,
@@ -377,7 +377,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                               end: Alignment.bottomCenter,
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withOpacity(0.7),
+                                Colors.black.withAlpha(7),
                               ],
                               stops: const [0.5, 1.0],
                             ),

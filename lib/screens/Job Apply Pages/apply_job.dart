@@ -147,150 +147,6 @@ class _JobDetailPageState extends State<JobDetailPage>
     );
   }
 
-  // Widget _buildShimmerEffect() {
-  //   return SingleChildScrollView(
-  //     child: Center(
-  //       child: Shimmer.fromColors(
-  //         baseColor: Colors.grey[300]!,
-  //         highlightColor: Colors.grey[100]!,
-  //         child: Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: [
-  //             // Icon shimmer
-  //             Padding(
-  //               padding: EdgeInsets.symmetric(horizontal: 32.0.w),
-  //               child: Column(
-  //                 mainAxisAlignment: MainAxisAlignment.center,
-  //                 children: [
-  //                   Container(
-  //                     height: 45.h,
-  //                     width: 45.w,
-  //                     decoration: const BoxDecoration(
-  //                       color: Colors.white,
-  //                       shape: BoxShape.circle,
-  //                     ),
-  //                   ),
-  //                   SizedBox(height: 18.h),
-  //                   // Title shimmer
-  //                   // Container(
-  //                   //   height: 24.h,
-  //                   //   width: 200.w,
-  //                   //   decoration: BoxDecoration(
-  //                   //     color: Colors.white,
-  //                   //     borderRadius: BorderRadius.circular(12),
-  //                   //   ),
-  //                   // ),
-  //                   SizedBox(height: 10.h),
-  //                   // Vacancy count shimmer
-  //                   Container(
-  //                     height: 17.h,
-  //                     width: 100.w,
-  //                     decoration: BoxDecoration(
-  //                       color: Colors.white,
-  //                       borderRadius: BorderRadius.circular(8),
-  //                     ),
-  //                   ),
-  //                   SizedBox(height: 20.h),
-  //                   // Description shimmer
-  //                   Column(
-  //                     children: List.generate(
-  //                       4,
-  //                       (index) => Padding(
-  //                         padding: EdgeInsets.only(bottom: 8.h),
-  //                         child: Container(
-  //                           height: 16.h,
-  //                           decoration: BoxDecoration(
-  //                             color: Colors.white,
-  //                             borderRadius: BorderRadius.circular(8),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   SizedBox(height: 32.h),
-  //                 ],
-  //               ),
-  //             ),
-
-  //             // Posters shimmer
-  //             SizedBox(
-  //               height: 169.h,
-  //               child: SingleChildScrollView(
-  //                 scrollDirection: Axis.horizontal,
-  //                 child: Row(
-  //                   children: [
-  //                     SizedBox(width: 32.w),
-  //                     ...List.generate(
-  //                       1,
-  //                       (index) => Container(
-  //                         width: 276.w,
-  //                         margin: EdgeInsets.only(right: 16.r),
-  //                         decoration: BoxDecoration(
-  //                           color: Colors.white,
-  //                           borderRadius: BorderRadius.circular(34),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //             SizedBox(height: 16.h),
-
-  //             // Hiring Partners text shimmer
-  //             Padding(
-  //               padding: EdgeInsets.symmetric(horizontal: 32.0.w),
-  //               child: Column(
-  //                 children: [
-  //                   SizedBox(height: 15.h),
-  //                   // Container(
-  //                   //   height: 39.h,
-  //                   //   width: 200.w,
-  //                   //   decoration: BoxDecoration(
-  //                   //     color: Colors.white,
-  //                   //     borderRadius: BorderRadius.circular(30.r),
-  //                   //   ),
-  //                   // ),
-  //                   SizedBox(height: 16.h),
-  //                   // Partner logos shimmer
-  //                   Wrap(
-  //                     alignment: WrapAlignment.center,
-  //                     spacing: 16,
-  //                     runSpacing: 16,
-  //                     children: List.generate(
-  //                       2,
-  //                       (index) => Container(
-  //                         width: 100.w,
-  //                         height: 40.h,
-  //                         decoration: BoxDecoration(
-  //                           color: Colors.white,
-  //                           borderRadius: BorderRadius.circular(30.r),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-
-  //             SizedBox(height: 40.h),
-  //             // Apply button shimmer
-  //             Container(
-  //               width: 175.w,
-  //               height: 45.h,
-  //               decoration: BoxDecoration(
-  //                 color: Colors.white,
-  //                 borderRadius: BorderRadius.circular(30),
-  //               ),
-  //             ),
-  //             SizedBox(height: 32.h),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget _buildErrorWidget() {
     return Center(
       child: Column(
@@ -360,7 +216,9 @@ class _JobDetailPageState extends State<JobDetailPage>
                       ),
                       SizedBox(height: 16.h),
                       Text(
-                        _courseData?.description ?? "No description available",
+                        _courseData?.description.replaceAll(
+                                RegExp(r'<[^>]*>'), '') ?? // Remove HTML tags
+                            "No description available",
                         textAlign: TextAlign.center,
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,

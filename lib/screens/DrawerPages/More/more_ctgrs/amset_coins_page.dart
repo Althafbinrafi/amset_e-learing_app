@@ -136,7 +136,7 @@ class _AmsetCoinsPageState extends State<AmsetCoinsPage> {
                           boxShadow: [
                             BoxShadow(
                               color: const Color.fromARGB(255, 45, 107, 60)
-                                  .withOpacity(0.3),
+                                  .withAlpha(3),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
@@ -164,7 +164,7 @@ class _AmsetCoinsPageState extends State<AmsetCoinsPage> {
                               style: GoogleFonts.dmSans(
                                 fontSize: 16,
                                 letterSpacing: -0.3,
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withAlpha(9),
                               ),
                             ),
                           ],
@@ -282,7 +282,7 @@ class CoinDetailCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
+                color: Colors.grey.withAlpha(2),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -296,7 +296,7 @@ class CoinDetailCard extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color:
-                        const Color.fromARGB(255, 58, 243, 33).withOpacity(0.1),
+                        const Color.fromARGB(255, 58, 243, 33).withAlpha(1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(

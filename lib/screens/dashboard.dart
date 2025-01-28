@@ -858,7 +858,7 @@ class DashboardPageState extends State<DashboardPage> {
                 borderRadius: BorderRadius.circular(30.r),
               ),
               elevation: 0,
-              shadowColor: Colors.black.withOpacity(0.2),
+              shadowColor: Colors.black.withAlpha(2),
             ),
             child: Text(
               'Retry',
@@ -1275,7 +1275,7 @@ Widget _buildShimmerEffect() {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withAlpha(7),
                         Colors.transparent,
                       ],
                     ),
@@ -1401,7 +1401,7 @@ Widget _buildCourseCard(BuildContext context, String imagePath, String title,
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [
-                  Colors.black.withOpacity(0.7),
+                  Colors.black.withAlpha(7),
                   Colors.transparent,
                 ],
               ),
