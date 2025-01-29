@@ -34,12 +34,12 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _username = 'User Name'; // Placeholder for username
-  String _mobile = 'Mobile number'; // Placeholder for mobile number
+  String _username = 'User Name';
+  String _mobile = 'Mobile number';
   String _fullName = 'Full Name';
-  String? _userId; // Nullable userId field
+  String? _userId;
   String? _avatarUrl;
-  int _totalCoins = 0; // To store the total coins count
+  int _totalCoins = 0;
   String? _bio = 'User Bio';
   List<Widget> _pages = [];
 
@@ -52,11 +52,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   Future<void> _fetchProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-    _userId =
-        prefs.getString('user_id'); // Retrieve userId from SharedPreferences
+    _userId = prefs.getString('user_id');
 
     if (_userId != null) {
-      log("User ID from SharedPreferences: $_userId"); // Log userId
+      log("User ID from SharedPreferences: $_userId");
     } else {
       log("No User ID found in SharedPreferences.");
     }
@@ -82,23 +81,20 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       if (response.statusCode == 200) {
         final profileData = userModelFromJson(response.body);
 
-        // Calculate total coins from courseCoins
         int totalCoins = profileData.courseCoins?.fold<int>(
               0,
-              (sum, coin) => sum + (coin.coins ?? 0), // Handle nullable coins
+              (sum, coin) => sum + (coin.coins ?? 0),
             ) ??
-            0; // Provide default value if courseCoins is null
+            0;
 
         setState(() {
-          _username = profileData.username ?? "Unknown User"; // Default if null
-          _mobile =
-              profileData.mobileNumber ?? "Unknown Mobile"; // Default if null
-          _fullName = profileData.fullName ?? "Full Name"; // Default if null
+          _username = profileData.username ?? "Unknown User";
+          _mobile = profileData.mobileNumber ?? "Unknown Mobile";
+          _fullName = profileData.fullName ?? "Full Name";
           _avatarUrl = profileData.image;
-          _totalCoins = totalCoins; // Set the total coins count
+          _totalCoins = totalCoins;
           _bio = profileData.bioDescription;
 
-          // Initialize pages with the loaded profile data
           _pages = [
             DashboardPage(
               username: _username,
@@ -106,7 +102,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               fullName: _fullName,
               userId: _userId ?? 'Unknown User ID',
               avatar: _avatarUrl,
-              totalCoins: _totalCoins, // Pass total coins to DashboardPage
+              totalCoins: _totalCoins,
             ),
             const JobVacancy(),
             CoursePage(
@@ -124,8 +120,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       log('Error fetching profile data: $e');
     }
   }
-
-  // Rest of your widget code
 
   @override
   Widget build(BuildContext context) {
@@ -858,7 +852,7 @@ class DashboardPageState extends State<DashboardPage> {
                 borderRadius: BorderRadius.circular(30.r),
               ),
               elevation: 0,
-              shadowColor: Colors.black.withAlpha(2),
+              shadowColor: Colors.black.withOpacity(0.2),
             ),
             child: Text(
               'Retry',
@@ -1275,7 +1269,7 @@ Widget _buildShimmerEffect() {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withAlpha(7),
+                        Colors.black.withOpacity(0.7),
                         Colors.transparent,
                       ],
                     ),
@@ -1401,7 +1395,7 @@ Widget _buildCourseCard(BuildContext context, String imagePath, String title,
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [
-                  Colors.black.withAlpha(7),
+                  Colors.black.withOpacity(0.7),
                   Colors.transparent,
                 ],
               ),

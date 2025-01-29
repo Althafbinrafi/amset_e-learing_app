@@ -138,7 +138,7 @@ class CoursePageState extends State<CoursePage> {
                                   borderRadius: BorderRadius.circular(30.r),
                                 ),
                                 elevation: 0,
-                                shadowColor: Colors.black.withAlpha(2),
+                                shadowColor: Colors.black.withOpacity(0.2),
                               ),
                               child: _isLoading
                                   ? SizedBox(
@@ -299,7 +299,7 @@ class CourseCard extends StatelessWidget {
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                         colors: [
-                          Colors.black.withAlpha(8),
+                          Colors.black.withOpacity(0.8),
                           Colors.transparent,
                         ],
                       ),
@@ -322,7 +322,7 @@ class CourseCard extends StatelessWidget {
                           Shadow(
                             offset: const Offset(0, 1),
                             blurRadius: 5,
-                            color: Colors.black.withAlpha(5),
+                            color: Colors.black.withOpacity(0.5),
                           ),
                         ],
                       ),
