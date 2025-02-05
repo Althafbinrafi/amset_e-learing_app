@@ -105,7 +105,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               avatar: _avatarUrl,
               totalCoins: _totalCoins,
             ),
-            const JobVacancy(),
+             JobVacancy(),
             CoursePage(
               userId: _userId.toString(),
               token: token,
@@ -1113,7 +1113,7 @@ class DashboardPageState extends State<DashboardPage> {
                           ),
                           onTap: () {
                             Get.to(
-                              () => const JobVacancy(),
+                              () =>  JobVacancy(),
                               transition: Transition.noTransition,
                               duration: Duration.zero,
                             );
