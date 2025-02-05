@@ -1,26 +1,16 @@
-//import 'package:amset/screens/explore.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
+import 'pre_registraion_page.dart';
 
-import 'pre_registraion_page.dart'; // Import ScreenUtil
-
-class SkipPage extends StatefulWidget {
-  const SkipPage({super.key});
-
-  @override
-  State<SkipPage> createState() => _SkipPageState();
-}
-
-class _SkipPageState extends State<SkipPage>
-    with SingleTickerProviderStateMixin {
-  bool _isLoading = false;
-
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+class SkipController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  var isLoading = false.obs;
+  late AnimationController animationController;
+  late Animation<double> fadeAnimation;
+  late Animation<Offset> slideAnimation;
 
   final String image = 'assets/images/skip.svg';
   final String title = 'Welcome to';
@@ -29,63 +19,56 @@ class _SkipPageState extends State<SkipPage>
       "Unlock your future with expert-guided courses and guaranteed job placements.";
 
   @override
-  void initState() {
-    super.initState();
+  void onInit() {
+    super.onInit();
     _setupAnimations();
   }
 
   void _setupAnimations() {
-    _animationController = AnimationController(
+    animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fadeAnimation =
-        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
-    _slideAnimation =
+    fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(animationController);
+    slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+      CurvedAnimation(parent: animationController, curve: Curves.easeOutCubic),
     );
-    _animationController.forward();
+    animationController.forward();
+  }
+
+  void onGetStartedPressed() {
+    isLoading.value = true;
+
+    Future.delayed(const Duration(seconds: 1), () {
+      isLoading.value = false;
+      Get.off(() => const PreregistrationPage());
+    });
   }
 
   @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
+  void onClose() {
+    animationController.dispose();
+    super.onClose();
   }
+}
 
-  void _onGetStartedPressed() {
-    setState(() {
-      _isLoading = true;
-    });
-
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) =>
-              const PreregistrationPage(),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ),
-      );
-    });
-  }
+class SkipPage extends StatelessWidget {
+  const SkipPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final SkipController controller = Get.put(SkipController());
+
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 60.w, vertical: 30.h),
         child: Center(
           child: FadeTransition(
-            opacity: _fadeAnimation,
+            opacity: controller.fadeAnimation,
             child: SlideTransition(
-              position: _slideAnimation,
+              position: controller.slideAnimation,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,13 +78,13 @@ class _SkipPageState extends State<SkipPage>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(
-                          image,
+                          controller.image,
                           fit: BoxFit.contain,
                           height: 250.h,
                         ),
                         SizedBox(height: 25.h),
                         Text(
-                          title,
+                          controller.title,
                           style: GoogleFonts.dmSans(
                               color: Colors.black,
                               letterSpacing: -0.5.w,
@@ -109,7 +92,7 @@ class _SkipPageState extends State<SkipPage>
                               fontWeight: FontWeight.w400),
                         ),
                         Text(
-                          subtitle,
+                          controller.subtitle,
                           style: GoogleFonts.dmSans(
                               letterSpacing: -0.5.w,
                               color: const Color.fromRGBO(117, 192, 68, 1),
@@ -118,7 +101,7 @@ class _SkipPageState extends State<SkipPage>
                         ),
                         SizedBox(height: 15.h),
                         Text(
-                          description,
+                          controller.description,
                           textAlign: TextAlign.center,
                           style: GoogleFonts.dmSans(
                               letterSpacing: -0.5.w,
@@ -127,31 +110,35 @@ class _SkipPageState extends State<SkipPage>
                               fontWeight: FontWeight.w400),
                         ),
                         SizedBox(height: 50.h),
-                        Container(
-                          width: 133,
-                          height: 45,
-                          decoration: BoxDecoration(
-                            color: _isLoading ? Colors.grey : Colors.black,
-                            borderRadius: BorderRadius.circular(40.r),
-                          ),
-                          child: TextButton(
-                            onPressed: _onGetStartedPressed,
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : Text(
-                                    'Get Started',
-                                    style: GoogleFonts.dmSans(
+                        Obx(
+                          () => Container(
+                            width: 133,
+                            height: 45,
+                            decoration: BoxDecoration(
+                              color: controller.isLoading.value
+                                  ? Colors.grey
+                                  : Colors.black,
+                              borderRadius: BorderRadius.circular(40.r),
+                            ),
+                            child: TextButton(
+                              onPressed: controller.onGetStartedPressed,
+                              child: controller.isLoading.value
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
                                         color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w400),
-                                  ),
+                                      ),
+                                    )
+                                  : Text(
+                                      'Get Started',
+                                      style: GoogleFonts.dmSans(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                            ),
                           ),
                         ),
                       ],

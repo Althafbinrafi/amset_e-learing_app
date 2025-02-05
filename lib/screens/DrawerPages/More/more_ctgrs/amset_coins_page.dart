@@ -132,12 +132,12 @@ class _AmsetCoinsPageState extends State<AmsetCoinsPage> {
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
-                              color: const Color.fromARGB(255, 45, 107, 60)
-                                  .withOpacity(0.3),
+                              color: Color.fromARGB(77, 45, 107,
+                                  60), // 30% opacity (255 * 0.3 = 76.5 → 77)
                               blurRadius: 10,
-                              offset: const Offset(0, 3),
+                              offset: Offset(0, 3),
                             ),
                           ],
                         ),
@@ -163,7 +163,8 @@ class _AmsetCoinsPageState extends State<AmsetCoinsPage> {
                               style: GoogleFonts.dmSans(
                                 fontSize: 16,
                                 letterSpacing: -0.3,
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withAlpha(
+                                    230), // 90% opacity (255 * 0.9 = 229.5 → 230)
                               ),
                             ),
                           ],
@@ -280,11 +281,11 @@ class CoinDetailCard extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
+             BoxShadow(
+  color: Colors.grey.withAlpha(51), // 20% opacity (255 * 0.2 = 51)
+  blurRadius: 8,
+  offset: const Offset(0, 4),
+),
             ],
           ),
           child: Padding(
@@ -292,18 +293,17 @@ class CoinDetailCard extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color:
-                        const Color.fromARGB(255, 58, 243, 33).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.stars_rounded,
-                    color: Color.fromARGB(255, 48, 89, 37),
-                    size: 24,
-                  ),
-                ),
+  padding: const EdgeInsets.all(12),
+  decoration: BoxDecoration(
+    color: const Color.fromARGB(26, 58, 243, 33), // 10% opacity (255 * 0.1 = 25.5 → 26)
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: const Icon(
+    Icons.stars_rounded,
+    color: Color.fromARGB(255, 48, 89, 37),
+    size: 24,
+  ),
+),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(

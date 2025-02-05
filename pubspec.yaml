@@ -74,6 +74,7 @@ dependencies:
   intl: ^0.20.1
   liquid_pull_to_refresh: ^3.0.1
   flutter_riverpod: ^2.6.1
+  get: ^4.6.6
   
   
 

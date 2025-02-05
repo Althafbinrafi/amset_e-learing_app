@@ -377,7 +377,7 @@ class _AllLessonsPageState extends State<AllLessonsPage> {
                               end: Alignment.bottomCenter,
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withOpacity(0.7),
+                                Colors.black.withAlpha(179), // 70% opacity
                               ],
                               stops: const [0.5, 1.0],
                             ),

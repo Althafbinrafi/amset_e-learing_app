@@ -1,77 +1,75 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:get/get.dart';
 import '../Reg and Log/register_page.dart';
 
-class PreregistrationPage extends StatefulWidget {
-  const PreregistrationPage({super.key});
+class PreregistrationController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  late AnimationController animationController;
+  late Animation<double> fadeAnimation;
+  late Animation<Offset> slideAnimation;
 
   @override
-  State<PreregistrationPage> createState() => _PreregistrationPageState();
-}
-
-class _PreregistrationPageState extends State<PreregistrationPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  final String image = 'assets/images/logo1.png';
-
-  @override
-  void initState() {
-    super.initState();
+  void onInit() {
+    super.onInit();
     _setupAnimations();
   }
 
   void _setupAnimations() {
-    _animationController = AnimationController(
+    animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fadeAnimation =
-        Tween<double>(begin: 0.0, end: 4.0).animate(_animationController);
-    _slideAnimation =
+    fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(animationController);
+    slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+      CurvedAnimation(parent: animationController, curve: Curves.easeOutCubic),
     );
-    _animationController.forward();
+    animationController.forward();
+  }
+
+  void goToRegisterPage() {
+    Get.to(() => const RegisterPage(), transition: Transition.fade);
   }
 
   @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
+  void onClose() {
+    animationController.dispose();
+    super.onClose();
   }
+}
+
+class PreregistrationPage extends StatelessWidget {
+  const PreregistrationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final PreregistrationController controller =
+        Get.put(PreregistrationController());
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 60.w),
           child: FadeTransition(
-            opacity: _fadeAnimation,
+            opacity: controller.fadeAnimation,
             child: SlideTransition(
-              position: _slideAnimation,
+              position: controller.slideAnimation,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Logo at the top
                   Image.asset(
-                    'assets/images/logo1.png', // Replace with your image path
+                    'assets/images/logo1.png',
                     height: 37.h,
                     width: 65.w,
                     fit: BoxFit.contain,
                   ),
                   SizedBox(height: 25.h),
-
-                  // RichText widget
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
@@ -102,8 +100,6 @@ class _PreregistrationPageState extends State<PreregistrationPage>
                     ),
                   ),
                   SizedBox(height: 30.h),
-
-                  // Grid with four SVG icons
                   GridView.count(
                     crossAxisCount: 2,
                     crossAxisSpacing: 20.w,
@@ -120,26 +116,14 @@ class _PreregistrationPageState extends State<PreregistrationPage>
                           'assets/images/secure.svg', ' Secure\nYour Job'),
                     ],
                   ),
-
-                  // Next button at the bottom
                   SizedBox(height: 50.h),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation1, animation2) =>
-                              const RegisterPage(),
-                          transitionDuration: Duration.zero,
-                          reverseTransitionDuration: Duration.zero,
-                        ),
-                      );
-                    },
+                    onTap: controller.goToRegisterPage,
                     child: Container(
                       width: 113.w,
                       height: 45.h,
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 0, 0, 0),
+                        color: Colors.black,
                         borderRadius: BorderRadius.circular(40.r),
                       ),
                       child: Center(
@@ -175,7 +159,6 @@ class _PreregistrationPageState extends State<PreregistrationPage>
   }
 }
 
-// Method to build SVG item for grid
 Widget _buildSvgItem(String assetPath, String label) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
@@ -184,9 +167,7 @@ Widget _buildSvgItem(String assetPath, String label) {
         assetPath,
         height: 40.h,
         width: 40.w,
-        // ignore: deprecated_member_use
-        color: const Color.fromARGB(
-            255, 0, 0, 0), // Optional: apply a color to the SVG
+        color: Colors.black,
       ),
       SizedBox(height: 10.h),
       Text(

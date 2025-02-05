@@ -225,6 +225,7 @@ class _UserDetailsPage extends State<UserDetailsPage>
         'fullName': _nameController.text.trim(),
         'username': _userIdController.text.trim(),
         'address': _addressController.text.trim(),
+        'email': _emailController.text.trim(),
         'postOffice': _postOfficeController.text.trim(),
         'district': _districtController.text.trim(),
         'pinCode': _pincodeController.text.trim(),

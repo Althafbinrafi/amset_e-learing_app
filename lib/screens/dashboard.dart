@@ -10,6 +10,7 @@ import 'package:amset/screens/DrawerPages/PrivacyPolicy/security_policy.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -126,30 +127,26 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     return WillPopScope(
       onWillPop: () async {
         if (_currentIndex == 0) {
-          return await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text(
-                'Exit App',
-                style: GoogleFonts.dmSans(
-                    fontSize: 14.sp, fontWeight: FontWeight.bold),
-              ),
-              content: Text(
-                'Are you sure you want to exit the app?',
-                style: GoogleFonts.dmSans(fontSize: 14.sp),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('No', style: GoogleFonts.dmSans(fontSize: 14.sp)),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child:
-                      Text('Yes', style: GoogleFonts.dmSans(fontSize: 14.sp)),
-                ),
-              ],
+          return await Get.defaultDialog(
+            title: 'Exit App',
+            titleStyle: GoogleFonts.dmSans(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
             ),
+            content: Text(
+              'Are you sure you want to exit the app?',
+              style: GoogleFonts.dmSans(fontSize: 14.sp),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false), // Return false
+                child: Text('No', style: GoogleFonts.dmSans(fontSize: 14.sp)),
+              ),
+              TextButton(
+                onPressed: () => Get.back(result: true), // Return true
+                child: Text('Yes', style: GoogleFonts.dmSans(fontSize: 14.sp)),
+              ),
+            ],
           );
         } else {
           setState(() {
@@ -300,7 +297,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   Widget _buildBottomNavigationBar() {
     return SizedBox(
-      height: 85.h,
+      height: 85,
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
@@ -433,21 +430,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             onTap: () {
               Future.delayed(const Duration(milliseconds: 300), () {
                 if (!mounted) return;
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        ProfilePage(
-                      username: _username,
-                      mobile: _mobile,
-                      fullName: _fullName,
-                      avatar: _avatarUrl,
-                      totalCoins: _totalCoins,
-                      bioDescription: _bio,
-                    ),
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
+                Get.to(
+                  () => ProfilePage(
+                    username: _username,
+                    mobile: _mobile,
+                    fullName: _fullName,
+                    avatar: _avatarUrl,
+                    totalCoins: _totalCoins,
+                    bioDescription: _bio,
                   ),
+                  transition: Transition.noTransition,
+                  duration: Duration.zero,
                 );
               });
             },
@@ -459,14 +452,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             onTap: () async {
               await Future.delayed(const Duration(milliseconds: 300));
               if (!mounted) return;
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation1, animation2) =>
-                      const SecurityPolicy(),
-                  transitionDuration: Duration.zero,
-                  reverseTransitionDuration: Duration.zero,
-                ),
+              Get.to(
+                () =>
+                    const SecurityPolicy(), // Create an instance of the SecurityPolicy widget
+                transition: Transition.noTransition,
+                duration: Duration.zero,
               );
             },
           ),
@@ -477,14 +467,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             onTap: () async {
               await Future.delayed(const Duration(milliseconds: 300));
               if (!mounted) return;
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation1, animation2) =>
-                      const TermsAndConditionsPage(),
-                  transitionDuration: Duration.zero,
-                  reverseTransitionDuration: Duration.zero,
-                ),
+              Get.to(
+                () => const TermsAndConditionsPage(),
+                transition: Transition.noTransition,
+                duration: Duration.zero,
               );
             },
           ),
@@ -495,14 +481,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             onTap: () async {
               await Future.delayed(const Duration(milliseconds: 300));
               if (!mounted) return;
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation1, animation2) =>
-                      const LiveSessions(),
-                  transitionDuration: Duration.zero,
-                  reverseTransitionDuration: Duration.zero,
-                ),
+              Get.to(
+                () => const LiveSessions(),
+                transition: Transition.noTransition,
+                duration: Duration.zero,
               );
             },
           ),
@@ -513,15 +495,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             onTap: () async {
               await Future.delayed(const Duration(milliseconds: 300));
               if (!mounted) return;
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation1, animation2) => MorePage(
-                    userId: _userId.toString(),
-                  ),
-                  transitionDuration: Duration.zero,
-                  reverseTransitionDuration: Duration.zero,
+              Get.to(
+                () => MorePage(
+                  userId: _userId.toString(),
                 ),
+                transition: Transition.noTransition,
+                duration: Duration.zero,
               );
             },
           ),
@@ -602,7 +581,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 SizedBox(height: 20.h),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Get.back();
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: const Color(0xFF75C044),
@@ -846,13 +825,13 @@ class DashboardPageState extends State<DashboardPage> {
             onPressed: _loadCourses,
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 8.h),
-              backgroundColor:
-                  const Color.fromRGBO(117, 192, 68, 1), // Use custom color
+              backgroundColor: const Color.fromRGBO(117, 192, 68, 1),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.r),
               ),
               elevation: 0,
-              shadowColor: Colors.black.withOpacity(0.2),
+              shadowColor:
+                  Colors.black.withAlpha(51), // 20% opacity (255 * 0.2 = 51)
             ),
             child: Text(
               'Retry',
@@ -1028,18 +1007,13 @@ class DashboardPageState extends State<DashboardPage> {
                                   final job = jobs[index];
                                   return GestureDetector(
                                     onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          PageRouteBuilder(
-                                            pageBuilder: (context, animation1,
-                                                    animation2) =>
-                                                JobDetailPage(
-                                              courseId: job.id.toString(),
-                                            ),
-                                            transitionDuration: Duration.zero,
-                                            reverseTransitionDuration:
-                                                Duration.zero,
-                                          ));
+                                      Get.to(
+                                        () => JobDetailPage(
+                                          courseId: job.id.toString(),
+                                        ),
+                                        transition: Transition.noTransition,
+                                        duration: Duration.zero,
+                                      );
                                     },
                                     child: Column(
                                       children: [
@@ -1138,15 +1112,10 @@ class DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation1, animation2) =>
-                                        const JobVacancy(),
-                                transitionDuration: Duration.zero,
-                                reverseTransitionDuration: Duration.zero,
-                              ),
+                            Get.to(
+                              () => const JobVacancy(),
+                              transition: Transition.noTransition,
+                              duration: Duration.zero,
                             );
                           },
                         ),
@@ -1217,10 +1186,11 @@ class DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                       onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return const SuccessPurchasePage();
-                        }));
+                        Get.to(
+                          () => const SuccessPurchasePage(),
+                          transition: Transition.noTransition,
+                          duration: Duration.zero,
+                        );
                       },
                     ),
                     const SizedBox(
@@ -1269,7 +1239,8 @@ Widget _buildShimmerEffect() {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withAlpha(
+                            179), // 70% opacity (255 * 0.7 = 178.5 → 179)
                         Colors.transparent,
                       ],
                     ),
@@ -1395,7 +1366,8 @@ Widget _buildCourseCard(BuildContext context, String imagePath, String title,
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [
-                  Colors.black.withOpacity(0.7),
+                  Colors.black
+                      .withAlpha(179), // 70% opacity (255 * 0.7 = 178.5 → 179)
                   Colors.transparent,
                 ],
               ),
@@ -1423,14 +1395,11 @@ Widget _buildCourseCard(BuildContext context, String imagePath, String title,
               SizedBox(height: 8.h),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation1, animation2) =>
-                            JobDetailPage(courseId: id),
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      ));
+                  Get.to(
+                    () => JobDetailPage(courseId: id),
+                    transition: Transition.noTransition,
+                    duration: Duration.zero,
+                  );
                   // _showCourseDrawer(
                   //     context, title, lessons, description, price);
                 },
@@ -1566,19 +1535,15 @@ class ProfileDashboardState extends State<ProfileDashboard> {
                     ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () {
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (context, animation1, animation2) =>
-                                UserDetailsPage(
-                              userName: widget.username,
-                              mobile: widget.mobile,
-                              fullName: widget.fullName,
-                              userId: widget.userId,
-                            ),
-                            transitionDuration: Duration.zero,
-                            reverseTransitionDuration: Duration.zero,
+                        Get.to(
+                          () => UserDetailsPage(
+                            userName: widget.username,
+                            mobile: widget.mobile,
+                            fullName: widget.fullName,
+                            userId: widget.userId,
                           ),
+                          transition: Transition.noTransition,
+                          duration: Duration.zero,
                         );
                       },
                   ),

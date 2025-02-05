@@ -138,7 +138,7 @@ class CoursePageState extends State<CoursePage> {
                                   borderRadius: BorderRadius.circular(30.r),
                                 ),
                                 elevation: 0,
-                                shadowColor: Colors.black.withOpacity(0.2),
+                                shadowColor: Colors.black.withAlpha(51),
                               ),
                               child: _isLoading
                                   ? SizedBox(
