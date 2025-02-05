@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:amset/Constants/constants_color.dart';
 import 'package:amset/screens/DrawerPages/Live%20sessions/live_sessions.dart';
 import 'package:amset/screens/DrawerPages/More/more_page.dart';
 import 'package:amset/screens/NavigationBar/CoursePages/course_page.dart';
@@ -105,7 +106,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               avatar: _avatarUrl,
               totalCoins: _totalCoins,
             ),
-             JobVacancy(),
+            const JobVacancy(),
             CoursePage(
               userId: _userId.toString(),
               token: token,
@@ -158,7 +159,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       child: Scaffold(
         endDrawerEnableOpenDragGesture: false,
         key: _scaffoldKey,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         appBar: _buildAppBar(),
         body: _currentIndex == 0
             ? LiquidPullToRefresh(
@@ -167,7 +168,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 showChildOpacityTransition: false,
                 onRefresh: _fetchProfileData, // Triggered on pull
                 color: const Color.fromRGBO(117, 192, 68, 1),
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.white,
                 height: 68.0,
                 child: IndexedStack(
                   index: _currentIndex,
@@ -209,19 +210,19 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   AppBar? _buildAppBar() {
     return _currentIndex == 0
         ? AppBar(
-            surfaceTintColor: Colors.transparent,
+            surfaceTintColor: AppColors.transparent,
             elevation: 0,
             bottom: PreferredSize(
               preferredSize: Size(MediaQuery.of(context).size.width, 1),
               child: const Divider(
-                color: Color.fromRGBO(213, 215, 216, 1),
+                color: AppColors.dividerColor,
               ),
             ),
             toolbarHeight: 85,
             leadingWidth: 154,
-            iconTheme: const IconThemeData(color: Colors.white),
+            iconTheme: const IconThemeData(color: AppColors.white),
             centerTitle: false,
-            backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+            backgroundColor: AppColors.white,
             leading: Padding(
               padding: EdgeInsets.only(left: 32.w),
               child: GestureDetector(
@@ -240,11 +241,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: const Color.fromRGBO(213, 215, 216, 1),
+                      color: AppColors.borderColor,
                       width: 1,
                     ),
                     borderRadius: BorderRadius.circular(21),
-                    color: Colors.transparent,
+                    color: AppColors.transparent,
                   ),
                   child: Row(
                     children: [
@@ -259,7 +260,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                         style: GoogleFonts.dmSans(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w400,
-                          color: Colors.black,
+                          color: AppColors.bgBlack,
                           letterSpacing: -0.5.w,
                         ),
                       ),
@@ -300,20 +301,20 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       height: 85,
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
-        selectedItemColor: const Color(0xFF006257),
-        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+        selectedItemColor: AppColors.focusedColor,
+        unselectedItemColor: AppColors.bgBlack,
         items: [
           BottomNavigationBarItem(
             icon: ColorFiltered(
               colorFilter: ColorFilter.mode(
-                _currentIndex == 0 ? const Color(0xFF006257) : Colors.black,
+                _currentIndex == 0 ? AppColors.focusedColor : AppColors.bgBlack,
                 BlendMode.srcIn,
               ),
               child: SvgPicture.asset('assets/images/home_icon.svg'),
@@ -323,7 +324,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           BottomNavigationBarItem(
             icon: ColorFiltered(
               colorFilter: ColorFilter.mode(
-                _currentIndex == 1 ? const Color(0xFF006257) : Colors.black,
+                _currentIndex == 1 ? AppColors.focusedColor : AppColors.bgBlack,
                 BlendMode.srcIn,
               ),
               child: SvgPicture.asset('assets/images/jobs_icon.svg'),
@@ -333,7 +334,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           BottomNavigationBarItem(
             icon: ColorFiltered(
               colorFilter: ColorFilter.mode(
-                _currentIndex == 2 ? const Color(0xFF006257) : Colors.black,
+                _currentIndex == 2 ? AppColors.focusedColor : AppColors.bgBlack,
                 BlendMode.srcIn,
               ),
               child: SvgPicture.asset('assets/images/course_icon.svg'),
@@ -347,7 +348,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -381,7 +382,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             Text(
                               _fullName,
                               style: GoogleFonts.dmSans(
-                                color: const Color.fromARGB(255, 31, 31, 31),
+                                color: AppColors.bgBlack,
                                 fontSize: 17.sp,
                                 letterSpacing: -0.5,
                               ),
@@ -393,8 +394,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                 Text(
                                   "@",
                                   style: GoogleFonts.dmSans(
-                                    color:
-                                        const Color.fromARGB(255, 49, 48, 48),
+                                    color: AppColors.bgBlack,
                                     fontSize: 16.sp,
                                     letterSpacing: -0.5,
                                   ),
@@ -404,8 +404,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                 Text(
                                   _username,
                                   style: GoogleFonts.dmSans(
-                                    color:
-                                        const Color.fromARGB(255, 49, 48, 48),
+                                    color: AppColors.bgBlack,
                                     fontSize: 16.sp,
                                     letterSpacing: -0.5,
                                   ),
@@ -426,7 +425,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           _buildDrawerItem(
             icon: Icons.account_circle,
             title: 'Profile',
-            backgroundColor: const Color.fromARGB(72, 192, 193, 192),
+            backgroundColor: const Color(0x47C0C1C0),
             onTap: () {
               Future.delayed(const Duration(milliseconds: 300), () {
                 if (!mounted) return;
@@ -565,7 +564,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     fontSize: 30.sp,
                     letterSpacing: -0.5.w,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    color: AppColors.bgBlack,
                   ),
                 ),
                 SizedBox(height: 8.h),
@@ -584,7 +583,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     Get.back();
                   },
                   style: TextButton.styleFrom(
-                    backgroundColor: const Color(0xFF75C044),
+                    backgroundColor: AppColors.amsetGreen,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 10),
                     shape: RoundedRectangleBorder(
@@ -599,7 +598,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       letterSpacing: -0.5.w,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                      color: AppColors.white,
                     ),
                   ),
                 ),
@@ -778,7 +777,7 @@ class DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: _hasError ? _buildErrorPage() : _buildMainDashboard(),
     );
   }
@@ -825,18 +824,17 @@ class DashboardPageState extends State<DashboardPage> {
             onPressed: _loadCourses,
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 8.h),
-              backgroundColor: const Color.fromRGBO(117, 192, 68, 1),
+              backgroundColor: AppColors.amsetGreen,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.r),
               ),
               elevation: 0,
-              shadowColor:
-                  Colors.black.withAlpha(51), // 20% opacity (255 * 0.2 = 51)
+              shadowColor: Colors.black.withAlpha(51),
             ),
             child: Text(
               'Retry',
               style: GoogleFonts.dmSans(
-                  fontSize: 17, letterSpacing: -0.5.w, color: Colors.white),
+                  fontSize: 17, letterSpacing: -0.5.w, color: AppColors.white),
             ),
           ),
         ],
@@ -878,7 +876,7 @@ class DashboardPageState extends State<DashboardPage> {
                         Text(
                           '  Featured Jobs',
                           style: GoogleFonts.dmSans(
-                            color: const Color.fromARGB(255, 0, 0, 0),
+                            color: AppColors.black,
                             fontSize: 21.sp,
                             fontWeight: FontWeight.w400,
                             letterSpacing: -0.5,
@@ -948,7 +946,7 @@ class DashboardPageState extends State<DashboardPage> {
                         Text(
                           '  Jobs & Vacancies',
                           style: GoogleFonts.dmSans(
-                            color: const Color.fromARGB(255, 0, 0, 0),
+                            color: AppColors.bgBlack,
                             fontSize: 21.sp,
                             fontWeight: FontWeight.w400,
                             letterSpacing: -0.5,
@@ -1027,8 +1025,7 @@ class DashboardPageState extends State<DashboardPage> {
                                                 topLeft: Radius.circular(22.r),
                                                 topRight: Radius.circular(22.r),
                                               ),
-                                              color: const Color.fromRGBO(
-                                                  117, 192, 68, 0.15),
+                                              color: AppColors.jobBgGreen,
                                             ),
                                             child: Center(
                                               child: Row(
@@ -1048,7 +1045,7 @@ class DashboardPageState extends State<DashboardPage> {
                                                       job.title,
                                                       style: GoogleFonts.dmSans(
                                                         letterSpacing: -0.5.w,
-                                                        color: Colors.black,
+                                                        color: AppColors.black,
                                                         fontSize: 14.sp,
                                                         fontWeight:
                                                             FontWeight.normal,
@@ -1070,16 +1067,14 @@ class DashboardPageState extends State<DashboardPage> {
                                                 bottomRight:
                                                     Radius.circular(22.r),
                                               ),
-                                              color: const Color.fromRGBO(
-                                                  46, 53, 58, 1),
+                                              color: AppColors.bgBlack,
                                             ),
                                             child: Center(
                                               child: Text(
                                                 '${job.vacancyCount} Vacancies',
                                                 style: GoogleFonts.dmSans(
                                                   letterSpacing: -0.5.w,
-                                                  color: const Color.fromRGBO(
-                                                      255, 255, 255, 1),
+                                                  color: AppColors.white,
                                                   fontSize: 14.sp,
                                                 ),
                                               ),
@@ -1113,7 +1108,7 @@ class DashboardPageState extends State<DashboardPage> {
                           ),
                           onTap: () {
                             Get.to(
-                              () =>  JobVacancy(),
+                              () => const JobVacancy(),
                               transition: Transition.noTransition,
                               duration: Duration.zero,
                             );
@@ -1123,7 +1118,7 @@ class DashboardPageState extends State<DashboardPage> {
                         const Icon(
                           Icons.arrow_forward,
                           size: 18,
-                          color: Colors.green,
+                          color: AppColors.amsetGreen,
                         ),
                       ],
                     ),
@@ -1132,8 +1127,8 @@ class DashboardPageState extends State<DashboardPage> {
                       textAlign: TextAlign.center,
                       text: TextSpan(
                           style: GoogleFonts.dmSans(
-                            color:
-                                Colors.black, // Set a base color for all text
+                            color: AppColors
+                                .black, // Set a base color for all text
                             fontSize: 16.sp, // Set a base font size
                           ),
                           children: [
@@ -1148,7 +1143,7 @@ class DashboardPageState extends State<DashboardPage> {
                               text: 'rewarding\n retail career.',
                               style: GoogleFonts.dmSans(
                                   letterSpacing: -0.5.w,
-                                  color: const Color.fromRGBO(117, 192, 68, 1),
+                                  color: AppColors.amsetGreen,
                                   fontSize: 26.sp,
                                   fontWeight:
                                       FontWeight.w400), // Make this part bold
@@ -1161,7 +1156,7 @@ class DashboardPageState extends State<DashboardPage> {
                         width: 175.w,
                         padding: const EdgeInsets.all(8.0),
                         decoration: BoxDecoration(
-                            color: const Color.fromRGBO(46, 53, 58, 1),
+                            color: AppColors.bgBlack,
                             borderRadius: BorderRadius.circular(22)),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -1170,7 +1165,7 @@ class DashboardPageState extends State<DashboardPage> {
                               'Apply For Job',
                               style: GoogleFonts.dmSans(
                                   fontSize: 16.sp,
-                                  color: Colors.white,
+                                  color: AppColors.white,
                                   fontWeight: FontWeight.w400,
                                   letterSpacing: -0.5),
                             ),
@@ -1180,7 +1175,7 @@ class DashboardPageState extends State<DashboardPage> {
                             const Icon(
                               Icons.arrow_forward,
                               size: 18,
-                              color: Color.fromARGB(255, 255, 255, 255),
+                              color: AppColors.white,
                             )
                           ],
                         ),
@@ -1209,8 +1204,8 @@ class DashboardPageState extends State<DashboardPage> {
 
 Widget _buildShimmerEffect() {
   return Shimmer.fromColors(
-    baseColor: Colors.grey[300]!,
-    highlightColor: Colors.grey[100]!,
+    baseColor: AppColors.shimmerBase,
+    highlightColor: AppColors.shimmerHLight,
     child: SizedBox(
       height: 189.h, // Adjusted to match the card height
       child: ListView.builder(
@@ -1226,7 +1221,7 @@ Widget _buildShimmerEffect() {
                 height: 169.h, // Match the image height
                 width: 276.w, // Match the image width
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.white,
                   borderRadius: BorderRadius.circular(18.r),
                 ),
               ),
@@ -1239,9 +1234,8 @@ Widget _buildShimmerEffect() {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withAlpha(
-                            179), // 70% opacity (255 * 0.7 = 178.5 → 179)
-                        Colors.transparent,
+                        AppColors.shadeBlackColor,
+                        AppColors.transparent,
                       ],
                     ),
                   ),
@@ -1255,7 +1249,7 @@ Widget _buildShimmerEffect() {
                 child: Container(
                   height: 40.h, // Approximate height for two lines of text
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.white,
                     borderRadius: BorderRadius.circular(4.r),
                   ),
                 ),
@@ -1286,8 +1280,8 @@ Widget _buildShimmerEffectVacencies() {
           Expanded(
             flex: 2,
             child: Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
+              baseColor: AppColors.shimmerBase,
+              highlightColor: AppColors.shimmerHLight,
               child: Container(
                 // margin:
                 //     EdgeInsets.symmetric(horizontal: 10.w), // Uniform margin
@@ -1305,8 +1299,8 @@ Widget _buildShimmerEffectVacencies() {
           Expanded(
             flex: 1,
             child: Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
+              baseColor: AppColors.shimmerBase,
+              highlightColor: AppColors.shimmerHLight,
               child: Container(
                 //     margin: EdgeInsets.symmetric(horizontal: 10.w), // Same margin
                 decoration: BoxDecoration(
@@ -1366,9 +1360,9 @@ Widget _buildCourseCard(BuildContext context, String imagePath, String title,
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [
-                  Colors.black
+                  AppColors.black
                       .withAlpha(179), // 70% opacity (255 * 0.7 = 178.5 → 179)
-                  Colors.transparent,
+                  AppColors.transparent,
                 ],
               ),
             ),
@@ -1388,7 +1382,7 @@ Widget _buildCourseCard(BuildContext context, String imagePath, String title,
                 style: GoogleFonts.dmSans(
                   fontSize: 19.sp,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
+                  color: AppColors.white,
                   height: 1.2,
                 ),
               ),
@@ -1408,14 +1402,14 @@ Widget _buildCourseCard(BuildContext context, String imagePath, String title,
                       const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      color: Colors.white),
+                      color: AppColors.white),
                   child: Text(
                     'View Details',
                     style: GoogleFonts.dmSans(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w400,
                       letterSpacing: -0.5,
-                      color: const Color.fromARGB(255, 0, 0, 0),
+                      color: AppColors.bgBlack,
                     ),
                   ),
                 ),
@@ -1466,7 +1460,7 @@ class ProfileDashboardState extends State<ProfileDashboard> {
                     TextSpan(
                       text: 'Hi, ',
                       style: GoogleFonts.dmSans(
-                        color: Colors.black,
+                        color: AppColors.black,
                         fontSize: 25.sp,
                         letterSpacing: -0.5.w,
                         fontWeight: FontWeight.w400,
@@ -1475,7 +1469,7 @@ class ProfileDashboardState extends State<ProfileDashboard> {
                     TextSpan(
                       text: widget.fullName, // Display username dynamically
                       style: GoogleFonts.dmSans(
-                        color: Colors.black,
+                        color: AppColors.black,
                         fontSize: 25.sp,
                         letterSpacing: -1,
                         fontWeight: FontWeight.w500,
@@ -1496,12 +1490,12 @@ class ProfileDashboardState extends State<ProfileDashboard> {
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
                         width: 1,
-                        color: Colors.grey,
+                        color: AppColors.borderColor,
                       )),
                   child: const Icon(
                     Icons.close,
                     size: 18,
-                    color: Colors.grey,
+                    color: AppColors.greyColor,
                   ),
                 ),
               ),
@@ -1518,7 +1512,7 @@ class ProfileDashboardState extends State<ProfileDashboard> {
                   TextSpan(
                     text: 'Unlock your career',
                     style: GoogleFonts.dmSans(
-                      color: Colors.black,
+                      color: AppColors.black,
                       fontSize: 17.sp,
                       letterSpacing: -1,
                       fontWeight: FontWeight.w400,
@@ -1527,7 +1521,7 @@ class ProfileDashboardState extends State<ProfileDashboard> {
                   TextSpan(
                     text: ' completing your profile',
                     style: GoogleFonts.dmSans(
-                      color: const Color.fromRGBO(70, 139, 25, 1),
+                      color: AppColors.amsetGreen,
                       fontSize: 17.sp,
                       decoration: TextDecoration.underline,
                       letterSpacing: -1,
@@ -1559,11 +1553,11 @@ class ProfileDashboardState extends State<ProfileDashboard> {
               Container(
                 height: 73.h,
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 255, 255),
+                  color: AppColors.white,
                   borderRadius: BorderRadius.circular(18.r),
                   boxShadow: const [
                     BoxShadow(
-                      color: Color.fromRGBO(117, 192, 68, 0.3),
+                      color: AppColors.shadeGreenColor,
                       spreadRadius: 3,
                       blurRadius: 107.7,
                       offset: Offset(0, 4),
@@ -1588,7 +1582,7 @@ class ProfileDashboardState extends State<ProfileDashboard> {
                             style: GoogleFonts.dmSans(
                               fontSize: 17.sp,
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF2D2D2D),
+                              color: AppColors.bgBlack,
                               letterSpacing: -0.5.w,
                             ),
                           ),
